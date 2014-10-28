@@ -21,6 +21,7 @@ function sol.main:on_started()
   -- Show the main menu when the Solarus logo menu is finished.
   solarus_logo.on_finished = function()
     local main_menu = require("menus/main_menu")
+    sol.menu.start(self, main_menu)
     main_menu.on_finished = function()  
       game_manager:start_game()
     end
