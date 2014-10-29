@@ -14,14 +14,22 @@ TEMPLATE = app
 
 SOURCES += \
     src/main.cpp \
-    src/editorwindow.cpp
+    src/editorwindow.cpp \
+    src/newquestdialog.cpp \
+    src/quest.cpp \
+    src/openquestdialog.cpp
 
 HEADERS  += \
     include/editorwindow.h \
-    include/common.h
+    include/common.h \
+    include/newquestdialog.h \
+    include/quest.h \
+    include/openquestdialog.h
 
 FORMS    += \
-    ui/editorwindow.ui
+    ui/editorwindow.ui \
+    ui/newquestdialog.ui \
+    ui/openquestdialog.ui
 
 INCLUDEPATH += ui
 INCLUDEPATH += src

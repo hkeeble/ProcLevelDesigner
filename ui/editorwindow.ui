@@ -6,39 +6,67 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>921</width>
+    <height>668</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="build_run">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>111</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Build and Run</string>
-    </property>
-   </widget>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QTreeView" name="treeView"/>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>921</width>
      <height>25</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuProcedural_Level_Designer">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionNew_Quest"/>
+    <addaction name="actionOpen_Quest"/>
+    <addaction name="actionClose"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <addaction name="menuProcedural_Level_Designer"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionNew_Quest">
+   <property name="text">
+    <string>New Quest</string>
+   </property>
+  </action>
+  <action name="actionOpen_Quest">
+   <property name="text">
+    <string>Open Quest</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="text">
+    <string>Close Quest</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

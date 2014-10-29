@@ -2,7 +2,14 @@
 #define EDITORWINDOW_H
 
 #include <QMainWindow>
-#include <qstring.h>
+#include <QString>
+#include <QDir>
+#include <QFileSystemModel>
+
+#include "common.h"
+#include "newquestdialog.h"
+#include "openquestdialog.h"
+#include "quest.h"
 
 namespace Ui {
 class EditorWindow;
@@ -21,11 +28,21 @@ public:
     ~EditorWindow();
 
 private slots:
-    void on_build_run_clicked();
+    void on_actionOpen_Quest_triggered();
+    void on_actionExit_triggered();
+    void on_actionNew_Quest_triggered();
 
 private:
-    Ui::EditorWindow *ui;
+    void build(); /*!< Builds and outputs data files. */
+    void run(); /*!< Runs the currently output quest. */
+
+    Ui::EditorWindow *ui;   /*!< Pointer to the window UI elements. */
     QString appDir;         /*!< The location of the application. */
+
+    Quest quest; /*!< The currently loaded quest. */
+
+    void populateTreeView(QFileSystemModel* model, QString rootDir);
+
 };
 
 #endif // EDITORWINDOW_H
