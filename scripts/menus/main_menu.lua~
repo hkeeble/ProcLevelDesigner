@@ -78,7 +78,6 @@ end
 
 function game_main_menu:on_key_pressed()
 	if sol.input.is_key_pressed("up") then
-		sol.audio.play_sound("cursor")
 		if itemSelected == 1 then
 			itemSelected = table.getn(menu_items)
 		else
@@ -87,7 +86,6 @@ function game_main_menu:on_key_pressed()
 	end
 
 	if sol.input.is_key_pressed("down") then
-		sol.audio.play_sound("cursor")
 		if itemSelected == table.getn(menu_items) then
 			itemSelected = 1
 		else
@@ -96,7 +94,6 @@ function game_main_menu:on_key_pressed()
 	end
 
 	if sol.input.is_key_pressed("return") then
-		sol.audio.play_sound("ok")
 		if menu_items[itemSelected]:get_text() == "Start Game" then
 			sol.menu.stop(game_main_menu)
 		elseif menu_items[itemSelected]:get_text() == "Quit Game" then
