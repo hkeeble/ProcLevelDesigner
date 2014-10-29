@@ -1,6 +1,0 @@
-quest{
-  solarus_version = "1.3",
-  write_dir = "sample_quest",
-  title_bar = "Solarus - Sample Quest",
-}
-
