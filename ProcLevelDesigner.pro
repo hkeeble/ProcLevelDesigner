@@ -17,7 +17,8 @@ SOURCES += \
     src/editorwindow.cpp
 
 HEADERS  += \
-    include/editorwindow.h
+    include/editorwindow.h \
+    include/common.h
 
 FORMS    += \
     ui/editorwindow.ui
@@ -25,3 +26,8 @@ FORMS    += \
 INCLUDEPATH += ui
 INCLUDEPATH += src
 INCLUDEPATH += include
+
+# Copy Data & Script Files to build
+data.path = $${OUT_PWD}/game_data
+data.files += game_data/*
+INSTALLS += data
