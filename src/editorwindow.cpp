@@ -67,5 +67,5 @@ void EditorWindow::on_testParse_clicked()
 {
     Table table("game_data/maps/first_map.dat");
 
-    qDebug(table.getElementValue("tile", "pattern").toStdString().c_str());
+    qDebug(table.getElementValue("tile", "x").toStdString().c_str());
 }

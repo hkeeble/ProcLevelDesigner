@@ -2,7 +2,7 @@
 
 Table::Table()
 {
-    objects = QMap<QString, QMap<QString, QString> >();
+    objects = QMap<QString, Object>();
     filePath = QString();
 }
 
@@ -36,14 +36,57 @@ void Table::parse(QString filePath)
         return;
 }
 
-QMap<QString, QString> Table::getObject(QString objectName)
+Object Table::getObject(QString objectName)
 {
-    return objects.find(objectName).value();
+    auto iter = objects.find(objectName); // find object
+
+    if(iter != objects.end())
+        return iter.value();
+    else
+        return QMap<QString,QString>();
 }
 
 QString Table::getElementValue(QString objectName, QString elementName)
 {
+    Object obj = getObject(objectName);
+
+    if(!obj.isEmpty())
+    {
+        auto elemIter = obj.find(elementName); // Find element
+        if(elemIter != obj.end())
+            return elemIter.value();
+        else
+            return "NULL_ELEMENT"; // Element not found
+    }
+    else
+        return "NULL_OBJECT"; // Object was not found
+
     return objects.find(objectName).value().find(elementName).value();
+}
+
+QList<Object> Table::getObjectsOfName(QString objectName)
+{
+    return objects.values(objectName);
+}
+
+Object Table::getObjectWithValue(QString objectName, QString elementName, QString value)
+{
+    auto objs = getObjectsOfName(objectName); // First, retrieve list of all objects
+
+    // Search for first object with given element/value pair
+    for(int i = 0; i < objs.size(); i++)
+    {
+        Object::const_iterator iter = objs[i].find(elementName);
+
+        if(iter != objs[i].end())
+        {
+            if(iter.value() == value)
+                return objs[i];
+        }
+    }
+
+    // if not found, return an empty object.
+    return Object();
 }
 
 void Table::beginRead()
@@ -74,7 +117,7 @@ void Table::readObj()
 
 void Table::readElements()
 {
-    curObjectData = QMap<QString, QString>();
+    curObjectData = Object();
 
     QTextStream str(&currentObject);
     while(!str.atEnd())
@@ -86,11 +129,6 @@ void Table::readElements()
 
     // Build the object
     objects.insert(currentObjectName, curObjectData);
-}
-
-void Table::readFail()
-{
-
 }
 
 QString Table::readUntil(QTextStream& stream, QVector<QChar> delims)

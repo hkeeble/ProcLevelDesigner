@@ -15,6 +15,8 @@ const QVector<QChar> OBJ_DELIMS =       {'}'};
 const QVector<QChar> ELEM_DELIMS =      {'='};
 const QVector<QChar> VAL_DELIMS =       {','};
 
+typedef QMap<QString,QString> Object;
+
 /*!
  * \brief Class representing a table of data from a .dat file.
  */
@@ -32,14 +34,16 @@ public:
     void parse(QString filePath);
 
     /*!
-     * \brief Retrieve an objects collection of elements and their values.
+     * \brief Retrieve an object's collection of elements and their values. If multiple objects of the same name are found, returns
+     *        the last object added to the table.
      * \param objectName The name of the object to retrieve from the table.
      * \return
      */
-    QMap<QString, QString> getObject(QString objectName);
+   Object getObject(QString objectName);
 
     /*!
-     * \brief Get the value of an element from an object.
+     * \brief Get the value of an element from an object. If multiple objects of the same name are found, returns
+     *        the value from the last object added to the table.
      * \param objectName The name of the object.
      * \param elementName The name of the element.
      * \return
@@ -52,17 +56,28 @@ public:
      */
     QString getFilePath() const;
 
-private:
-    struct ParseState; // Forward Declaration
+    /*!
+     * \brief Retrieves a QList of all objects with the given name.
+     * \param objectName The name of the objects to retrieve.
+     * \return List of all objects with the given name.
+     */
+    QList<Object> getObjectsOfName(QString objectName);
 
-    /*! State callbacks. */
+    /*!
+     * \brief Searches the table for the first object with the given element set to the given value.
+     * \param objectName The object name to search under.
+     * \param elementName The element to search for.
+     * \param value The value to search for.
+     * \return
+     */
+    Object getObjectWithValue(QString objectName, QString elementName, QString value);
+
+
+private:
     void beginRead();
     void findObj();
     void readObj();
     void readElements();
-    void readValue();
-    void readFail();
-    void buildObject();
 
     /*!
      * \brief readUntil Read a given text stream until the delimiter value is found.
@@ -73,12 +88,12 @@ private:
 
     QString currentObjectName, currentElement, currentObject; /*!< The current object and element in the parser state. */
 
-    QMap<QString, QString> curObjectData; /*!< Data stored by the current object. */
+    Object curObjectData; /*!< Data stored by the current object. */
     QFile file;                           /*!< The file currently being used for reading. */
     QTextStream in;                       /*!< The stream currently being used for reading. */
 
     QString filePath;
-    QMultiMap<QString, QMap<QString, QString> > objects; /*!< Map of all objects, containing a map of respective elements. */
+    QMultiMap<QString, Object> objects; /*!< Map of all objects, containing a map of respective elements. */
 
 };
 
