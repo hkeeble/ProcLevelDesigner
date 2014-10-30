@@ -11,20 +11,23 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = ProcLevelDesigner
 TEMPLATE = app
 
+QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += \
     src/main.cpp \
     src/editorwindow.cpp \
     src/newquestdialog.cpp \
     src/quest.cpp \
-    src/openquestdialog.cpp
+    src/openquestdialog.cpp \
+    src/filetools.cpp
 
 HEADERS  += \
     include/editorwindow.h \
     include/common.h \
     include/newquestdialog.h \
     include/quest.h \
-    include/openquestdialog.h
+    include/openquestdialog.h \
+    include/filetools.h
 
 FORMS    += \
     ui/editorwindow.ui \
