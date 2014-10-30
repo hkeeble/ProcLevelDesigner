@@ -62,3 +62,10 @@ void EditorWindow::on_actionExit_triggered()
      ui->treeView->setModel(model);
      ui->treeView->setRootIndex(quest.getFSModel()->index(rootDir));
  }
+
+void EditorWindow::on_testParse_clicked()
+{
+    Table table("game_data/maps/first_map.dat");
+
+    qDebug(table.getElementValue("tile", "pattern").toStdString().c_str());
+}

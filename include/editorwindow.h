@@ -10,6 +10,7 @@
 #include "newquestdialog.h"
 #include "openquestdialog.h"
 #include "quest.h"
+#include "filetools.h"
 
 namespace Ui {
 class EditorWindow;
@@ -31,6 +32,8 @@ private slots:
     void on_actionOpen_Quest_triggered();
     void on_actionExit_triggered();
     void on_actionNew_Quest_triggered();
+
+    void on_testParse_clicked();
 
 private:
     void build(); /*!< Builds and outputs data files. */

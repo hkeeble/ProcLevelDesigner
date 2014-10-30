@@ -5,43 +5,15 @@
 #include <QMap>
 #include <QString>
 #include <QFile>
+#include <QDir>
 #include <QTextStream>
+#include <QVector>
+#include <QChar>
 
-QFile currentFile; /*!< The file currently being parsed. */
-QTextStream currentStream;
-
-struct ParseState; // Forward Declaration
-
-/*!
- * \brief Parsing function commands.
- */
-enum class State
-{
-    R_OBJECT,   /*!< Search for an object name. */
-    R_ELEMENT,  /*!< Search for an element name. */
-    R_VALUE,    /*!< Search for a value name. */
-    FAILED      /*!< The error state. */
-};
-
-/*!
- * \brief Reads a section of the opened file, under a given command.
- * \param command
- */
-void read(ParseState state);
-
-/*!
- * \brief State machine implementation for file parsing.
- */
-struct ParseState
-{
-    State state, stateIfSucceed, stateIfFailed;
-    std::function<void(ParseState)> action;
-} actionTable[] {
-    {State::R_OBJECT,   State::R_ELEMENT, State::FAILED,   read}, // Initial state
-    {State::R_ELEMENT,  State::R_VALUE,   State::R_OBJECT, read},
-    {State::R_VALUE,    State::R_ELEMENT, State::FAILED,   read},
-    {State::FAILED,     State::R_ELEMENT, State::FAILED,   read}
-};
+const QVector<QChar> FIND_OBJ_DELIMS =  {'{'};
+const QVector<QChar> OBJ_DELIMS =       {'}'};
+const QVector<QChar> ELEM_DELIMS =      {'='};
+const QVector<QChar> VAL_DELIMS =       {','};
 
 /*!
  * \brief Class representing a table of data from a .dat file.
@@ -74,9 +46,39 @@ public:
      */
     QString getElementValue(QString objectName, QString elementName);
 
+    /*!
+     * \brief Get the file path associated with this table.
+     * \return The file path associated with this table.
+     */
+    QString getFilePath() const;
+
 private:
+    struct ParseState; // Forward Declaration
+
+    /*! State callbacks. */
+    void beginRead();
+    void findObj();
+    void readObj();
+    void readElements();
+    void readValue();
+    void readFail();
+    void buildObject();
+
+    /*!
+     * \brief readUntil Read a given text stream until the delimiter value is found.
+     * \param delim The delimiter value.
+     * \return Value read until the given delimiter value.
+     */
+    QString readUntil(QTextStream& stream, QVector<QChar> delims);
+
+    QString currentObjectName, currentElement, currentObject; /*!< The current object and element in the parser state. */
+
+    QMap<QString, QString> curObjectData; /*!< Data stored by the current object. */
+    QFile file;                           /*!< The file currently being used for reading. */
+    QTextStream in;                       /*!< The stream currently being used for reading. */
+
     QString filePath;
-    QMap<QString, QMap<QString, QString> > objects; /*!< Map of all objects, containing a map of respective elements. */
+    QMultiMap<QString, QMap<QString, QString> > objects; /*!< Map of all objects, containing a map of respective elements. */
 
 };
 
