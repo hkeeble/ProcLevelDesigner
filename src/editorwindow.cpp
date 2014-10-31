@@ -65,7 +65,15 @@ void EditorWindow::on_actionExit_triggered()
 
 void EditorWindow::on_testParse_clicked()
 {
-    Table table("game_data/maps/first_map.dat");
+    Table table("game_data/quest.dat");
 
-    qDebug(table.getElementValue("tile", "x").toStdString().c_str());
+    qDebug(table.getElementValue("quest", "title_bar").toStdString().c_str());
+
+    table.setElementValue("quest", "title_bar", "changed in program!");
+
+
+    qDebug(table.getElementValue("quest", "title_bar").toStdString().c_str());
+
+    table.saveToDisk();
+
 }

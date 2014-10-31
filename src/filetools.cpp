@@ -36,57 +36,68 @@ void Table::parse(QString filePath)
         return;
 }
 
-Object Table::getObject(QString objectName)
+void Table::addObject(QString name, Object object)
 {
-    auto iter = objects.find(objectName); // find object
+    objects.insert(name, object);
+}
+
+Object* Table::getObject(QString objectName)
+{
+    QMap<QString,Object>::iterator iter = objects.find(objectName); // find object
 
     if(iter != objects.end())
-        return iter.value();
+        return &iter.value();
     else
-        return QMap<QString,QString>();
+        return nullptr;
 }
 
 QString Table::getElementValue(QString objectName, QString elementName)
 {
-    Object obj = getObject(objectName);
+    Object* obj = getObject(objectName);
 
-    if(!obj.isEmpty())
+    if(!obj->isEmpty())
     {
-        auto elemIter = obj.find(elementName); // Find element
-        if(elemIter != obj.end())
+        auto elemIter = obj->find(elementName); // Find element
+        if(elemIter != obj->end())
             return elemIter.value();
         else
             return "NULL_ELEMENT"; // Element not found
     }
     else
         return "NULL_OBJECT"; // Object was not found
-
-    return objects.find(objectName).value().find(elementName).value();
 }
 
-QList<Object> Table::getObjectsOfName(QString objectName)
+QList<Object*> Table::getObjectsOfName(QString objectName)
 {
-    return objects.values(objectName);
+    QList<Object*> list;
+    QMap<QString,Object>::iterator iter;
+    for(iter = objects.begin(); iter != objects.end(); iter++)
+    {
+        if(iter.key() == objectName)
+            list.insert(list.size(), &iter.value());
+    }
+
+    return list;
 }
 
-Object Table::getObjectWithValue(QString objectName, QString elementName, QString value)
+Object* Table::getObjectWithValue(QString objectName, QString elementName, QString value)
 {
     auto objs = getObjectsOfName(objectName); // First, retrieve list of all objects
 
     // Search for first object with given element/value pair
     for(int i = 0; i < objs.size(); i++)
     {
-        Object::const_iterator iter = objs[i].find(elementName);
+        Object::const_iterator iter = objs[i]->find(elementName);
 
-        if(iter != objs[i].end())
+        if(iter != objs[i]->end())
         {
             if(iter.value() == value)
                 return objs[i];
         }
     }
 
-    // if not found, return an empty object.
-    return Object();
+    // if not found, return null
+    return nullptr;
 }
 
 void Table::beginRead()
@@ -150,4 +161,49 @@ QString Table::readUntil(QTextStream& stream, QVector<QChar> delims)
     }
 
     return concat;
+}
+
+void Table::setFilePath(QString filePath)
+{
+    this->filePath = filePath;
+}
+
+QString Table::getFilePath() const
+{
+    return filePath;
+}
+
+void Table::setElementValue(QString objectName, QString elementName, QString value)
+{
+    getObject(objectName)->find(elementName).value() = value;
+}
+
+void Table::saveToDisk()
+{
+    file.setFileName(QDir::currentPath() + "/" + filePath);
+    if(file.open(QIODevice::WriteOnly)) // Begin write
+    {
+        out.setDevice(&file);
+
+        // Write out data
+        beginWrite();
+
+        out.flush();
+        file.close();
+    }
+}
+
+
+void Table::beginWrite()
+{
+    for(auto obj : objects.toStdMap())
+        writeObj(obj.first, obj.second);
+}
+
+void Table::writeObj(const QString& objectName, const Object& object)
+{
+    out << objectName << "{\n";
+    for(auto element : object.toStdMap())
+        out << element.first << " = \"" << element.second << "\",\n";
+    out << "}\n\n";
 }
