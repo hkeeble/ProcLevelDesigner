@@ -55,7 +55,7 @@ QString Table::getElementValue(QString objectName, QString elementName)
 {
     Object* obj = getObject(objectName);
 
-    if(!obj->isEmpty())
+    if(obj != nullptr)
     {
         auto elemIter = obj->find(elementName); // Find element
         if(elemIter != obj->end())
@@ -175,7 +175,14 @@ QString Table::getFilePath() const
 
 void Table::setElementValue(QString objectName, QString elementName, QString value)
 {
-    getObject(objectName)->find(elementName).value() = value;
+    Object* obj = getObject(objectName);
+    if(obj != nullptr)
+    {
+        Object::iterator iter = obj->find(elementName);
+        if(iter != obj->end())
+            iter.value() = value;
+    }
+
 }
 
 void Table::saveToDisk()

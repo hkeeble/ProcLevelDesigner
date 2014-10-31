@@ -69,7 +69,7 @@ void EditorWindow::on_testParse_clicked()
 
     qDebug(table.getElementValue("quest", "title_bar").toStdString().c_str());
 
-    table.setElementValue("quest", "title_bar", "changed in program!");
+    table.setElementValue("fgy", "title_bar", "changed in program!");
 
 
     qDebug(table.getElementValue("quest", "title_bar").toStdString().c_str());

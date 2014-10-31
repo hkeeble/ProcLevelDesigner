@@ -95,8 +95,9 @@ public:
      * \param objectName Name of the object.
      * \param elementName Name of the value.
      * \param value Value to set.
+     * \return true if value was set correctly.
      */
-    void setElementValue(QString objectName, QString elementName, QString value);
+    bool setElementValue(QString objectName, QString elementName, QString value);
 
 private:
 
@@ -122,7 +123,7 @@ private:
     Object curObjectData; /*!< Data stored by the current object. */
     QFile file;           /*!< The file currently being used for reading. */
     QTextStream in;       /*!< The stream currently being used for reading. */
-    QTextStream out;      /*! The stream currently being used for writing. */
+    QTextStream out;      /*!< The stream currently being used for writing. */
 
     QString filePath;
     QMultiMap<QString, Object> objects; /*!< Map of all objects, containing a map of respective elements. */
