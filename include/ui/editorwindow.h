@@ -33,7 +33,9 @@ private slots:
     void on_actionExit_triggered();
     void on_actionNew_Quest_triggered();
 
-    void on_testParse_clicked();
+    void on_actionSave_Quest_triggered();
+
+    void on_actionClose_triggered();
 
 private:
     void build(); /*!< Builds and outputs data files. */

@@ -99,6 +99,12 @@ public:
      */
     bool setElementValue(QString objectName, QString elementName, QString value);
 
+    /*!
+     * \brief Returns whether or not the table is empty.
+     * \return True if table is empty, false if not.
+     */
+    bool isEmpty() const;
+
 private:
 
     // Reading Functions

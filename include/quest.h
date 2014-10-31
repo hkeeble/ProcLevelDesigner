@@ -3,6 +3,10 @@
 
 #include <QDir>
 #include <QFileSystemModel>
+#include <QMap>
+#include <QSharedPointer>
+
+#include "filetools.h"
 
 /*!
  * \brief The Quest class. Represents a quest.
@@ -27,9 +31,29 @@ public:
 
     bool Init(); /*!< Initializes the quest. */
 
+    /*!
+     * \brief Retrieves a table from the given filepath.
+     * \param filePath The filepath of the .dat file. Filepath should be relative to the quest directory.
+     * \return Pointer to the
+     */
+    Table* getData(QString filePath);
+
+    /*!
+     * \brief Get the name of the quest if loaded.
+     * \return The name of the quest. Empty string if no quest is loaded.
+     */
+    QString getName();
+
+    /*!
+     * \brief Writes out all currently loaded data to the disk. Should save any changes that have been made to data in program memory.
+     */
+    void saveData() const;
+
 private:
     QDir rootDir;
     QFileSystemModel* fsModel; /*!< The file system model representing this quest. */
+
+    QMap<QString,QSharedPointer<Table>> data; /*!< Map containing all the currently loaded data for this quest. */
 
     void cpy(const Quest& param);
 };

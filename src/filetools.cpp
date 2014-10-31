@@ -20,7 +20,7 @@ Table::~Table()
 void Table::parse(QString filePath)
 {
     // Open file and stream for reading
-    file.setFileName(QDir::currentPath() + "/" + filePath);
+    file.setFileName(filePath);
     if(file.open(QIODevice::ReadOnly)) // Begin parse
     {
         in.setDevice(&file);
@@ -173,16 +173,28 @@ QString Table::getFilePath() const
     return filePath;
 }
 
-void Table::setElementValue(QString objectName, QString elementName, QString value)
+bool Table::setElementValue(QString objectName, QString elementName, QString value)
 {
     Object* obj = getObject(objectName);
     if(obj != nullptr)
     {
         Object::iterator iter = obj->find(elementName);
         if(iter != obj->end())
+        {
             iter.value() = value;
+            return true;
+        }
+
+        return false; // Element not found
     }
 
+    return false; // Object not found
+
+}
+
+bool Table::isEmpty() const
+{
+    return objects.isEmpty();
 }
 
 void Table::saveToDisk()

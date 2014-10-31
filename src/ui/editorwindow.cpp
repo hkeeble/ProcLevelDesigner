@@ -31,15 +31,18 @@ void EditorWindow::on_actionOpen_Quest_triggered()
     {
         quest = Quest(dialog->getFolderPath());
 
-        if(quest.Init())
+        if(quest.Init()) // Attempt to initialize quest from the given path
         {
+            // Populate the tree and set window title
             populateTreeView(quest.getFSModel(), dialog->getFolderPath());
+            setWindowTitle(quest.getName());
+
+            // Enable menu items
+            ui->actionClose->setEnabled(true);
+            ui->actionSave_Quest->setEnabled(true);
         }
         else
-        {
-             QMessageBox::warning(this, "Error", "No valid quest was found in this folder.\nQuests must contain the following files at a minimum:\n\n\
-quest.dat\nproject_db.dat\nmain.lua", QMessageBox::Ok);
-        }
+            QMessageBox::warning(this, "Error", "No valid quest was found in this folder.", QMessageBox::Ok);
     }
 }
 
@@ -57,23 +60,21 @@ void EditorWindow::on_actionExit_triggered()
     this->close();
 }
 
- void EditorWindow::populateTreeView(QFileSystemModel* model, QString rootDir)
- {
-     ui->treeView->setModel(model);
-     ui->treeView->setRootIndex(quest.getFSModel()->index(rootDir));
- }
-
-void EditorWindow::on_testParse_clicked()
+void EditorWindow::populateTreeView(QFileSystemModel* model, QString rootDir)
 {
-    Table table("game_data/quest.dat");
+    ui->treeView->setModel(model);
+    ui->treeView->setRootIndex(quest.getFSModel()->index(rootDir));
+    ui->treeView->hideColumn(1);
+    ui->treeView->hideColumn(2);
+    ui->treeView->hideColumn(3);
+}
 
-    qDebug(table.getElementValue("quest", "title_bar").toStdString().c_str());
+void EditorWindow::on_actionSave_Quest_triggered()
+{
 
-    table.setElementValue("fgy", "title_bar", "changed in program!");
+}
 
-
-    qDebug(table.getElementValue("quest", "title_bar").toStdString().c_str());
-
-    table.saveToDisk();
-
+void EditorWindow::on_actionClose_triggered()
+{
+    quest.getFSModel()->dumpObjectTree();
 }

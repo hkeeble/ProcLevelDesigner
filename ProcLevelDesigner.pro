@@ -15,28 +15,30 @@ QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += \
     src/main.cpp \
-    src/editorwindow.cpp \
-    src/newquestdialog.cpp \
     src/quest.cpp \
-    src/openquestdialog.cpp \
-    src/filetools.cpp
+    src/filetools.cpp \
+    src/ui/editorwindow.cpp \
+    src/ui/newquestdialog.cpp \
+    src/ui/openquestdialog.cpp \
+    src/ui/questoptions.cpp
 
 HEADERS  += \
-    include/editorwindow.h \
     include/common.h \
-    include/newquestdialog.h \
     include/quest.h \
-    include/openquestdialog.h \
-    include/filetools.h
+    include/filetools.h \
+    include/ui/editorwindow.h \
+    include/ui/newquestdialog.h \
+    include/ui/openquestdialog.h \
+    include/ui/questoptions.h
 
 FORMS    += \
     ui/editorwindow.ui \
     ui/newquestdialog.ui \
-    ui/openquestdialog.ui
+    ui/openquestdialog.ui \
+    ui/questoptions.ui
 
-INCLUDEPATH += ui
-INCLUDEPATH += src
-INCLUDEPATH += include
+INCLUDEPATH += include \
+               include/ui
 
 # Copy Data & Script Files to build
 data.path = $${OUT_PWD}/game_data

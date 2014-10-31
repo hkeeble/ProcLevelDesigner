@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>921</width>
+    <width>988</width>
     <height>668</height>
    </rect>
   </property>
@@ -16,20 +16,62 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>921</width>
+    <height>668</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QTreeView" name="treeView"/>
-    </item>
-    <item>
-     <widget class="QPushButton" name="testParse">
-      <property name="text">
-       <string>Test File Parse</string>
+     <widget class="QTreeView" name="treeView">
+      <property name="minimumSize">
+       <size>
+        <width>231</width>
+        <height>601</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>231</width>
+        <height>16777215</height>
+       </size>
       </property>
      </widget>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QGraphicsView" name="graphicsView">
+        <property name="minimumSize">
+         <size>
+          <width>731</width>
+          <height>461</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPlainTextEdit" name="console">
+        <property name="minimumSize">
+         <size>
+          <width>731</width>
+          <height>131</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>134</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -38,23 +80,45 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>921</width>
+     <width>988</width>
      <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuProcedural_Level_Designer">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="title">
      <string>File</string>
     </property>
     <addaction name="actionNew_Quest"/>
     <addaction name="actionOpen_Quest"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_Quest"/>
     <addaction name="actionClose"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionQuest_Options"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+   </widget>
    <addaction name="menuProcedural_Level_Designer"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuTools"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionNew_Quest">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>New Quest</string>
    </property>
@@ -65,6 +129,9 @@
    </property>
   </action>
   <action name="actionClose">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Close Quest</string>
    </property>
@@ -72,6 +139,22 @@
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionSave_Quest">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save Quest</string>
+   </property>
+  </action>
+  <action name="actionQuest_Options">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Quest Options</string>
    </property>
   </action>
  </widget>
