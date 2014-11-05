@@ -1,4 +1,4 @@
-#include "../include/editorwindow.h"
+#include "editorwindow.h"
 #include "common.h"
 #include <QApplication>
 

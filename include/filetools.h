@@ -28,6 +28,15 @@ const QVector<QChar> VAL_DELIMS =       {','};
 
 typedef QMap<QString,QString> Object;
 
+// Come utility functions for file management
+
+/*!
+ * \brief Will copy all files in the given directory and all subdirectories into the destination directory.
+ * \param sourceDir The source directory to copy.
+ * \param destDir The destination directory.
+ */
+void copyFolder(QString sourceDir, QString destDir);
+
 /*!
  * \brief Class representing a table of data from a .dat file.
  */

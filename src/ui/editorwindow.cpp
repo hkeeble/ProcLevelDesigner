@@ -67,7 +67,7 @@ void EditorWindow::on_actionNew_Quest_triggered()
             QDir().mkpath(dialog->getFolderPath());
 
         // Check for existing data in the specific file path
-        QFileInfoList existingFiles = QDir(dialog->getFolderPath()).entryInfoList(QDir::NoDotAndDotDot);
+        QFileInfoList existingFiles = QDir(dialog->getFolderPath() + QDir::separator()).entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
         if(existingFiles.size() != 0)
             QMessageBox::warning(this, "Error", "Existing data found in specified file path. Please use an empty directory, or specify one that does not yet exist.",
                                  QMessageBox::Ok);
@@ -75,23 +75,21 @@ void EditorWindow::on_actionNew_Quest_triggered()
         {
             quest = Quest(dialog->getFolderPath());
 
-            // Construct the quest object
-            Object questObject = Object();
-            questObject.insert(ELE_SOL_VERS, SOLARUS_VERSION);
-            questObject.insert(ELE_WRT_DIR, dialog->getQuestName());
-            questObject.insert(ELE_NAME, dialog->getQuestName());
-            quest.getData(DAT_QUEST)->addObject(OBJ_QUEST, questObject);
+            copyFolder(QDir().currentPath() + QDir::separator() + "game_data" + QDir::separator(),
+                       dialog->getFolderPath());
 
-            // Copy all neccesary files to directory
-            QFileInfoList files = QDir(QDir().current().absolutePath() + "/game_data/").entryInfoList(QDir::NoDotAndDotDot | QDir::Files);
-            for(int i = 0; i < files.size(); i++)
-            {
-                QFile file(files[i].absoluteFilePath());
-                file.copy(quest.getRootDir().absolutePath() + QDir::separator() + files[i].fileName());
-            }
+            // Modify the quest object
+            Table* questData = quest.getData(DAT_QUEST);
+            questData->setElementValue(OBJ_QUEST, ELE_NAME, dialog->getQuestName());
+            questData->setElementValue(OBJ_QUEST, ELE_WRT_DIR, dialog->getQuestName());
+            questData->setElementValue(OBJ_QUEST, ELE_SOL_VERS, SOLARUS_VERSION);
 
-            // Save out all created quest data
+            // Save out all modified quest data
             quest.saveData();
+
+            // Populate the tree and set window title
+            populateTreeView(quest.getFSModel(), dialog->getFolderPath());
+            setWindowTitle("ProcLevelDesigner - " + quest.getName());
         }
     }
     delete dialog;

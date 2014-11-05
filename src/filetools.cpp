@@ -1,5 +1,33 @@
 #include "filetools.h"
 
+void copyFolder(QString sourceDir, QString destinationDir)
+{
+    QDir srcDir(sourceDir);
+    if(!srcDir.exists())
+        return;
+
+    QDir destDir(destinationDir);
+    if(!destDir.exists())
+        QDir().mkdir(destinationDir);
+
+    QStringList files = srcDir.entryList(QDir::Files); // Retrieve all files in current folder
+    for(int i = 0; i < files.size(); i++) // Copy all files
+    {
+        QString srcName = sourceDir + QDir::separator() + files[i];
+        QString destName = destinationDir + QDir::separator() + files[i];
+        QFile::copy(srcName, destName);
+    }
+    files.clear();
+
+    files = srcDir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot); // Retrieve all folders in current folder
+    for(int i = 0; i < files.size(); i++) // Recursively copy all folders
+    {
+        QString srcName = sourceDir + QDir::separator() + files[i];
+        QString destName = destinationDir + QDir::separator() + files[i];
+        copyFolder(srcName, destName);
+    }
+}
+
 Table::Table()
 {
     objects = QMap<QString, Object>();
