@@ -199,7 +199,7 @@ bool Table::isEmpty() const
 
 void Table::saveToDisk()
 {
-    file.setFileName(QDir::currentPath() + "/" + filePath);
+    file.setFileName(filePath);
     if(file.open(QIODevice::WriteOnly)) // Begin write
     {
         out.setDevice(&file);

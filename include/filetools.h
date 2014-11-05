@@ -10,6 +10,17 @@
 #include <QVector>
 #include <QChar>
 
+// Constants used to find objects, elements and data files
+const QString DAT_QUEST = "quest";
+
+const QString OBJ_QUEST = "quest";
+
+const QString ELE_NAME = "title_bar";
+const QString ELE_WRT_DIR = "write_dir";
+const QString ELE_SOL_VERS = "solarus_version";
+
+const QString DAT_EXT = ".dat"; // Data file extension
+
 const QVector<QChar> FIND_OBJ_DELIMS =  {'{'};
 const QVector<QChar> OBJ_DELIMS =       {'}'};
 const QVector<QChar> ELEM_DELIMS =      {'='};
@@ -24,7 +35,14 @@ class Table
 {
 public:
     Table();
+
+    /*!
+     * \brief Creates a new table from the given filepath and parses all existing data into memory. If no file exists, creates
+     *        a new blank table associated with the given filepath.
+     * \param filePath The filepath to associate with the table.
+     */
     Table(QString filePath);
+
     virtual ~Table();
 
     /*!

@@ -6,6 +6,7 @@
 #include <QString>
 #include <QCloseEvent>
 #include <QMessageBox>
+#include <QValidator>
 
 namespace Ui {
 class NewQuestDialog;
@@ -32,7 +33,15 @@ private slots:
     void on_okButton_clicked();
     void on_cancelButton_clicked();
 
+    void on_qnameEdit_textChanged(const QString &arg1);
+
+    void on_qlocationEdit_textChanged(const QString &arg1);
+
+    void on_qlocationEdit_editingFinished();
+
 private:
+    void updateDestination() const;
+
     Ui::NewQuestDialog *ui;
 
     QString questName;

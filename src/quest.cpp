@@ -14,7 +14,7 @@ Quest::Quest(QString dirPath)
 
 bool Quest::Init()
 {
-    Table* quest = getData("quest");
+    Table* quest = getData(DAT_QUEST);
     if(quest == nullptr)
         return false;
     else
@@ -41,9 +41,11 @@ QDir Quest::getRootDir() const
 
 QString Quest::getName()
 {
-    Table* quest = getData("quest");
+    Table* quest = getData(DAT_QUEST);
     if(quest != nullptr)
-        return quest->getElementValue("quest", "title_bar");
+        return quest->getElementValue(OBJ_QUEST, ELE_NAME);
+    else
+        return "NULL_NAME";
 }
 
 void Quest::saveData() const
@@ -81,28 +83,29 @@ void Quest::cpy(const Quest& param)
         fsModel->setRootPath(rootDir.absolutePath());
     }
     else
-        fsModel = NULL;
+        fsModel = nullptr;
 }
 
 Table* Quest::getData(QString filePath)
 {
-    QString absolutePath = getRootDir().absolutePath() + QDir::separator() + filePath + ".dat";
+    QString absolutePath = getRootDir().absolutePath() + QDir::separator() + filePath + DAT_EXT;
 
-    auto iter = data.find(absolutePath);
+    auto iter = data.find(filePath);
 
-    if(iter != data.end())
+    if(iter != data.end()) // If data already loaded, return the table stored in memory
         return iter.value().data();
     else
     {
-        Table* table = new Table(absolutePath);
-        if(table->isEmpty())
-        {
-            delete table;
-            return nullptr;
-        }
-        else
-            data.insert(filePath, QSharedPointer<Table>(table));
-
+        Table* table = new Table(absolutePath); // Parse existing data, or create new table
+        data.insert(filePath, QSharedPointer<Table>(table)); // Insert into map of loaded data
         return table;
     }
+}
+
+void Quest::clear()
+{
+    data.clear();
+    rootDir = "";
+    delete fsModel;
+    fsModel = nullptr;
 }

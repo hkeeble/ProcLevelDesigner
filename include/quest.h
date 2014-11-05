@@ -8,6 +8,9 @@
 
 #include "filetools.h"
 
+// The solarus version supported by this quest object
+const QString SOLARUS_VERSION = "1.3";
+
 /*!
  * \brief The Quest class. Represents a quest.
  */
@@ -32,9 +35,10 @@ public:
     bool Init(); /*!< Initializes the quest. */
 
     /*!
-     * \brief Retrieves a table from the given filepath.
+     * \brief Retrieves a table from the given filepath. If no data exists, creates a blank table to be written to the
+     *        specified path.
      * \param filePath The filepath of the .dat file. Filepath should be relative to the quest directory.
-     * \return Pointer to the
+     * \return Pointer to the table containing the data.
      */
     Table* getData(QString filePath);
 
@@ -48,6 +52,11 @@ public:
      * \brief Writes out all currently loaded data to the disk. Should save any changes that have been made to data in program memory.
      */
     void saveData() const;
+
+    /*!
+     * \brief Clears all quest data, making this object a blank quest.
+     */
+    void clear();
 
 private:
     QDir rootDir;

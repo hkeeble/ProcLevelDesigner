@@ -20,7 +20,7 @@ SOURCES += \
     src/ui/editorwindow.cpp \
     src/ui/newquestdialog.cpp \
     src/ui/openquestdialog.cpp \
-    src/ui/questoptions.cpp
+    src/ui/questoptionsdialog.cpp
 
 HEADERS  += \
     include/common.h \
@@ -29,13 +29,13 @@ HEADERS  += \
     include/ui/editorwindow.h \
     include/ui/newquestdialog.h \
     include/ui/openquestdialog.h \
-    include/ui/questoptions.h
+    include/ui/questoptionsdialog.h
 
 FORMS    += \
     ui/editorwindow.ui \
     ui/newquestdialog.ui \
     ui/openquestdialog.ui \
-    ui/questoptions.ui
+    ui/questoptionsdialog.ui
 
 INCLUDEPATH += include \
                include/ui
