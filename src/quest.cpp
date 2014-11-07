@@ -3,6 +3,7 @@
 Quest::Quest()
 {
     fsModel = NULL;
+    maps = QVector<Map>();
 }
 
 Quest::Quest(QString dirPath)
@@ -19,6 +20,8 @@ bool Quest::Init()
         return false;
     else
     {
+
+
         return true;
     }
 }

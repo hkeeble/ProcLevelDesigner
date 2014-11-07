@@ -14,12 +14,28 @@
 const QString DAT_QUEST = "quest";
 
 const QString OBJ_QUEST = "quest";
-
 const QString ELE_NAME = "title_bar";
 const QString ELE_WRT_DIR = "write_dir";
 const QString ELE_SOL_VERS = "solarus_version";
 
+// Map objects/elements
+const QString OBJ_PROPERTIES = "properties";
+const QString OBJ_TILE = "tile";
+const QString ELE_X = "x";
+const QString ELE_Y = "y";
+const QString ELE_WIDTH = "width";
+const QString ELE_HEIGHT = "height";
+const QString ELE_TILE_SIZE = "tile_size";
+const QString ELE_WORLD = "world";
+const QString ELE_TILESET = "tileset";
+const QString ELE_MUSIC = "music";
+const QString ELE_LAYER = "layer";
+const QString ELE_PATTERN = "pattern";
+
 const QString DAT_EXT = ".dat"; // Data file extension
+
+
+
 
 const QVector<QChar> FIND_OBJ_DELIMS =  {'{'};
 const QVector<QChar> OBJ_DELIMS =       {'}'};
@@ -131,6 +147,11 @@ public:
      * \return True if table is empty, false if not.
      */
     bool isEmpty() const;
+
+    /*!
+     * \brief Clears the contents of the entire table in memory.
+     */
+    void clear();
 
 private:
 

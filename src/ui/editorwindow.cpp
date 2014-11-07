@@ -43,8 +43,10 @@ void EditorWindow::on_actionOpen_Quest_triggered()
 
         if(quest.Init()) // Attempt to initialize quest from the given path
         {
-            // Populate the tree and set window title
-            populateTreeView(quest.getFSModel(), dialog->getFolderPath());
+            // Populate the trees and set window title
+            populateScriptView(quest.getFSModel(), dialog->getFolderPath());
+            populateMapView(quest.getFSModel(), dialog->getFolderPath());
+
             setWindowTitle("ProcLevelDesigner - " + quest.getName());
 
             // Enable actions
@@ -87,8 +89,10 @@ void EditorWindow::on_actionNew_Quest_triggered()
             // Save out all modified quest data
             quest.saveData();
 
-            // Populate the tree and set window title
-            populateTreeView(quest.getFSModel(), dialog->getFolderPath());
+            // Populate the trees and set window title
+            populateScriptView(quest.getFSModel(), dialog->getFolderPath());
+            populateMapView(quest.getFSModel(), dialog->getFolderPath());
+
             setWindowTitle("ProcLevelDesigner - " + quest.getName());
         }
     }
@@ -100,16 +104,28 @@ void EditorWindow::on_actionExit_triggered()
     this->close();
 }
 
-void EditorWindow::populateTreeView(QFileSystemModel* model, QString rootDir)
+void EditorWindow::populateScriptView(QFileSystemModel* model, QString rootDir)
 {
     // Populate the tree view with quest file model
-    ui->treeView->setModel(model);
-    ui->treeView->setRootIndex(quest.getFSModel()->index(rootDir));
+    ui->scriptsView->setModel(model);
+    ui->scriptsView->setRootIndex(quest.getFSModel()->index(rootDir + QDir::separator() + "scripts" + QDir::separator()));
 
     // Hide uneccesary columns
-    ui->treeView->hideColumn(1);
-    ui->treeView->hideColumn(2);
-    ui->treeView->hideColumn(3);
+    ui->scriptsView->hideColumn(1);
+    ui->scriptsView->hideColumn(2);
+    ui->scriptsView->hideColumn(3);
+}
+
+void EditorWindow::populateMapView(QFileSystemModel* model, QString rootDir)
+{
+    // Populate the tree view with quest file model
+    ui->mapsView->setModel(model);
+    ui->mapsView->setRootIndex(quest.getFSModel()->index(rootDir + QDir::separator() + "maps" + QDir::separator()));
+
+    // Hide uneccesary columns
+    ui->mapsView->hideColumn(1);
+    ui->mapsView->hideColumn(2);
+    ui->mapsView->hideColumn(3);
 }
 
 void EditorWindow::on_actionSave_Quest_triggered()
@@ -137,4 +153,9 @@ void EditorWindow::on_actionQuest_Options_triggered()
         setWindowTitle("ProcLevelDesigner - " + quest.getName());
     }
     delete dialog;
+}
+
+void EditorWindow::on_mapsView_doubleClicked(const QModelIndex &index)
+{
+    // Open up the map!
 }

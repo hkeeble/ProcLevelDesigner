@@ -7,6 +7,7 @@
 #include <QSharedPointer>
 
 #include "filetools.h"
+#include "map.h"
 
 // The solarus version supported by this quest object
 const QString SOLARUS_VERSION = "1.3";
@@ -63,6 +64,8 @@ private:
     QFileSystemModel* fsModel; /*!< The file system model representing this quest. */
 
     QMap<QString,QSharedPointer<Table>> data; /*!< Map containing all the currently loaded data for this quest. */
+
+    QVector<Map> maps; /*!< The maps contained within this quest. */
 
     void cpy(const Quest& param);
 };

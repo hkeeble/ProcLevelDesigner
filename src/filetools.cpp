@@ -254,3 +254,8 @@ void Table::writeObj(const QString& objectName, const Object& object)
         out << element.first << " = \"" << element.second << "\",\n";
     out << "}\n\n";
 }
+
+void Table::clear()
+{
+    objects.clear();
+}

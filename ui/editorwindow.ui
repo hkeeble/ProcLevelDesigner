@@ -26,24 +26,66 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
-    <item>
-     <widget class="QTreeView" name="treeView">
-      <property name="minimumSize">
-       <size>
-        <width>231</width>
-        <height>601</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>231</width>
-        <height>16777215</height>
-       </size>
-      </property>
-     </widget>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Scripts</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTreeView" name="scriptsView">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>229</width>
+          <height>16777215</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Maps</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTreeView" name="mapsView">
+        <property name="maximumSize">
+         <size>
+          <width>229</width>
+          <height>16777215</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
-    <item>
+    <item row="0" column="1">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QGraphicsView" name="graphicsView">
@@ -51,22 +93,6 @@
          <size>
           <width>731</width>
           <height>461</height>
-         </size>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPlainTextEdit" name="console">
-        <property name="minimumSize">
-         <size>
-          <width>731</width>
-          <height>131</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>134</height>
          </size>
         </property>
        </widget>

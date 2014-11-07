@@ -49,7 +49,8 @@ private:
 
     QList<QAction*> questOnlyActions; /*!< List of actions only available when a quest is loaded. */
 
-    void populateTreeView(QFileSystemModel* model, QString rootDir);
+    void populateScriptView(QFileSystemModel* model, QString rootDir);
+    void populateMapView(QFileSystemModel* model, QString rootDir);
 
 };
 
