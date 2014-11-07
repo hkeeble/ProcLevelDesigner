@@ -38,6 +38,8 @@ private slots:
     void on_actionClose_triggered();
     void on_actionQuest_Options_triggered();
 
+    void on_mapsView_doubleClicked(const QModelIndex &index);
+
 private:
     void build(); /*!< Builds and outputs data files. */
     void run(); /*!< Runs the currently output quest. */
