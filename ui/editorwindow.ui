@@ -123,6 +123,9 @@
     <addaction name="actionSave_Quest"/>
     <addaction name="actionClose"/>
     <addaction name="separator"/>
+    <addaction name="actionNew_Map"/>
+    <addaction name="actionNew_Script"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -181,6 +184,22 @@
    </property>
    <property name="text">
     <string>Quest Options</string>
+   </property>
+  </action>
+  <action name="actionNew_Map">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>New Map</string>
+   </property>
+  </action>
+  <action name="actionNew_Script">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>New Script</string>
    </property>
   </action>
  </widget>

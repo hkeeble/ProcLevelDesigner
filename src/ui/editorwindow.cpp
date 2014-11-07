@@ -13,6 +13,8 @@ EditorWindow::EditorWindow(QWidget *parent) :
     questOnlyActions.insert(questOnlyActions.size(), ui->actionClose);
     questOnlyActions.insert(questOnlyActions.size(), ui->actionQuest_Options);
     questOnlyActions.insert(questOnlyActions.size(), ui->actionSave_Quest);
+    questOnlyActions.insert(questOnlyActions.size(), ui->actionNew_Map);
+    questOnlyActions.insert(questOnlyActions.size(), ui->actionNew_Script);
 
     setWindowTitle("ProcLevelDesigner");
 }
@@ -44,9 +46,7 @@ void EditorWindow::on_actionOpen_Quest_triggered()
         if(quest.Init()) // Attempt to initialize quest from the given path
         {
             // Populate the trees and set window title
-            populateScriptView(quest.getFSModel(), dialog->getFolderPath());
-            populateMapView(quest.getFSModel(), dialog->getFolderPath());
-
+            populateTreeViews(dialog->getFolderPath());
             setWindowTitle("ProcLevelDesigner - " + quest.getName());
 
             // Enable actions
@@ -90,8 +90,7 @@ void EditorWindow::on_actionNew_Quest_triggered()
             quest.saveData();
 
             // Populate the trees and set window title
-            populateScriptView(quest.getFSModel(), dialog->getFolderPath());
-            populateMapView(quest.getFSModel(), dialog->getFolderPath());
+            populateTreeViews(dialog->getFolderPath());
 
             setWindowTitle("ProcLevelDesigner - " + quest.getName());
         }
@@ -104,28 +103,24 @@ void EditorWindow::on_actionExit_triggered()
     this->close();
 }
 
-void EditorWindow::populateScriptView(QFileSystemModel* model, QString rootDir)
+void EditorWindow::populateTreeViews(QString rootDir)
 {
+    // Populate the script view
+    ui->scriptsView->setModel(quest.getScriptModel());
+    ui->scriptsView->setRootIndex(quest.getScriptModel()->index(rootDir));
+
     // Populate the tree view with quest file model
-    ui->scriptsView->setModel(model);
-    ui->scriptsView->setRootIndex(quest.getFSModel()->index(rootDir + QDir::separator() + "scripts" + QDir::separator()));
+    ui->mapsView->setModel(quest.getMapModel());
+    ui->mapsView->setRootIndex(quest.getMapModel()->index(rootDir + QDir::separator() + "maps" + QDir::separator()));
 
     // Hide uneccesary columns
     ui->scriptsView->hideColumn(1);
     ui->scriptsView->hideColumn(2);
     ui->scriptsView->hideColumn(3);
-}
-
-void EditorWindow::populateMapView(QFileSystemModel* model, QString rootDir)
-{
-    // Populate the tree view with quest file model
-    ui->mapsView->setModel(model);
-    ui->mapsView->setRootIndex(quest.getFSModel()->index(rootDir + QDir::separator() + "maps" + QDir::separator()));
-
-    // Hide uneccesary columns
     ui->mapsView->hideColumn(1);
     ui->mapsView->hideColumn(2);
     ui->mapsView->hideColumn(3);
+
 }
 
 void EditorWindow::on_actionSave_Quest_triggered()
@@ -157,5 +152,31 @@ void EditorWindow::on_actionQuest_Options_triggered()
 
 void EditorWindow::on_mapsView_doubleClicked(const QModelIndex &index)
 {
-    // Open up the map!
+    if(index.isValid())
+    {
+        QString mapPath = quest.getMapModel()->fileName(index);
+        mapPath.remove(mapPath.length()-4, 4);
+        Table* table = quest.getData(QString("maps") + QDir::separator() + mapPath);
+        Map map = Map::parse(mapPath, table);
+    }
+}
+
+void EditorWindow::on_actionNew_Map_triggered()
+{
+    Map map = Map(32, 320, 320);
+    map.setMusic(DEFAULT_MAP_MUSIC);
+    map.setName("second_map");
+    map.setTileSet("castle");
+
+    for(int x = 0; x < map.getWidth(); x++)
+    {
+        for(int y = 0; y < map.getHeight(); y++)
+        {
+            MapTile tile = MapTile(0, x, y, map.getTileSize(), 0);
+            map.setTile(x, y, MapTile(tile));
+        }
+    }
+
+    Table* data = quest.getData(QString("maps") + QDir::separator() + map.getName());
+    map.build(data);
 }

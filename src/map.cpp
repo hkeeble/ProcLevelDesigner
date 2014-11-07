@@ -10,17 +10,18 @@ Map::Map()
     music = DEFAULT_MAP_MUSIC;
 }
 
-Map::Map(int width, int height) : Map()
+Map::Map(int tileSize, int width, int height) : Map()
 {
     this->width = width;
     this->height = height;
-    clear();
+    this->tileSize = tileSize;
+    initTiles();
 }
 
 Map::Map(QString name, int width, int height, int tileSize, QString tileSet, QString music, QString world) :
     name(name), width(width), height(height), tileSet(tileSet), music(music), world(world), tileSize(tileSize)
 {
-    clear();
+    initTiles();
 }
 
 Map::~Map()
@@ -47,20 +48,13 @@ Map Map::parse(QString name, Table* data)
         return Map(); // If properties not found, return a blank map
     else
     {
-        try {
-            QString tileSet = properties->find(ELE_TILESET).value();
-            QString music = properties->find(ELE_MUSIC).value();
-            QString world = properties->find(ELE_WORLD).value();
-
-            int width = properties->find(ELE_WIDTH).value().toInt();
-            int height = properties->find(ELE_HEIGHT).value().toInt();
-            int tileSize = properties->find(ELE_TILE_SIZE).value().toInt();
-
-            map = Map(name, width, height, tileSize, tileSet, music, world);
-        }
-        catch(...) {
-            qDebug() << "Error! Could not read all properties of map file " << name << ".\n";
-        }
+        // Read in map properties (sets defaults if not found)
+        map = Map(properties->find(ELE_TILE_SIZE, QString::number(DEFAULT_TILE_SIZE)).toInt(),
+                  properties->find(ELE_WIDTH, QString::number(DEFAULT_MAP_SIZE)).toInt(),
+                  properties->find(ELE_HEIGHT, QString::number(DEFAULT_MAP_SIZE)).toInt());
+        map.setTileSet(properties->find(ELE_TILESET, DEFAULT_MAP_TILESET));
+        map.setMusic(properties->find(ELE_MUSIC, DEFAULT_MAP_MUSIC));
+        map.setName(name);
 
         // Read in the tile grid, and put into the internal collection of tiles
         QList<Object*> mapTiles = data->getObjectsOfName(OBJ_TILE);
@@ -69,19 +63,14 @@ Map Map::parse(QString name, Table* data)
             MapTile tile = MapTile::parse(t);
             map.setTile(tile.getX()/map.getTileSize(), tile.getY()/map.getTileSize(), tile);
         }
+
+        return map;
     }
 }
 
-void Map::clear()
+void Map::initTiles()
 {
-    // Create a blank tile grid
-    tiles = QVector<QVector<MapTile>>();
-    for(int y = 0; y < height; y++)
-    {
-        tiles.insert(tiles.size(), QVector<MapTile>());
-        for(int x = 0; x < width; x++)
-            tiles[y].insert(tiles[y].size(), MapTile());
-    }
+    tiles = QVector<QVector<MapTile>>(width, QVector<MapTile>(height));
 }
 
 void Map::build(Table* table)
@@ -113,16 +102,11 @@ MapTile MapTile::parse(Object* object)
 {
     MapTile mapTile;
 
-    try {
-        mapTile.setSize(object->find(ELE_WIDTH).value().toInt());
-        mapTile.setX(object->find(ELE_X).value().toInt());
-        mapTile.setY(object->find(ELE_Y).value().toInt());
-        mapTile.setLayer(object->find(ELE_LAYER).value().toInt());
-        mapTile.setPattern(object->find(ELE_PATTERN).value().toInt());
-    }
-    catch (...) {
-        qDebug() << "Error! Failed to read tile data.";
-    }
+    mapTile.setSize     (object->find(ELE_WIDTH, QString::number(DEFAULT_TILE_SIZE)).toInt());
+    mapTile.setX        (object->find(ELE_X, "0").toInt());
+    mapTile.setY        (object->find(ELE_Y, "0").toInt());
+    mapTile.setLayer    (object->find(ELE_LAYER, "0").toInt());
+    mapTile.setPattern  (object->find(ELE_PATTERN, "0").toInt());
 
     return mapTile;
 }
@@ -131,12 +115,12 @@ Object MapTile::build(MapTile tile)
 {
     Object object = Object();
 
-    object.insert(ELE_HEIGHT, QString::number(tile.getSize()));
-    object.insert(ELE_WIDTH, QString::number(tile.getSize()));
-    object.insert(ELE_PATTERN, QString::number(tile.getPattern()));
-    object.insert(ELE_X, QString::number(tile.getX() * tile.getSize()));
-    object.insert(ELE_Y, QString::number(tile.getY() * tile.getSize()));
-    object.insert(ELE_LAYER, QString::number(tile.getLayer()));
+    object.insert(ELE_HEIGHT,   QString::number(tile.getSize()));
+    object.insert(ELE_WIDTH,    QString::number(tile.getSize()));
+    object.insert(ELE_PATTERN,  QString::number(tile.getPattern()));
+    object.insert(ELE_X,        QString::number(tile.getX() * tile.getSize()));
+    object.insert(ELE_Y,        QString::number(tile.getY() * tile.getSize()));
+    object.insert(ELE_LAYER,    QString::number(tile.getLayer()));
 
     return object;
 }

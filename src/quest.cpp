@@ -2,15 +2,26 @@
 
 Quest::Quest()
 {
-    fsModel = NULL;
-    maps = QVector<Map>();
+    fsModel = nullptr;
+    scriptModel = nullptr;
+    mapModel = nullptr;
 }
 
 Quest::Quest(QString dirPath)
 {
+    // Set up file system models
     rootDir = QDir(dirPath);
     fsModel = new QFileSystemModel();
+    scriptModel = new QFileSystemModel();
+    mapModel = new QFileSystemModel();
+
+    maps = QMap<QString,Map>();
+
     fsModel->setRootPath(rootDir.absolutePath());
+    scriptModel->setRootPath(rootDir.absolutePath());
+    mapModel->setRootPath(rootDir.absolutePath() + QDir::separator() + "maps" + QDir::separator());
+
+    initFilters();
 }
 
 bool Quest::Init()
@@ -28,13 +39,22 @@ bool Quest::Init()
 
 Quest::~Quest()
 {
-    if(fsModel)
-        delete fsModel;
+    clear();
 }
 
 QFileSystemModel* Quest::getFSModel()
 {
     return fsModel;
+}
+
+QFileSystemModel* Quest::getScriptModel()
+{
+    return scriptModel;
+}
+
+QFileSystemModel* Quest::getMapModel()
+{
+    return mapModel;
 }
 
 QDir Quest::getRootDir() const
@@ -84,9 +104,26 @@ void Quest::cpy(const Quest& param)
 
         fsModel = new QFileSystemModel();
         fsModel->setRootPath(rootDir.absolutePath());
+
+        scriptModel = new QFileSystemModel();
+        scriptModel->setRootPath(rootDir.absolutePath());
+
+        mapModel = new QFileSystemModel();
+        mapModel->setRootPath(rootDir.absolutePath() + QDir::separator() + "maps" + QDir::separator());
+
+        initFilters();
     }
     else
         fsModel = nullptr;
+}
+
+void Quest::initFilters()
+{
+    scriptModel->setNameFilters(QStringList()<<"*.lua");
+    mapModel->setNameFilters(QStringList()<<"*.dat");
+
+    scriptModel->setNameFilterDisables(false);
+    mapModel->setNameFilterDisables(false);
 }
 
 Table* Quest::getData(QString filePath)
@@ -109,6 +146,14 @@ void Quest::clear()
 {
     data.clear();
     rootDir = "";
-    delete fsModel;
-    fsModel = nullptr;
+
+    if(fsModel)
+        delete fsModel;
+    if(scriptModel)
+        delete scriptModel;
+    if(mapModel)
+        delete mapModel;
+
+    fsModel = scriptModel = mapModel = nullptr;
+
 }

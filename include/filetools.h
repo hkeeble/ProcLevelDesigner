@@ -10,6 +10,9 @@
 #include <QVector>
 #include <QChar>
 
+const QString NULL_ELEMENT = "NULL_ELEMENT";
+const QString NULL_OBJECT = "NULL_OBJECT";
+
 // Constants used to find objects, elements and data files
 const QString DAT_QUEST = "quest";
 
@@ -34,15 +37,24 @@ const QString ELE_PATTERN = "pattern";
 
 const QString DAT_EXT = ".dat"; // Data file extension
 
-
-
-
 const QVector<QChar> FIND_OBJ_DELIMS =  {'{'};
 const QVector<QChar> OBJ_DELIMS =       {'}'};
 const QVector<QChar> ELEM_DELIMS =      {'='};
 const QVector<QChar> VAL_DELIMS =       {','};
 
-typedef QMap<QString,QString> Object;
+typedef QMap<QString,QString> ObjectData;
+
+struct Object
+{
+public:
+    Object() : data(QMap<QString,QString>()) { }
+    Object(ObjectData data) : data(data) { }
+
+    ObjectData data;
+
+    QString find(QString element, QString defaultVal);
+    void insert(QString element, QString value);
+};
 
 // Come utility functions for file management
 
@@ -163,7 +175,7 @@ private:
 
     // Writing Functions
     void beginWrite();
-    void writeObj(const QString& objectName, const Object& object);
+    void writeObj(QString objectName, Object object);
 
     /*!
      * \brief readUntil Read a given text stream until the delimiter value is found.
@@ -181,7 +193,6 @@ private:
 
     QString filePath;
     QMultiMap<QString, Object> objects; /*!< Map of all objects, containing a map of respective elements. */
-
 };
 
 #endif // FILETOOLS_H
