@@ -40,6 +40,8 @@ private slots:
 
     void on_mapsView_doubleClicked(const QModelIndex &index);
 
+    void on_actionNew_Map_triggered();
+
 private:
     void build(); /*!< Builds and outputs data files. */
     void run(); /*!< Runs the currently output quest. */
@@ -51,9 +53,7 @@ private:
 
     QList<QAction*> questOnlyActions; /*!< List of actions only available when a quest is loaded. */
 
-    void populateScriptView(QFileSystemModel* model, QString rootDir);
-    void populateMapView(QFileSystemModel* model, QString rootDir);
-
+    void populateTreeViews(QString rootDir);
 };
 
 #endif // EDITORWINDOW_H

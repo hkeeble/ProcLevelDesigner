@@ -28,6 +28,20 @@ void copyFolder(QString sourceDir, QString destinationDir)
     }
 }
 
+QString Object::find(QString element, QString defaultVal)
+{
+    ObjectData::iterator iter = data.find(element);
+    if(iter == data.end())
+        return defaultVal;
+    else
+        return iter.value();
+}
+
+void Object::insert(QString element, QString value)
+{
+    data.insert(element, value);
+}
+
 Table::Table()
 {
     objects = QMap<QString, Object>();
@@ -84,15 +98,9 @@ QString Table::getElementValue(QString objectName, QString elementName)
     Object* obj = getObject(objectName);
 
     if(obj != nullptr)
-    {
-        auto elemIter = obj->find(elementName); // Find element
-        if(elemIter != obj->end())
-            return elemIter.value();
-        else
-            return "NULL_ELEMENT"; // Element not found
-    }
+       return obj->find(elementName, NULL_ELEMENT); // Find element
     else
-        return "NULL_OBJECT"; // Object was not found
+        return NULL_OBJECT; // Object was not found
 }
 
 QList<Object*> Table::getObjectsOfName(QString objectName)
@@ -115,9 +123,9 @@ Object* Table::getObjectWithValue(QString objectName, QString elementName, QStri
     // Search for first object with given element/value pair
     for(int i = 0; i < objs.size(); i++)
     {
-        Object::const_iterator iter = objs[i]->find(elementName);
+        ObjectData::const_iterator iter = objs[i]->data.find(elementName);
 
-        if(iter != objs[i]->end())
+        if(iter != objs[i]->data.end())
         {
             if(iter.value() == value)
                 return objs[i];
@@ -163,7 +171,7 @@ void Table::readElements()
     {
         QString element = readUntil(str, ELEM_DELIMS).simplified();
         QString value = readUntil(str, VAL_DELIMS).simplified().remove('"');
-        curObjectData.insert(element, value);
+        curObjectData.data.insert(element, value);
     }
 
     // Build the object
@@ -206,8 +214,8 @@ bool Table::setElementValue(QString objectName, QString elementName, QString val
     Object* obj = getObject(objectName);
     if(obj != nullptr)
     {
-        Object::iterator iter = obj->find(elementName);
-        if(iter != obj->end())
+        ObjectData::iterator iter = obj->data.find(elementName);
+        if(iter != obj->data.end())
         {
             iter.value() = value;
             return true;
@@ -243,15 +251,15 @@ void Table::saveToDisk()
 
 void Table::beginWrite()
 {
-    for(auto obj : objects.toStdMap())
-        writeObj(obj.first, obj.second);
+    for(auto obj = objects.begin(); obj != objects.end(); obj++)
+        writeObj(obj.key(), obj.value());
 }
 
-void Table::writeObj(const QString& objectName, const Object& object)
+void Table::writeObj(QString objectName, Object object)
 {
     out << objectName << "{\n";
-    for(auto element : object.toStdMap())
-        out << element.first << " = \"" << element.second << "\",\n";
+    for(auto element = object.data.begin(); element != object.data.end(); element++)
+        out << element.key() << " = \"" << element.value() << "\",\n";
     out << "}\n\n";
 }
 

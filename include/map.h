@@ -52,7 +52,7 @@ class Map
 {
 public:
     Map();
-    Map(int width, int height);
+    Map(int tileSize, int width, int height);
     Map(QString name, int width, int height, int tileSize, QString tileSet,
         QString music, QString world);
 
@@ -73,18 +73,19 @@ public:
     inline QString getTileSet() const  { return tileSet; }
     inline QString getMusic() const    { return music; }
 
+    inline int getWidth() const         { return width; }
+    inline int getHeight() const        { return height; }
+    inline int getTileSize() const      { return tileSize; }
+
     inline void setName(const QString& name)          { this->name = name; }
     inline void setTileSet(const QString& tileSet)    { this->tileSet = tileSet; }
     inline void setMusic(const QString& music)        { this->music = music; }
-
-    inline int getWidth() const         { return width; }
-    inline int getHeight() const        { return height; }
-    inline int getTileSize() const     { return tileSize; }
+    inline void setTileSize(const int& size)      { this->tileSize = size; }
 
     void setTile(int x, int y, const MapTile& tile);
     const MapTile& getTile(int x, int y);
 
-    void clear();
+    void initTiles();
 
     virtual ~Map();
 private:
