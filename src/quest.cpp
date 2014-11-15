@@ -42,7 +42,7 @@ bool Quest::Init()
         for(QFileInfo f : tilesetData)
         {
             Table* data = getData(QString("tilesets") + QDir::separator() + f.baseName());
-            tileSets.insert(f.baseName(), Tileset(data));
+            tileSets.insert(f.baseName(), Tileset(f.baseName(), data));
         }
 
         // Load all existing maps

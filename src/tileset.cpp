@@ -14,20 +14,32 @@ TilePattern TilePattern::parse(Object object)
 {
     TilePattern pattern;
 
-    QString ground = object.data.find(ELE_GROUND).value();
-    if(ground == "traversable")
-        pattern.traversable = true;
-    else
-        pattern.traversable = false;
-
     pattern.id =              object.find(ELE_ID).toInt();
     pattern.defaultLayer =    object.find(ELE_DEFAULT_LAYER).toInt();
     pattern.x =               object.find(ELE_X).toInt();
     pattern.y =               object.find(ELE_Y).toInt();
     pattern.width =           object.find(ELE_WIDTH).toInt();
     pattern.height =          object.find(ELE_HEIGHT).toInt();
+    pattern.traversable =     object.find(ELE_GROUND, "traversable") == "traversable" ? true : false;
 
     return pattern;
+}
+
+Object TilePattern::build()
+{
+    Object obj = Object();
+
+    obj.insert(ELE_ID, QString::number(id));
+    obj.insert(ELE_DEFAULT_LAYER, QString::number(defaultLayer));
+    obj.insert(ELE_X, QString::number(x));
+    obj.insert(ELE_Y, QString::number(y));
+    obj.insert(ELE_WIDTH, QString::number(width));
+    obj.insert(ELE_HEIGHT, QString::number(height));
+
+    if(traversable)
+        obj.insert(ELE_GROUND, traversable ? "traversable" : "wall");
+
+    return obj;
 }
 
 Tileset::Tileset()
@@ -35,9 +47,13 @@ Tileset::Tileset()
     data = nullptr;
 }
 
-Tileset::Tileset(Table* data)
+Tileset::Tileset(QString name, Table* data)
 {
     this->data = data;
+    this->name = name;
+
+    QString imgPath = QFileInfo(data->getFilePath()).dir().absolutePath() + QDir::separator() + name + ".tiles.png";
+    this->image = QPixmap(imgPath);
 
     // Construct the list of patterns from the data
     QList<Object*> patternList = data->getObjectsOfName(OBJ_TILE_PATTERN);
@@ -50,11 +66,12 @@ Tileset::~Tileset()
 
 }
 
-Tileset Tileset::create(QString name, Table* data, int tileSize)
+Tileset Tileset::create(QString name, QString filePath, Table* data, int tileSize)
 {
     Tileset tileset;
+    tileset.setName(name);
 
-    QImage image; // Load the image!
+    QPixmap image = QPixmap(filePath); // Load the image!
 
     int width = image.width()/tileSize;
     int height = image.height()/tileSize;
@@ -75,6 +92,10 @@ Tileset Tileset::create(QString name, Table* data, int tileSize)
             id++;
 
             tileset.addPattern(pattern);
+            data->addObject(OBJ_TILE_PATTERN, pattern.build());
         }
     }
+
+    data->saveToDisk();
+    return tileset;
 }

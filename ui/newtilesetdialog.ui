@@ -32,6 +32,9 @@
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
         <layout class="QFormLayout" name="formLayout">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+         </property>
          <item row="0" column="0">
           <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>

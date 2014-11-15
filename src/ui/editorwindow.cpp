@@ -196,6 +196,15 @@ void EditorWindow::on_actionNew_Tileset_triggered()
     NewTilesetDialog* dialog = new NewTilesetDialog(this);
     if(dialog->exec() == QDialog::Accepted)
     {
+        // Copy the image file into tilesets directory
+        QFile::copy(dialog->getFilePath(), quest.getRootDir().absolutePath() + QDir::separator() + "tilesets" +
+                    QDir::separator() + dialog->getName() + ".tiles.png");
+
+        // Create a new .dat file
+        Table* data = quest.getData(QString("tilesets") + QDir::separator() + dialog->getName());
+
+        // Create a new tileset object
+        Tileset tileset = Tileset::create(dialog->getName(), dialog->getFilePath(), data, dialog->getTileSize());
 
     }
     delete dialog;

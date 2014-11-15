@@ -22,6 +22,7 @@ void NewTilesetDialog::on_buttonOK_clicked()
     {
         name = ui->nameEdit->text();
         filePath = ui->fileEdit->text();
+        tileSize = ui->tilesizeEdit->value();
         accept();
     }
     else
