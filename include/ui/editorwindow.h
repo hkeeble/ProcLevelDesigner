@@ -11,6 +11,7 @@
 #include "newquestdialog.h"
 #include "openquestdialog.h"
 #include "questoptionsdialog.h"
+#include "newtilesetdialog.h"
 #include "quest.h"
 #include "filetools.h"
 
@@ -41,6 +42,8 @@ private slots:
     void on_mapsView_doubleClicked(const QModelIndex &index);
 
     void on_actionNew_Map_triggered();
+
+    void on_actionNew_Tileset_triggered();
 
 private:
     void build(); /*!< Builds and outputs data files. */

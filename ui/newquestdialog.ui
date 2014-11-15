@@ -6,26 +6,26 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>628</width>
-    <height>171</height>
+    <width>631</width>
+    <height>172</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>628</width>
-    <height>171</height>
+    <width>631</width>
+    <height>172</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>628</width>
-    <height>171</height>
+    <width>631</width>
+    <height>172</height>
    </size>
   </property>
   <property name="windowTitle">
    <string>New Quest</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>1</x>
@@ -112,14 +112,6 @@
     </item>
    </layout>
   </widget>
-  <zorder>layoutWidget</zorder>
-  <zorder>layoutWidget</zorder>
-  <zorder>toolButton</zorder>
-  <zorder>qlocationEdit</zorder>
-  <zorder>label_2</zorder>
-  <zorder>label</zorder>
-  <zorder>qDestination</zorder>
-  <zorder>label_3</zorder>
  </widget>
  <resources/>
  <connections/>

@@ -40,6 +40,11 @@ const QString ELE_MUSIC = "music";
 const QString ELE_LAYER = "layer";
 const QString ELE_PATTERN = "pattern";
 
+// Tileset
+const QString OBJ_TILE_PATTERN = "tile_pattern";
+const QString ELE_DEFAULT_LAYER = "default_layer";
+const QString ELE_GROUND = "ground";
+
 const QString DAT_EXT = ".dat"; // Data file extension
 
 const QVector<QChar> FIND_OBJ_DELIMS =  {'{'};
@@ -76,7 +81,7 @@ public:
 
     ObjectData data;
 
-    QString find(QString element, QString defaultVal);
+    QString find(QString element, QString defaultVal = "NULL");
     void insert(QString element, QString value);
 };
 

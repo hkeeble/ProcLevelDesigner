@@ -10,11 +10,12 @@ EditorWindow::EditorWindow(QWidget *parent) :
 
     // Compile list of actions only available when a quest is loaded
     questOnlyActions = QList<QAction*>();
-    questOnlyActions.insert(questOnlyActions.size(), ui->actionClose);
-    questOnlyActions.insert(questOnlyActions.size(), ui->actionQuest_Options);
-    questOnlyActions.insert(questOnlyActions.size(), ui->actionSave_Quest);
-    questOnlyActions.insert(questOnlyActions.size(), ui->actionNew_Map);
-    questOnlyActions.insert(questOnlyActions.size(), ui->actionNew_Script);
+    questOnlyActions.append(ui->actionClose);
+    questOnlyActions.append(ui->actionQuest_Options);
+    questOnlyActions.append(ui->actionSave_Quest);
+    questOnlyActions.append(ui->actionNew_Map);
+    questOnlyActions.append(ui->actionNew_Script);
+    questOnlyActions.append(ui->actionNew_Tileset);
 
     setWindowTitle("ProcLevelDesigner");
 }
@@ -171,7 +172,6 @@ void EditorWindow::on_actionNew_Map_triggered()
     Map map = Map(32, 1, 1);
     map.setMusic(DEFAULT_MAP_MUSIC);
     map.setName("second_map");
-    map.setTileSet("main");
 
     for(int x = 0; x < map.getWidth(); x++)
     {
@@ -189,4 +189,14 @@ void EditorWindow::on_actionNew_Map_triggered()
     Table* database = quest.getData(DAT_DATABASE);
     database->addObject(OBJ_MAP, map.getObject());
     quest.saveData();
+}
+
+void EditorWindow::on_actionNew_Tileset_triggered()
+{
+    NewTilesetDialog* dialog = new NewTilesetDialog(this);
+    if(dialog->exec() == QDialog::Accepted)
+    {
+
+    }
+    delete dialog;
 }

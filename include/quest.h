@@ -72,7 +72,8 @@ private:
 
     QMap<QString,QSharedPointer<Table>> data; /*!< Map containing all the currently loaded data for this quest. */
 
-    QMap<QString,Map> maps; /*!< The maps contained within this quest. */
+    QMap<QString,Map> maps;         /*!< The maps contained within this quest. */
+    QMap<QString,Tileset> tileSets; /*!< The tilesets contained within this quest. */
 
     void cpy(const Quest& param);
 };

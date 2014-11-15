@@ -16,6 +16,7 @@ Quest::Quest(QString dirPath)
     mapModel = new QFileSystemModel();
 
     maps = QMap<QString,Map>();
+    tileSets = QMap<QString,Tileset>();
 
     fsModel->setRootPath(rootDir.absolutePath());
     scriptModel->setRootPath(rootDir.absolutePath());
@@ -30,7 +31,25 @@ bool Quest::Init()
     if(quest == nullptr)
         return false;
     else
+    {
+        // Load all existing tilesets
+        QDir tileSetDir = QDir(rootDir.absolutePath() + QDir::separator() + "tilesets" + QDir::separator());
+        QStringList filters;
+        filters << "*.dat";
+        tileSetDir.setNameFilters(filters);
+        QFileInfoList tilesetData = tileSetDir.entryInfoList();
+
+        for(QFileInfo f : tilesetData)
+        {
+            Table* data = getData(QString("tilesets") + QDir::separator() + f.baseName());
+            tileSets.insert(f.baseName(), Tileset(data));
+        }
+
+        // Load all existing maps
+
+
         return true;
+    }
 }
 
 Quest::~Quest()

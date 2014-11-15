@@ -6,7 +6,6 @@ Map::Map()
     world = DEFAULT_MAP_WORLD;
     width = height = DEFAULT_MAP_SIZE;
     tileSize = DEFAULT_TILE_SIZE;
-    tileSet = DEFAULT_MAP_TILESET;
     music = DEFAULT_MAP_MUSIC;
 }
 
@@ -18,8 +17,8 @@ Map::Map(int tileSize, int width, int height) : Map()
     initTiles();
 }
 
-Map::Map(QString name, int width, int height, int tileSize, QString tileSet, QString music, QString world) :
-    name(name), width(width), height(height), tileSet(tileSet), music(music), world(world), tileSize(tileSize)
+Map::Map(QString name, int width, int height, int tileSize, QString music, QString world) :
+    name(name), width(width), height(height), music(music), world(world), tileSize(tileSize)
 {
     initTiles();
 }
@@ -52,9 +51,9 @@ Map Map::parse(QString name, Table* data)
         map = Map(properties->find(ELE_TILE_SIZE, QString::number(DEFAULT_TILE_SIZE)).toInt(),
                   properties->find(ELE_WIDTH, QString::number(DEFAULT_MAP_SIZE)).toInt(),
                   properties->find(ELE_HEIGHT, QString::number(DEFAULT_MAP_SIZE)).toInt());
-        map.setTileSet(properties->find(ELE_TILESET, DEFAULT_MAP_TILESET));
-        map.setMusic(properties->find(ELE_MUSIC, DEFAULT_MAP_MUSIC));
         map.setName(name);
+        map.setMusic(properties->find(ELE_MUSIC, DEFAULT_MAP_MUSIC));
+
 
         // Read in the tile grid, and put into the internal collection of tiles
         QList<Object*> mapTiles = data->getObjectsOfName(OBJ_TILE);
@@ -84,7 +83,6 @@ void Map::build(Table* table)
     properties.insert(ELE_WIDTH, QString::number(width * tileSize));
     properties.insert(ELE_HEIGHT, QString::number(height * tileSize));
     properties.insert(ELE_WORLD, world);
-    properties.insert(ELE_TILESET, tileSet);
     properties.insert(ELE_MUSIC, music);
 
     // Add properties to the table
