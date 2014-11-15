@@ -81,8 +81,8 @@ void Map::build(Table* table)
     Object properties = Object();
     properties.insert(ELE_X, QString::number(0));
     properties.insert(ELE_Y, QString::number(0));
-    properties.insert(ELE_WIDTH, QString::number(width));
-    properties.insert(ELE_HEIGHT, QString::number(height));
+    properties.insert(ELE_WIDTH, QString::number(width * tileSize));
+    properties.insert(ELE_HEIGHT, QString::number(height * tileSize));
     properties.insert(ELE_WORLD, world);
     properties.insert(ELE_TILESET, tileSet);
     properties.insert(ELE_MUSIC, music);
@@ -123,4 +123,14 @@ Object MapTile::build(MapTile tile)
     object.insert(ELE_LAYER,    QString::number(tile.getLayer()));
 
     return object;
+}
+
+Object Map::getObject()
+{
+    Object obj = Object();
+
+    obj.insert(ELE_ID, name.toLower());
+    obj.insert(ELE_DESCRIPTION, name);
+
+    return obj;
 }

@@ -28,6 +28,21 @@ void copyFolder(QString sourceDir, QString destinationDir)
     }
 }
 
+void writeToFile(QString dirPath, QString fileName, QString fileContents)
+{
+    if(!QDir().exists(dirPath))
+        QDir().mkpath(dirPath);
+
+    QFile file(dirPath + QDir::separator() + fileName);
+    file.open(QIODevice::WriteOnly);
+
+    QTextStream out(&file);
+    out << fileContents;
+    out.flush();
+
+    file.close();
+}
+
 QString Object::find(QString element, QString defaultVal)
 {
     ObjectData::iterator iter = data.find(element);
@@ -257,10 +272,10 @@ void Table::beginWrite()
 
 void Table::writeObj(QString objectName, Object object)
 {
-    out << objectName << "{\n";
+    out << objectName << "{";
     for(auto element = object.data.begin(); element != object.data.end(); element++)
-        out << element.key() << " = \"" << element.value() << "\",\n";
-    out << "}\n\n";
+        out << element.key() << " = \"" << element.value() << "\", ";
+    out << "}\n";
 }
 
 void Table::clear()

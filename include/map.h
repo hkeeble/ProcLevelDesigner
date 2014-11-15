@@ -10,7 +10,7 @@
 const int DEFAULT_TILE_SIZE = 32;
 const int DEFAULT_MAP_SIZE = DEFAULT_TILE_SIZE * 10;
 const QString DEFAULT_MAP_NAME = "NULL_MAP";
-const QString DEFAULT_MAP_TILESET = "castle";
+const QString DEFAULT_MAP_TILESET = "main";
 const QString DEFAULT_MAP_MUSIC = "village";
 const QString DEFAULT_MAP_WORLD = "outside";
 
@@ -88,6 +88,12 @@ public:
     void initTiles();
 
     virtual ~Map();
+
+    /*!
+     * \brief Returns the object for this map (used in the project database)
+     */
+    Object getObject();
+
 private:
     int width, height, tileSize;
     QString name, world, tileSet, music;

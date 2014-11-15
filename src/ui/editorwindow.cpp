@@ -41,12 +41,12 @@ void EditorWindow::on_actionOpen_Quest_triggered()
     OpenQuestDialog* dialog = new OpenQuestDialog(this);
     if(dialog->exec() == QDialog::Accepted)
     {
-        quest = Quest(dialog->getFolderPath());
+        quest = Quest(dialog->getFolderPath() + QDir::separator() + "data" + QDir::separator());
 
         if(quest.Init()) // Attempt to initialize quest from the given path
         {
             // Populate the trees and set window title
-            populateTreeViews(dialog->getFolderPath());
+            populateTreeViews(quest.getRootDir().absolutePath());
             setWindowTitle("ProcLevelDesigner - " + quest.getName());
 
             // Enable actions
@@ -75,10 +75,11 @@ void EditorWindow::on_actionNew_Quest_triggered()
                                  QMessageBox::Ok);
         else
         {
-            quest = Quest(dialog->getFolderPath());
+            QString questPath = dialog->getFolderPath() + QDir::separator() + "data" + QDir::separator();
+            quest = Quest(questPath);
 
             copyFolder(QDir().currentPath() + QDir::separator() + "game_data" + QDir::separator(),
-                       dialog->getFolderPath());
+                       questPath);
 
             // Modify the quest object
             Table* questData = quest.getData(DAT_QUEST);
@@ -90,9 +91,13 @@ void EditorWindow::on_actionNew_Quest_triggered()
             quest.saveData();
 
             // Populate the trees and set window title
-            populateTreeViews(dialog->getFolderPath());
+            populateTreeViews(questPath);
 
             setWindowTitle("ProcLevelDesigner - " + quest.getName());
+
+            // Enable actions
+            for(QAction* action : questOnlyActions)
+                action->setEnabled(true);
         }
     }
     delete dialog;
@@ -163,20 +168,25 @@ void EditorWindow::on_mapsView_doubleClicked(const QModelIndex &index)
 
 void EditorWindow::on_actionNew_Map_triggered()
 {
-    Map map = Map(32, 320, 320);
+    Map map = Map(32, 1, 1);
     map.setMusic(DEFAULT_MAP_MUSIC);
     map.setName("second_map");
-    map.setTileSet("castle");
+    map.setTileSet("main");
 
     for(int x = 0; x < map.getWidth(); x++)
     {
         for(int y = 0; y < map.getHeight(); y++)
         {
-            MapTile tile = MapTile(0, x, y, map.getTileSize(), 0);
+            MapTile tile = MapTile(0, x, y, map.getTileSize(), 1);
             map.setTile(x, y, MapTile(tile));
         }
     }
 
     Table* data = quest.getData(QString("maps") + QDir::separator() + map.getName());
     map.build(data);
+    writeToFile(QFileInfo(data->getFilePath()).absoluteDir().absolutePath(), "second_map.lua", ""); // Write map script file
+
+    Table* database = quest.getData(DAT_DATABASE);
+    database->addObject(OBJ_MAP, map.getObject());
+    quest.saveData();
 }

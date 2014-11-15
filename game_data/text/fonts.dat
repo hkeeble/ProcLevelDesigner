@@ -9,3 +9,20 @@ font{
   size = 8,
 }
 
+font{
+  id = "main_menu",
+  file = "text/minecraftia.ttf",
+  size = 14,
+}
+
+font{
+  id = "title",
+  file = "text/minecraftia.ttf",
+  size = 34,
+}
+
+font{
+  id = "subtitle",
+  file = "text/minecraftia.ttf",
+  size = 14,
+}

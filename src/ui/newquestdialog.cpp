@@ -7,7 +7,7 @@ NewQuestDialog::NewQuestDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->qnameEdit->setText("My Quest");
+    ui->qnameEdit->setText("My_Quest");
     ui->qlocationEdit->setText(QDir().currentPath() + QDir::separator() + "My Quests");
 }
 
@@ -28,6 +28,8 @@ void NewQuestDialog::on_okButton_clicked()
         // Grab the text from the UI elements
         questName = ui->qnameEdit->text();
         folderPath = ui->qDestination->text();
+
+        questName.replace(' ', '_');
 
         accept();
     }
@@ -53,7 +55,7 @@ QString NewQuestDialog::getFolderPath() const
 
 void NewQuestDialog::updateDestination() const
 {
-    ui->qDestination->setText(ui->qlocationEdit->text() + QDir::separator() + ui->qnameEdit->text());
+    ui->qDestination->setText(ui->qlocationEdit->text() + QDir::separator() + ui->qnameEdit->text().replace(' ', '_'));
 }
 
 void NewQuestDialog::on_qnameEdit_textChanged(const QString &arg1)

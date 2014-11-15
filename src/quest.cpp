@@ -30,11 +30,7 @@ bool Quest::Init()
     if(quest == nullptr)
         return false;
     else
-    {
-
-
         return true;
-    }
 }
 
 Quest::~Quest()
