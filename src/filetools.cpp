@@ -57,6 +57,33 @@ void Object::insert(QString element, QString value)
     data.insert(element, value);
 }
 
+bool Object::operator==(const Object& param)
+{
+    if(data.size() != data.size())
+        return false;
+
+    ObjectData::iterator iterObj;
+    ObjectData::const_iterator iterOther;
+    for(iterObj = data.begin(), iterOther = param.data.begin();
+        iterObj != data.end(); iterObj++, iterOther++)
+    {
+        if(iterObj.key() == iterOther.key())
+        {
+            if(iterObj.value() != iterOther.value())
+                return false;
+        }
+        else
+            return false;
+    }
+
+    return true;
+}
+
+bool Object::operator!=(const Object& param)
+{
+    return !(*this == param);
+}
+
 Table::Table()
 {
     objects = QMap<QString, Object>();
@@ -116,6 +143,17 @@ QString Table::getElementValue(QString objectName, QString elementName)
        return obj->find(elementName, NULL_ELEMENT); // Find element
     else
         return NULL_OBJECT; // Object was not found
+}
+
+QList<Object*> Table::getObjects()
+{
+    QList<Object*> list;
+
+    QMap<QString,Object>::iterator iter;
+    for(iter = objects.begin(); iter != objects.end(); iter++)
+            list.insert(list.size(), &iter.value());
+
+    return list;
 }
 
 QList<Object*> Table::getObjectsOfName(QString objectName)
@@ -276,6 +314,41 @@ void Table::writeObj(QString objectName, Object object)
     for(auto element = object.data.begin(); element != object.data.end(); element++)
         out << element.key() << " = \"" << element.value() << "\", ";
     out << "}\n";
+}
+
+bool Table::areEqual(Table* table)
+{
+    QList<Object*> otherObjs = table->getObjects();
+    QList<Object*> objs = getObjects();
+
+    if(otherObjs.length() != objs.length())
+        return false;
+
+
+
+    return true;
+}
+
+bool Table::operator==(Table& param)
+{
+    QList<Object*> otherObjs = param.getObjects();
+    QList<Object*> objs = getObjects();
+
+    if(otherObjs.length() != objs.length())
+        return false;
+
+    for(int i = 0; i < objs.length(); i++)
+    {
+        if(objs[0] != otherObjs[0])
+            return false;
+    }
+
+    return true;
+}
+
+bool Table::operator!=(Table& param)
+{
+    return !(*this == param);
 }
 
 void Table::clear()

@@ -7,6 +7,8 @@
 #include <QPixmap>
 #include <QGraphicsScene>
 
+#include "tileset.h"
+
 namespace Ui {
 class NewTilesetDialog;
 }
@@ -30,14 +32,16 @@ private slots:
 
     void on_buttonBrowse_clicked();
 
+    void on_tileSetView_rubberBandChanged(const QRect &viewportRect, const QPointF &fromScenePoint, const QPointF &toScenePoint);
+
 private:
     Ui::NewTilesetDialog *ui;
 
     QString name, filePath;
     int tileSize;
 
-    QPixmap tileset;
-    QGraphicsScene* scene;
+    QPixmap tileset; /*!< The image representing the tileset. */
+    QGraphicsScene* scene; /*!< The graphics scene representing the tileset. */
 };
 
 #endif // NEWTILESETDIALOG_H

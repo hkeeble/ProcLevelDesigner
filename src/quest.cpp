@@ -28,6 +28,7 @@ Quest::Quest(QString dirPath)
 bool Quest::Init()
 {
     Table* quest = getData(DAT_QUEST);
+
     if(quest == nullptr)
         return false;
     else
@@ -42,11 +43,19 @@ bool Quest::Init()
         for(QFileInfo f : tilesetData)
         {
             Table* data = getData(QString("tilesets") + QDir::separator() + f.baseName());
-            tileSets.insert(f.baseName(), Tileset(f.baseName(), data));
+            tileSets.insert(f.baseName(), Tileset::parse(f.baseName(), data));
         }
 
         // Load all existing maps
+        QDir mapDir = QDir(rootDir.absolutePath() + QDir::separator() + "maps" + QDir::separator());
+        mapDir.setNameFilters(filters);
+        QFileInfoList mapData = mapDir.entryInfoList();
 
+        for(QFileInfo f : mapData)
+        {
+            Table* data = getData(QString("maps") + QDir::separator() + f.baseName());
+            maps.insert(f.baseName(), Map::parse(f.baseName(), data));
+        }
 
         return true;
     }
@@ -171,4 +180,49 @@ void Quest::clear()
 
     fsModel = scriptModel = mapModel = nullptr;
 
+}
+
+Map* Quest::getMap(QString name)
+{
+    return &(*maps.find(name));
+}
+
+QMap<QString,Map>* Quest::getMaps()
+{
+    return &maps;
+}
+
+QList<Map*> Quest::getMapList()
+{
+    QList<Map*> mapList = QList<Map*>();
+    for(QMap<QString,Map>::iterator iter = maps.begin(); iter != maps.end(); iter++)
+    {
+        mapList.append(&iter.value());
+    }
+    return mapList;
+}
+
+Tileset* Quest::getTileset(QString name)
+{
+    return &(*tileSets.find(name));
+}
+
+QMap<QString,Tileset>* Quest::getTilesets()
+{
+    return &tileSets;
+}
+
+QList<Tileset*> Quest::getTilesetList()
+{
+    QList<Tileset*> tilesetList = QList<Tileset*>();
+    for(QMap<QString,Tileset>::iterator iter = tileSets.begin(); iter != tileSets.end(); iter++)
+    {
+        tilesetList.append(&iter.value());
+    }
+    return tilesetList;
+}
+
+void Quest::addTileSet(Tileset tileset)
+{
+    tileSets.insert(tileset.getName(), tileset);
 }

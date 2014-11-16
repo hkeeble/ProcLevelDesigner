@@ -62,6 +62,46 @@ public:
      */
     void clear();
 
+    /*!
+     * \brief getMap Gets a pointer to the map of the given name.
+     * \param name The name of the map to find.
+     * \return Pointer to the map, if no map is found with the given name, returns null.
+     */
+    Map* getMap(QString name);
+
+    /*!
+     * \brief getMaps Gets the set of maps contaiend in this quest.
+     */
+    QMap<QString,Map>* getMaps();
+
+    /*!
+     * \brief getMapList Gets the maps contained in this quest as a list.
+     */
+    QList<Map*> getMapList();
+
+    /*!
+     * \brief getTileset Gets the tileset of the given name.
+     * \param name The name of the tileset to retrieve.
+     * \return Pointer to the tilset requested. If not found, returns null.
+     */
+    Tileset* getTileset(QString name);
+
+    /*!
+     * \brief getTilesets Gets the set of tilesets contained in this quest.
+     */
+    QMap<QString,Tileset>* getTilesets();
+
+    /*!
+     * \brief getTilesetList Gets the tilests contained in this quest as a list.
+     */
+    QList<Tileset*> getTilesetList();
+
+    /*!
+     * \brief addTileSet Adds the given tileset to the quest.
+     * \param tileset The tileset to add to the quest.
+     */
+    void addTileSet(Tileset tileset);
+
 private:
     QDir rootDir;
     QFileSystemModel* fsModel;     /*!< The main file system model representing this quest. */

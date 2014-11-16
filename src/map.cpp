@@ -84,6 +84,7 @@ void Map::build(Table* table)
     properties.insert(ELE_HEIGHT, QString::number(height * tileSize));
     properties.insert(ELE_WORLD, world);
     properties.insert(ELE_MUSIC, music);
+    properties.insert(ELE_TILESET, tileSet->getName());
 
     // Add properties to the table
     table->addObject(OBJ_PROPERTIES, properties);

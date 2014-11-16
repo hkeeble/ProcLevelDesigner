@@ -6,7 +6,7 @@ NewTilesetDialog::NewTilesetDialog(QWidget *parent) :
     ui(new Ui::NewTilesetDialog)
 {
     ui->setupUi(this);
-    scene = nullptr;
+    scene = new QGraphicsScene();
 }
 
 NewTilesetDialog::~NewTilesetDialog()
@@ -39,12 +39,12 @@ void NewTilesetDialog::on_buttonCancel_clicked()
 void NewTilesetDialog::on_buttonBrowse_clicked()
 {
     ui->fileEdit->setText(QFileDialog::getOpenFileName(this, "Open Image", QString(), "Image Files (*.png)"));
+    QFileInfo fileLoaded = QFileInfo(ui->fileEdit->text());
+    QString path = fileLoaded.absoluteFilePath();
+    tileset = QPixmap(path);
 
-    tileset = QPixmap(ui->fileEdit->text());
-
-    if(scene)
-        delete scene;
-    scene = new QGraphicsScene(QRect(0,0,ui->tileSetView->width(), ui->tileSetView->height()));
+    scene->clear();
+    scene->setSceneRect(QRect(0, 0, tileset.width(), tileset.height()));
     scene->addPixmap(tileset);
 
     ui->tileSetView->setScene(scene);

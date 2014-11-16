@@ -83,6 +83,9 @@ public:
 
     QString find(QString element, QString defaultVal = "NULL");
     void insert(QString element, QString value);
+
+    bool operator==(const Object& param);
+    bool operator!=(const Object& param);
 };
 
 /*!
@@ -150,6 +153,11 @@ public:
     QString getElementValue(QString objectName, QString elementName);
 
     /*!
+     * \brief getObjects Retrieves a QList of all objects.
+     */
+    QList<Object*> getObjects();
+
+    /*!
      * \brief Retrieves a QList of all objects with the given name.
      * \param objectName The name of the objects to retrieve.
      * \return List of all objects with the given name.
@@ -184,6 +192,14 @@ public:
      * \brief Clears the contents of the entire table in memory.
      */
     void clear();
+
+    /*!
+     * \brief areEqual Compares this table to the given table. Returns false if they have any differences.
+     */
+    bool areEqual(Table* table);
+
+    bool operator==(Table& param);
+    bool operator!=(Table& param);
 
 private:
 

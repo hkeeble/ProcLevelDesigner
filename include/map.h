@@ -71,7 +71,7 @@ public:
     void build(Table* table);
 
     inline QString getName() const     { return name; }
-    inline Tileset getTileSet() const  { return tileSet; }
+    inline Tileset* getTileSet() const  { return tileSet; }
     inline QString getMusic() const    { return music; }
 
     inline int getWidth() const         { return width; }
@@ -79,7 +79,7 @@ public:
     inline int getTileSize() const      { return tileSize; }
 
     inline void setName(const QString& name)          { this->name = name; }
-    inline void setTileSet(const Tileset& tileSet)    { this->tileSet = tileSet; }
+    inline void setTileSet(Tileset* tileSet)    { this->tileSet = tileSet; }
     inline void setMusic(const QString& music)        { this->music = music; }
     inline void setTileSize(const int& size)          { this->tileSize = size; }
 
@@ -98,7 +98,7 @@ public:
 private:
     int width, height, tileSize;
     QString name, world, music;
-    Tileset tileSet; /*!< The tileset used by this map. */
+    Tileset* tileSet; /*!< The tileset used by this map. */
     QVector<QVector<MapTile>> tiles; /*!< The tiles contained in this map. */
 };
 

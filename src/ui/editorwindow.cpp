@@ -16,6 +16,7 @@ EditorWindow::EditorWindow(QWidget *parent) :
     questOnlyActions.append(ui->actionNew_Map);
     questOnlyActions.append(ui->actionNew_Script);
     questOnlyActions.append(ui->actionNew_Tileset);
+    questOnlyActions.append(ui->actionQuest_Database);
 
     setWindowTitle("ProcLevelDesigner");
 }
@@ -169,15 +170,16 @@ void EditorWindow::on_mapsView_doubleClicked(const QModelIndex &index)
 
 void EditorWindow::on_actionNew_Map_triggered()
 {
-    Map map = Map(32, 1, 1);
+    Map map = Map(32, 40, 40);
     map.setMusic(DEFAULT_MAP_MUSIC);
     map.setName("second_map");
+    map.setTileSet(quest.getTileset("field"));
 
     for(int x = 0; x < map.getWidth(); x++)
     {
         for(int y = 0; y < map.getHeight(); y++)
         {
-            MapTile tile = MapTile(0, x, y, map.getTileSize(), 1);
+            MapTile tile = MapTile(0, x, y, map.getTileSize(), 0);
             map.setTile(x, y, MapTile(tile));
         }
     }
@@ -191,21 +193,12 @@ void EditorWindow::on_actionNew_Map_triggered()
     quest.saveData();
 }
 
-void EditorWindow::on_actionNew_Tileset_triggered()
+void EditorWindow::on_actionQuest_Database_triggered()
 {
-    NewTilesetDialog* dialog = new NewTilesetDialog(this);
+    QuestDatabase* dialog = new QuestDatabase(&quest, this);
     if(dialog->exec() == QDialog::Accepted)
     {
-        // Copy the image file into tilesets directory
-        QFile::copy(dialog->getFilePath(), quest.getRootDir().absolutePath() + QDir::separator() + "tilesets" +
-                    QDir::separator() + dialog->getName() + ".tiles.png");
-
-        // Create a new .dat file
-        Table* data = quest.getData(QString("tilesets") + QDir::separator() + dialog->getName());
-
-        // Create a new tileset object
-        Tileset tileset = Tileset::create(dialog->getName(), dialog->getFilePath(), data, dialog->getTileSize());
-
+        setWindowTitle("ProcLevelDesigner - " + quest.getData(DAT_QUEST)->getElementValue(OBJ_QUEST, ELE_NAME));
     }
     delete dialog;
 }
