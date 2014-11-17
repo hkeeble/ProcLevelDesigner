@@ -97,6 +97,12 @@ public:
     QList<Tileset*> getTilesetList();
 
     /*!
+     * \brief removeTileset Removes the tileset with the given name from this quest.
+     * \return Returns true if tileset was removed successfully. Returns false if the tileset was not found.
+     */
+    bool removeTileset(QString name);
+
+    /*!
      * \brief addTileSet Adds the given tileset to the quest.
      * \param tileset The tileset to add to the quest.
      */

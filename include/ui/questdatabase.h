@@ -48,8 +48,12 @@ private:
      */
     void addTileset(Tileset tileSet);
 
+    /*!
+     * \brief updateTilesetModel Update the tileset model based upon the current list.
+     */
+    void updateTilesetModel();
+
     QStandardItemModel* tilesetModel;   /*!< Model used to represent current tilesets. */
-    QList<QStandardItem*> tileSetList;  /*!< List used to contain all tile set items for use in the model. */
     QList<Tileset*> openTileSets;       /*!< The list of tile sets currently opened. */
     Tileset* selectedTileset;           /*!< The currently selected tileset in the tileset view. */
     TilesetView* tilesetScene;          /*!< Scene used to display the tileset currently selected. */

@@ -29,31 +29,23 @@ void QuestDatabase::initTilesetTab()
     selectedTileset = nullptr;
     openTileSets = QList<Tileset*>();
     tilesetScene = new TilesetView(this);
+    tilesetModel = new QStandardItemModel();
+
+    // UI Initialization
+    ui->tilesetsList->setModel(tilesetModel);
+    ui->tilesetsList->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->tilesetSelectedView->setMouseTracking(true);
     ui->tilesetSelectedView->setScene(tilesetScene);
 
-    // Consruct list view for tile sets
-    QList<Tileset*> list = quest->getTilesetList();
-    tilesetModel = new QStandardItemModel();
+    // Update the model (initialize it)
+    updateTilesetModel();
 
-    for(Tileset* set : list)
-    {
-        tilesetModel->appendRow(new QStandardItem(set->getName()));
-    }
-
-    ui->tilesetsList->setModel(tilesetModel);
-    ui->tilesetsList->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
 QuestDatabase::~QuestDatabase()
 {
     delete ui;
 
-    for(int i = 0; i < tileSetList.length(); i++)
-    {
-        if(tileSetList[i])
-            delete tileSetList[i];
-    }
     if(tilesetModel)
         delete tilesetModel;
     if(tilesetScene)
@@ -96,22 +88,34 @@ void QuestDatabase::on_addTilesetButton_clicked()
         Table* data = quest->getData(QString("tilesets") + QDir::separator() + dialog->getName());
         Tileset set = Tileset::create(dialog->getName(), dialog->getFilePath(), data, dialog->getTileSize());
         quest->addTileSet(set);
-        addTileset(set);
-        openTileSets.append(quest->getTileset(set.getName()));
+        updateTilesetModel();
     }
 
     delete dialog;
 }
 
-void QuestDatabase::addTileset(Tileset tileSet)
+void QuestDatabase::updateTilesetModel()
 {
-    tileSetList.append(new QStandardItem(tileSet.getName()));
-    tilesetModel->appendRow(tileSetList.last());
+    // Consruct list view for tile sets
+    QList<Tileset*> list = quest->getTilesetList();
+    tilesetModel->clear();
+
+    tilesetModel->setRowCount(list.length());
+    for(int i = 0; i < list.length(); i++)
+        tilesetModel->setItem(i, new QStandardItem(list[i]->getName()));
 }
 
 void QuestDatabase::on_removeTilesetButton_clicked()
 {
+    if(QMessageBox::warning(this, "Warning", "Removing tileset " + selectedTileset->getName() +
+                         " will delete all local .dat and image files. Are you sure you wish to do this?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+    {
+        Tileset* set = quest->getTileset(selectedTileset->getName());
+        openTileSets.removeOne(set);
+        quest->removeTileset(set->getName());
 
+        updateTilesetModel();
+    }
 }
 
 void QuestDatabase::on_OKButton_clicked()

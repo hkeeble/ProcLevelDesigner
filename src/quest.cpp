@@ -226,3 +226,23 @@ void Quest::addTileSet(Tileset tileset)
 {
     tileSets.insert(tileset.getName(), tileset);
 }
+
+bool Quest::removeTileset(QString name)
+{
+    Tileset* set = getTileset(name);
+    if(set == nullptr)
+        return false;
+    else
+    {
+        data.remove(QString("tilesets") + QDir::separator() + name + DAT_EXT); // Remove from loaded data (to prevent recreating when we save)
+        tileSets.remove(name); // Remove from tilesets
+
+        // Calculate file paths
+        QString datFile = rootDir.absolutePath() + QDir::separator() + "tilesets" + QDir::separator() + name + DAT_EXT;
+        QString tilesFile = rootDir.absolutePath() + QDir::separator() + "tilesets" + QDir::separator() + name + ".tiles.png";
+        QString entitiesFile = rootDir.absolutePath() + QDir::separator() + "tilesets" + QDir::separator() + name + ".entities.png";
+
+        // Remove all files, return the result
+        return QFile::remove(datFile) && QFile::remove(tilesFile) & QFile::remove(entitiesFile);
+    }
+}
