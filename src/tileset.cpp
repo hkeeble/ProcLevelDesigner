@@ -35,9 +35,7 @@ Object TilePattern::build()
     obj.insert(ELE_Y, QString::number(y));
     obj.insert(ELE_WIDTH, QString::number(width));
     obj.insert(ELE_HEIGHT, QString::number(height));
-
-    if(traversable)
-        obj.insert(ELE_GROUND, traversable ? "traversable" : "wall");
+    obj.insert(ELE_GROUND, traversable ? "traversable" : "wall");
 
     return obj;
 }
@@ -85,6 +83,19 @@ Tileset Tileset::parse(QString name, Table* data)
     return tileset;
 }
 
+void Tileset::build(Tileset tileset)
+{
+    tileset.data->clear(); // Clear all existing data in the tileset
+
+    QMap<int,TilePattern>::iterator iter;
+    for(iter = tileset.patterns.begin(); iter != tileset.patterns.end(); iter++)
+    {
+        tileset.data->addObject(OBJ_TILE_PATTERN, iter.value().build());
+    }
+
+    tileset.data->saveToDisk();
+}
+
 Tileset Tileset::create(QString name, QString filePath, Table* data, int tileSize)
 {
     Tileset tileset;
@@ -93,6 +104,7 @@ Tileset Tileset::create(QString name, QString filePath, Table* data, int tileSiz
     tileset.image = QPixmap(filePath); // Load the image!
     tileset.width = tileset.image.width()/tileSize;
     tileset.height = tileset.image.height()/tileSize;
+    tileset.data = data;
 
     int id = 0;
 
@@ -127,4 +139,25 @@ QList<TilePattern*> Tileset::getPatternList()
         patternList.append(&iter.value());
     }
     return patternList;
+}
+
+QVector<QVector<TilePattern*>> Tileset::getPatternGrid()
+{
+    QList<TilePattern*> list = getPatternList();
+    QVector<QVector<TilePattern*>> grid = QVector<QVector<TilePattern*>>(width, QVector<TilePattern*>(height));
+
+    for(int x = 0; x < width; x++)
+    {
+        for(int y = 0; y < height; y++)
+        {
+            grid[x][y] = new TilePattern();
+        }
+    }
+
+    for(TilePattern* pattern : list)
+    {
+        grid[pattern->x/tileSize][pattern->y/tileSize] = pattern;
+    }
+
+    return grid;
 }

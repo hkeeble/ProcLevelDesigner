@@ -146,17 +146,6 @@ void EditorWindow::on_actionClose_triggered()
     setWindowTitle("ProcLevelDesigner");
 }
 
-void EditorWindow::on_actionQuest_Options_triggered()
-{
-    QuestOptionsDialog* dialog = new QuestOptionsDialog(this);
-    if(dialog->exec() == QDialog::Accepted)
-    {
-        quest.getData(DAT_QUEST)->setElementValue(OBJ_QUEST, ELE_NAME, dialog->getName());
-        setWindowTitle("ProcLevelDesigner - " + quest.getName());
-    }
-    delete dialog;
-}
-
 void EditorWindow::on_mapsView_doubleClicked(const QModelIndex &index)
 {
     if(index.isValid())
@@ -196,9 +185,7 @@ void EditorWindow::on_actionNew_Map_triggered()
 void EditorWindow::on_actionQuest_Database_triggered()
 {
     QuestDatabase* dialog = new QuestDatabase(&quest, this);
-    if(dialog->exec() == QDialog::Accepted)
-    {
-        setWindowTitle("ProcLevelDesigner - " + quest.getData(DAT_QUEST)->getElementValue(OBJ_QUEST, ELE_NAME));
-    }
+    dialog->exec();
+    setWindowTitle("ProcLevelDesigner - " + quest.getData(DAT_QUEST)->getElementValue(OBJ_QUEST, ELE_NAME));
     delete dialog;
 }

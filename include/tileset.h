@@ -27,11 +27,13 @@ public:
 
     static Tileset create(QString name, QString filePath, Table* data, int tileSize);
     static Tileset parse(QString name, Table* data);
+    static void build(Tileset tileset);
 
     inline TilePattern getPattern(int id) { return patterns.find(id).value(); }
     inline void addPattern(TilePattern pattern) { patterns.insert(pattern.id, pattern); }
 
     inline QMap<int,TilePattern>* getPatterns() { return &patterns; }
+    QVector<QVector<TilePattern*>> getPatternGrid();
     QList<TilePattern*> getPatternList();
 
     inline QString getName() { return name; }

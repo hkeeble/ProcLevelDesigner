@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>New Quest</string>
+   <string>Create New Quest</string>
   </property>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">

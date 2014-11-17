@@ -27,12 +27,8 @@ public:
 
 private slots:
     void on_buttonOK_clicked();
-
     void on_buttonCancel_clicked();
-
     void on_buttonBrowse_clicked();
-
-    void on_tileSetView_rubberBandChanged(const QRect &viewportRect, const QPointF &fromScenePoint, const QPointF &toScenePoint);
 
 private:
     Ui::NewTilesetDialog *ui;

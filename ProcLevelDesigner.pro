@@ -20,7 +20,6 @@ SOURCES += \
     src/ui/editorwindow.cpp \
     src/ui/newquestdialog.cpp \
     src/ui/openquestdialog.cpp \
-    src/ui/questoptionsdialog.cpp \
     src/map.cpp \
     src/tileset.cpp \
     src/ui/newtilesetdialog.cpp \
@@ -34,7 +33,6 @@ HEADERS  += \
     include/ui/editorwindow.h \
     include/ui/newquestdialog.h \
     include/ui/openquestdialog.h \
-    include/ui/questoptionsdialog.h \
     include/map.h \
     include/tileset.h \
     include/ui/newtilesetdialog.h \
@@ -45,7 +43,6 @@ FORMS    += \
     ui/editorwindow.ui \
     ui/newquestdialog.ui \
     ui/openquestdialog.ui \
-    ui/questoptionsdialog.ui \
     ui/newtilesetdialog.ui \
     ui/questdatabase.ui
 

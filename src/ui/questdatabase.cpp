@@ -9,12 +9,13 @@ QuestDatabase::QuestDatabase(Quest* quest, QWidget *parent) :
 
     setMouseTracking(true);
 
-    applyEnabled = false;
-
     this->quest = quest;
+
+    setWindowTitle("Quest Database - " + quest->getName());
 
     initInfoTab();
     initTilesetTab();
+
 }
 
 void QuestDatabase::initInfoTab()
@@ -26,9 +27,9 @@ void QuestDatabase::initInfoTab()
 void QuestDatabase::initTilesetTab()
 {
     selectedTileset = nullptr;
+    openTileSets = QList<Tileset*>();
     tilesetScene = new TilesetView(this);
     ui->tilesetSelectedView->setMouseTracking(true);
-    tilesetScene->setSceneRect(QRect(0, 0, ui->tilesetSelectedView->width(), ui->tilesetSelectedView->height()));
     ui->tilesetSelectedView->setScene(tilesetScene);
 
     // Consruct list view for tile sets
@@ -59,32 +60,24 @@ QuestDatabase::~QuestDatabase()
         delete tilesetScene;
 }
 
-void QuestDatabase::enableApply()
-{
-    applyEnabled = true;
-    ui->applyButton->setEnabled(true);
-}
-
-void QuestDatabase::disableApply()
-{
-    applyEnabled = false;
-    ui->applyButton->setEnabled(false);
-}
-
 void QuestDatabase::on_tilesetsList_doubleClicked(const QModelIndex &index)
 {
-    QString setName = index.data().toString();
-
-    selectedTileset = quest->getTileset(setName);
+    selectedTileset = quest->getTileset(index.data().toString());
 
     if(selectedTileset)
     {
-        tilesetScene->addPixmap(selectedTileset->getImage());
+        if(!openTileSets.contains(selectedTileset))
+            openTileSets.append(selectedTileset);
+
+        ui->setLabel->setEnabled(true);
+        ui->setLabel->setText("Current Tileset: " + index.data().toString());
+
         tilesetScene->setTileset(selectedTileset);
     }
     else
     {
         QMessageBox::warning(this, "Error", "The selected tileset is no longer part of this quest. Removing from list.", QMessageBox::Ok);
+        tilesetModel->removeRow(index.row());
     }
 }
 
@@ -104,7 +97,7 @@ void QuestDatabase::on_addTilesetButton_clicked()
         Tileset set = Tileset::create(dialog->getName(), dialog->getFilePath(), data, dialog->getTileSize());
         quest->addTileSet(set);
         addTileset(set);
-        enableApply();
+        openTileSets.append(quest->getTileset(set.getName()));
     }
 
     delete dialog;
@@ -121,40 +114,42 @@ void QuestDatabase::on_removeTilesetButton_clicked()
 
 }
 
-void QuestDatabase::on_cancelButton_clicked()
-{
-    if(applyEnabled)
-    {
-        if(QMessageBox::warning(this, "Unsaved Changes", "You've made changes to this quest's data. Do you wish to save before exitting?",
-                             QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
-        {
-            ui->OKButton->clicked();
-        }
-        else
-            reject();
-    }
-    else
-        reject();
-}
-
 void QuestDatabase::on_OKButton_clicked()
 {
-    if(applyEnabled)
-        ui->applyButton->click();
+    // Validate all inputs here
+    if(validate())
+    {
+        // Save modified quest info
+        Table* qData = quest->getData(DAT_QUEST);
+        qData->setElementValue(OBJ_QUEST, ELE_NAME, ui->questNameEdit->text());
+        qData->saveToDisk();
 
-    accept();
-}
+        // Save all opened tilesets (assumption is that all have been modified)
+        for(Tileset* set : openTileSets)
+            Tileset::build(*set);
 
-void QuestDatabase::on_applyButton_clicked()
-{
-    Table* qData = quest->getData(DAT_QUEST);
-    qData->setElementValue(OBJ_QUEST, ELE_NAME, ui->questNameEdit->text());
-    quest->saveData();
-    disableApply();
+        accept();
+    }
+    else
+        QMessageBox::warning(this, "Error", "Please ensure all quest information is valid before continuing.", QMessageBox::Ok);
 }
 
 void QuestDatabase::on_questNameEdit_editingFinished()
 {
     ui->questNameEdit->setText(ui->questNameEdit->text().replace(' ', '_'));
-    enableApply();
+}
+
+void QuestDatabase::closeEvent(QCloseEvent* event)
+{
+    ui->OKButton->click();
+
+    if(validate())
+        reject();
+    else
+        event->ignore();
+}
+
+bool QuestDatabase::validate()
+{
+    return ui->questNameEdit->text().length() != 0;
 }

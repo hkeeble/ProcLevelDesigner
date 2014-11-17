@@ -10,7 +10,6 @@
 #include "common.h"
 #include "newquestdialog.h"
 #include "openquestdialog.h"
-#include "questoptionsdialog.h"
 #include "questdatabase.h"
 #include "quest.h"
 #include "filetools.h"
@@ -37,7 +36,6 @@ private slots:
     void on_actionNew_Quest_triggered();
     void on_actionSave_Quest_triggered();
     void on_actionClose_triggered();
-    void on_actionQuest_Options_triggered();
 
     void on_mapsView_doubleClicked(const QModelIndex &index);
 
