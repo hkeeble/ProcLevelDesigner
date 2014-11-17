@@ -93,9 +93,11 @@ void QuestDatabase::on_addTilesetButton_clicked()
     NewTilesetDialog* dialog = new NewTilesetDialog(this);
     if(dialog->exec() == QDialog::Accepted)
     {
-        // Copy the image file into tilesets directory
+        // Copy the image file into tilesets directory (create a dummy entity set for now)
         QFile::copy(dialog->getFilePath(), quest->getRootDir().absolutePath() + QDir::separator() + "tilesets" +
             QDir::separator() + dialog->getName() + ".tiles.png");
+        QFile::copy(dialog->getFilePath(), quest->getRootDir().absolutePath() + QDir::separator() + "tilesets" +
+            QDir::separator() + dialog->getName() + ".entities.png");
 
         // Create a new .dat file
         Table* data = quest->getData(QString("tilesets") + QDir::separator() + dialog->getName());

@@ -179,7 +179,7 @@ void EditorWindow::on_actionNew_Map_triggered()
     {
         for(int y = 0; y < map.getHeight(); y++)
         {
-            MapTile tile = MapTile(0, x, y, map.getTileSize(), 0);
+            MapTile tile = MapTile(0, x, y, map.getTileSize(), ((double) rand() / (RAND_MAX)) + 1);
             map.setTile(x, y, MapTile(tile));
         }
     }
