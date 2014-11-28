@@ -5,9 +5,12 @@
 #include <QFileSystemModel>
 #include <QMap>
 #include <QSharedPointer>
+#include <QList>
 
 #include "filetools.h"
 #include "map.h"
+#include "key.h"
+#include "gate.h"
 
 // The solarus version supported by this quest object
 const QString SOLARUS_VERSION = "1.3";
@@ -108,6 +111,16 @@ public:
      */
     void addTileSet(Tileset tileset);
 
+    /*!
+     * \brief getKeyEventList Get a list of pointers to the key events contained within this quest.
+     */
+    QList<Key*> getKeyEventList();
+
+    /*!
+     * \brief getGateList Get a list of pointers to the gates contained within this quest.
+     */
+    QList<Gate*> getGateList();
+
 private:
     QDir rootDir;
     QFileSystemModel* fsModel;     /*!< The main file system model representing this quest. */
@@ -120,6 +133,9 @@ private:
 
     QMap<QString,Map> maps;         /*!< The maps contained within this quest. */
     QMap<QString,Tileset> tileSets; /*!< The tilesets contained within this quest. */
+
+    QList<Key> keyEvents;
+    QList<Gate> gates;
 
     void cpy(const Quest& param);
 };

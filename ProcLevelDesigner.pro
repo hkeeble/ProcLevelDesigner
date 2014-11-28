@@ -24,7 +24,12 @@ SOURCES += \
     src/tileset.cpp \
     src/ui/newtilesetdialog.cpp \
     src/ui/questdatabase.cpp \
-    src/tilesetview.cpp
+    src/tilesetview.cpp \
+    src/ui/mission/editkeyevent.cpp \
+    src/mission/missionitem.cpp \
+    src/mission/key.cpp \
+    src/mission/gate.cpp \
+    src/mission/missionitemcollection.cpp
 
 HEADERS  += \
     include/common.h \
@@ -37,17 +42,25 @@ HEADERS  += \
     include/tileset.h \
     include/ui/newtilesetdialog.h \
     include/ui/questdatabase.h \
-    include/tilesetview.h
+    include/tilesetview.h \
+    include/ui/mission/editkeyevent.h \
+    include/mission/missionitem.h \
+    include/mission/key.h \
+    include/mission/gate.h \
+    include/mission/missionitemcollection.h
 
 FORMS    += \
     ui/editorwindow.ui \
     ui/newquestdialog.ui \
     ui/openquestdialog.ui \
     ui/newtilesetdialog.ui \
-    ui/questdatabase.ui
+    ui/questdatabase.ui \
+    ui/mission/editkeyevent.ui
 
 INCLUDEPATH += include \
-               include/ui
+               include/ui \
+               include/ui/mission \
+               include/mission \
 
 # Copy Data & Script Files to build
 data.path = $${OUT_PWD}/game_data

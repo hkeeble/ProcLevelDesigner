@@ -57,6 +57,9 @@ bool Quest::Init()
             maps.insert(f.baseName(), Map::parse(f.baseName(), data));
         }
 
+        // Load all existing keys and gates
+        Table* structureData = getData(QString("proc_designer_data") + QDir::separator() + "structureData");
+
         return true;
     }
 }
@@ -220,6 +223,28 @@ QList<Tileset*> Quest::getTilesetList()
         tilesetList.append(&iter.value());
     }
     return tilesetList;
+}
+
+QList<Key*> Quest::getKeyEventList()
+{
+    QList<Key*> keyList = QList<Key*>();
+    for(QList<Key>::iterator iter = keyEvents.begin(); iter != keyEvents.end(); iter++)
+    {
+        keyList.append(&(*iter));
+    }
+
+    return keyList;
+}
+
+QList<Gate*> Quest::getGateList()
+{
+    QList<Gate*> gateList = QList<Gate*>();
+    for(QList<Gate>::iterator iter = gates.begin(); iter != gates.end(); iter++)
+    {
+        gateList.append(&(*iter));
+    }
+
+    return gateList;
 }
 
 void Quest::addTileSet(Tileset tileset)

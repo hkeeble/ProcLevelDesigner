@@ -22,7 +22,7 @@ const QString ELE_ID = "id";
 const QString ELE_DESCRIPTION = "description";
 
 const QString OBJ_QUEST = "quest";
-const QString ELE_NAME = "title_bar";
+const QString ELE_TITLE_BAR = "title_bar";
 const QString ELE_WRT_DIR = "write_dir";
 const QString ELE_SOL_VERS = "solarus_version";
 
@@ -46,6 +46,16 @@ const QString ELE_DEFAULT_LAYER = "default_layer";
 const QString ELE_GROUND = "ground";
 
 const QString DAT_EXT = ".dat"; // Data file extension
+
+// Key Event
+const QString OBJ_KEY_EVENT = "key_event";
+const QString ELE_NAME = "name";
+const QString ELE_GATE_LINK = "gate_link";
+const QString ELE_SCRIPT_FILE = "script_file";
+
+// Gate
+const QString OBJ_GATE = "gate";
+const QString ELE_KEY_LINK = "key_link";
 
 const QVector<QChar> FIND_OBJ_DELIMS =  {'{'};
 const QVector<QChar> OBJ_DELIMS =       {'}'};

@@ -18,12 +18,37 @@ EditorWindow::EditorWindow(QWidget *parent) :
     questOnlyActions.append(ui->actionNew_Tileset);
     questOnlyActions.append(ui->actionQuest_Database);
 
+    questOnlyWidgets = QList<QWidget*>();
+    questOnlyWidgets.append(ui->tabView);
+
+    setQuestOnlyUIEnabled(false);
+
+    keyEventModel = nullptr;
+    gateModel = nullptr;
+
     setWindowTitle("ProcLevelDesigner");
 }
 
 EditorWindow::~EditorWindow()
 {
+    if(keyEventModel)
+        delete keyEventModel;
+    if(gateModel)
+        delete gateModel;
+
     delete ui;
+}
+
+
+void EditorWindow::setQuestOnlyUIEnabled(bool enabled)
+{
+    // Actions
+    for(QAction* action : questOnlyActions)
+        action->setEnabled(enabled);
+
+    // Widgets
+    for(QWidget* widget : questOnlyWidgets)
+        widget->setEnabled(enabled);
 }
 
 void EditorWindow::build()
@@ -48,12 +73,12 @@ void EditorWindow::on_actionOpen_Quest_triggered()
         if(quest.Init()) // Attempt to initialize quest from the given path
         {
             // Populate the trees and set window title
-            populateTreeViews(quest.getRootDir().absolutePath());
             setWindowTitle("ProcLevelDesigner - " + quest.getName());
 
-            // Enable actions
-            for(QAction* action : questOnlyActions)
-                action->setEnabled(true);
+            // Initialize the UI with quest data
+            initQuestUI();
+
+            setQuestOnlyUIEnabled(true);
         }
         else
             QMessageBox::warning(this, "Error", "No valid quest was found in this folder.", QMessageBox::Ok);
@@ -92,42 +117,49 @@ void EditorWindow::on_actionNew_Quest_triggered()
             // Save out all modified quest data
             quest.saveData();
 
-            // Populate the trees and set window title
-            populateTreeViews(questPath);
-
             setWindowTitle("ProcLevelDesigner - " + quest.getName());
 
-            // Enable actions
-            for(QAction* action : questOnlyActions)
-                action->setEnabled(true);
+            setQuestOnlyUIEnabled(true);
         }
     }
     delete dialog;
 }
 
+void EditorWindow::initQuestUI()
+{
+    // Initialize lists of key events and gates
+    if(!keyEventModel)
+        keyEventModel = new QStandardItemModel;
+    else
+        keyEventModel->clear();
+
+    if(!gateModel)
+        gateModel = new QStandardItemModel;
+    else
+        gateModel->clear();
+
+    QList<Gate*> gates = quest.getGateList();
+    QList<Key*> keyEvents = quest.getKeyEventList();
+
+    gateModel->setRowCount(gates.length());
+    keyEventModel->setRowCount(keyEvents.length());
+
+    for(int i = 0; i < gates.length(); i++)
+        gateModel->setItem(i, new QStandardItem(gates[i]->getName()));
+
+    for(int i = 0; i < keyEvents.length(); i++)
+        keyEventModel->setItem(i, new QStandardItem(keyEvents[i]->getName()));
+
+    ui->keyEventList->setModel(keyEventModel);
+    ui->gateList->setModel(gateModel);
+
+    ui->keyEventList->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->gateList->setEditTriggers(QAbstractItemView::NoEditTriggers);
+}
+
 void EditorWindow::on_actionExit_triggered()
 {
     this->close();
-}
-
-void EditorWindow::populateTreeViews(QString rootDir)
-{
-    // Populate the script view
-    ui->scriptsView->setModel(quest.getScriptModel());
-    ui->scriptsView->setRootIndex(quest.getScriptModel()->index(rootDir));
-
-    // Populate the tree view with quest file model
-    ui->mapsView->setModel(quest.getMapModel());
-    ui->mapsView->setRootIndex(quest.getMapModel()->index(rootDir + QDir::separator() + "maps" + QDir::separator()));
-
-    // Hide uneccesary columns
-    ui->scriptsView->hideColumn(1);
-    ui->scriptsView->hideColumn(2);
-    ui->scriptsView->hideColumn(3);
-    ui->mapsView->hideColumn(1);
-    ui->mapsView->hideColumn(2);
-    ui->mapsView->hideColumn(3);
-
 }
 
 void EditorWindow::on_actionSave_Quest_triggered()
@@ -139,9 +171,7 @@ void EditorWindow::on_actionClose_triggered()
 {
     quest.clear();
 
-    // Disable menu items
-    for(QAction* action : questOnlyActions)
-        action->setEnabled(false);
+    setQuestOnlyUIEnabled(false);
 
     setWindowTitle("ProcLevelDesigner");
 }
@@ -188,4 +218,13 @@ void EditorWindow::on_actionQuest_Database_triggered()
     dialog->exec();
     setWindowTitle("ProcLevelDesigner - " + quest.getData(DAT_QUEST)->getElementValue(OBJ_QUEST, ELE_NAME));
     delete dialog;
+}
+
+void EditorWindow::on_newKeyEventButton_clicked()
+{
+    EditKeyEvent* dialog = new EditKeyEvent(this);
+    if(dialog->exec() == QDialog::Accepted)
+    {
+
+    }
 }
