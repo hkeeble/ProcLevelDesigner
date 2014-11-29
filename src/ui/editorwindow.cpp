@@ -231,7 +231,8 @@ void EditorWindow::on_newKeyEventButton_clicked()
     EditKeyEvent* dialog = new EditKeyEvent(this);
     if(dialog->exec() == QDialog::Accepted)
     {
-
+        MissionItemCollection* items = quest.mission.getItems();
+        items->AddKeyEvent(dialog->getName(), Key(dialog->getName(), dialog->getType(), dialog->getMessage()));
     }
 }
 

@@ -10,17 +10,23 @@
 #include <QVector>
 #include <QChar>
 
+// Used to represent an object or element that does not exist or was not found.
 const QString NULL_ELEMENT = "NULL_ELEMENT";
 const QString NULL_OBJECT = "NULL_OBJECT";
+
+// File extension used by data files.
+const QString DAT_EXT = ".dat";
 
 // Constants used to find objects, elements and data files
 const QString DAT_QUEST = "quest";
 
+// Quest Database
 const QString DAT_DATABASE = "project_db";
 const QString OBJ_MAP = "map";
 const QString ELE_ID = "id";
 const QString ELE_DESCRIPTION = "description";
 
+// Quest Object
 const QString OBJ_QUEST = "quest";
 const QString ELE_TITLE_BAR = "title_bar";
 const QString ELE_WRT_DIR = "write_dir";
@@ -45,25 +51,27 @@ const QString OBJ_TILE_PATTERN = "tile_pattern";
 const QString ELE_DEFAULT_LAYER = "default_layer";
 const QString ELE_GROUND = "ground";
 
-const QString DAT_EXT = ".dat"; // Data file extension
-
 // Mission Items
 const QString DAT_MISSION_ITEMS = "proc_designer_data" + QString(QDir::separator()) + "mission_items";
 
 // Key Event
 const QString OBJ_KEY_EVENT = "key_event";
 const QString ELE_NAME = "name";
-const QString ELE_SCRIPT_FILE = "script_file";
+const QString ELE_KEY_TYPE = "key_type";
+const QString ELE_KEY_MESSAGE = "key_message";
 
 // Gate
 const QString OBJ_GATE = "gate";
-const QString ELE_KEY_LINK = "key_link";
+const QString ELE_KEY_LINKS = "key_links";
+const QString ELE_GATE_TYPE = "gate_type";
+const QString ELE_TRIGGERED = "triggered";
 
 // Program Preferences
 const QString DAT_PREFERENCES = QDir::currentPath() + QDir::separator() + "preferences.dat";
 const QString OBJ_PREFERENCES = "preferences";
 const QString ELE_SOLARUS_PATH = "solarus_path";
 
+// Object, element and value delimiters for parsing and building .dat files.
 const QVector<QChar> FIND_OBJ_DELIMS =  {'{'};
 const QVector<QChar> OBJ_DELIMS =       {'}'};
 const QVector<QChar> ELEM_DELIMS =      {'='};

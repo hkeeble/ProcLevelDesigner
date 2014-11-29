@@ -6,21 +6,46 @@
 
 #include "filetools.h"
 
+/*!
+ * \brief Represents a key event in the mission structure.
+ */
 class Key
 {
 public:
+    /*!
+     * \brief Represents type of key.
+     */
+    enum Type
+    {
+        Switch, /*!< The key is represented in-game with a switch event. */
+        NPC,    /*!< The key is represented in-game via an NPC dialog. */
+        Chest,  /*!< The key is represented in-game through an item taken from a chest. */
+        Item,    /*!< The key is represented in-game by an item that can be collected by the player. */
+        COUNT
+    };
+
     Key();
-    Key(QString name, QString scriptFilePath);
+    Key(QString name, Key::Type type, QString message = "");
     virtual ~Key() { }
 
-    inline QString getName() { return name; }
-    inline QString getScriptFilePath() { return scriptFilePath; }
+    inline QString getName()    { return name; }
+    inline QString getMessage() { return message; }
+    inline Key::Type getKeyType() { return type; }
 
     static Key Parse(Object* object);
     virtual Object Build();
 
 private:
-    QString name, scriptFilePath;
+    QString name, message;
+    Key::Type type; /*!< The type of this key event. */
 };
+
+const QString KEY_TYPE_STRINGS[Key::Type::COUNT] =
+{
+  "Switch",
+  "NPC",
+  "Chest",
+  "Item"
+}; /*!< Use KEY_TYPE_STRINGS to retrieve a string representation of the given key type. */
 
 #endif // KEY_H
