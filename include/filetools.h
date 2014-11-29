@@ -47,15 +47,22 @@ const QString ELE_GROUND = "ground";
 
 const QString DAT_EXT = ".dat"; // Data file extension
 
+// Mission Items
+const QString DAT_MISSION_ITEMS = "proc_designer_data" + QString(QDir::separator()) + "mission_items";
+
 // Key Event
 const QString OBJ_KEY_EVENT = "key_event";
 const QString ELE_NAME = "name";
-const QString ELE_GATE_LINK = "gate_link";
 const QString ELE_SCRIPT_FILE = "script_file";
 
 // Gate
 const QString OBJ_GATE = "gate";
 const QString ELE_KEY_LINK = "key_link";
+
+// Program Preferences
+const QString DAT_PREFERENCES = QDir::currentPath() + QDir::separator() + "preferences.dat";
+const QString OBJ_PREFERENCES = "preferences";
+const QString ELE_SOLARUS_PATH = "solarus_path";
 
 const QVector<QChar> FIND_OBJ_DELIMS =  {'{'};
 const QVector<QChar> OBJ_DELIMS =       {'}'};

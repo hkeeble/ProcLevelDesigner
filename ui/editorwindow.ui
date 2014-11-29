@@ -324,9 +324,17 @@
      <string>Tools</string>
     </property>
     <addaction name="actionQuest_Database"/>
+    <addaction name="actionSet_Solarus_Directory"/>
+   </widget>
+   <widget class="QMenu" name="menuRun">
+    <property name="title">
+     <string>Run</string>
+    </property>
+    <addaction name="actionRun"/>
    </widget>
    <addaction name="menuProcedural_Level_Designer"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuRun"/>
    <addaction name="menuTools"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -415,6 +423,16 @@
    </property>
    <property name="text">
     <string>Quest Database</string>
+   </property>
+  </action>
+  <action name="actionRun">
+   <property name="text">
+    <string>Run</string>
+   </property>
+  </action>
+  <action name="actionSet_Solarus_Directory">
+   <property name="text">
+    <string>Set Solarus Directory</string>
    </property>
   </action>
  </widget>

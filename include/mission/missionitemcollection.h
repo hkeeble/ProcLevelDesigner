@@ -26,18 +26,6 @@ public:
     void Build(Table* table);
 
     /*!
-     * \brief Get the list of gates in this collection.
-     * \return
-     */
-    inline QList<Gate> getGates() { return gates; }
-
-    /*!
-     * \brief Get the list of keys in this collection.
-     * \return
-     */
-    inline QList<Key> getKeyEvents() { return keys; }
-
-    /*!
      * \brief Add a new gate to this collection. Returns true if addition was successful (returns false if name of gate exists).
      */
     bool AddGate(QString name, Gate gate);
@@ -62,7 +50,6 @@ public:
      */
     Key* getKeyEvent(QString name);
 
-
     /*!
      * \brief Retrieves a pointer to the gate with the given name. Returns null pointer of gate was not found.
      */
@@ -80,8 +67,8 @@ public:
     QList<Key*> getKeyEventList();
 
 private:
-    QMap<QString,Gate*> gates; /*!< The gates contained in this collection. */
-    QMap<QString,Key*> keyEvents; /*!< The key events contained in this collection. */
+    QMap<QString,Gate> gates; /*!< The gates contained in this collection. */
+    QMap<QString,Key> keyEvents; /*!< The key events contained in this collection. */
 };
 
 #endif // MISSIONITEMCOLLECTION_H

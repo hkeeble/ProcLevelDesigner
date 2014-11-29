@@ -2,7 +2,8 @@
 
 MissionItemCollection::MissionItemCollection()
 {
-
+    gates = QMap<QString,Gate>();
+    keyEvents = QMap<QString,Key>();
 }
 
 MissionItemCollection::~MissionItemCollection()
@@ -17,21 +18,23 @@ MissionItemCollection MissionItemCollection::Parse(Table* data)
     QList<Object*> gateObjects = data->getObjectsOfName(OBJ_GATE);
 
     // Clear any existing data
-    gates.clear();
-    keyEvents.clear();
+    collection.gates.clear();
+    collection.keyEvents.clear();
 
     // Parse all objects, and insert them into the collection
     for(Object* obj : keyObjects)
     {
         Key key = Key::Parse(obj);
-        keyEvents.insert(key.getName(), key);
+        collection.keyEvents.insert(key.getName(), key);
     }
 
     for(Object* obj : gateObjects)
     {
-        Gate gate = Gate::Parse(obj);
-        gates.insert(gate.getName(), gate);
+        Gate gate = Gate::Parse(obj, collection.getKeyEventList());
+        collection.gates.insert(gate.getName(), gate);
     }
+
+    return collection;
 }
 
 void MissionItemCollection::Build(Table* table)
@@ -73,7 +76,7 @@ QList<Key*> MissionItemCollection::getKeyEventList()
     QList<Key*> keyList = QList<Key*>();
     for(QMap<QString,Key>::iterator iter = keyEvents.begin(); iter != keyEvents.end(); iter++)
     {
-        keyEvents.append(&iter.value());
+        keyList.append(&iter.value());
     }
     return keyList;
 }

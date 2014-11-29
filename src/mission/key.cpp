@@ -1,30 +1,32 @@
 #include "key.h"
 
-Key::Key() : MissionItem()
+Key::Key()
 {
-    gate = "";
+
 }
 
-Key::Key(QString name, QString scriptFilePath, QString gate)
-    : MissionItem(name, scriptFilePath)
+Key::Key(QString name, QString scriptFilePath)
 {
-    this->gate = gate;
+    this->name = name;
+    this->scriptFilePath = scriptFilePath;
 }
 
-Key* Key::Parse(Object* object)
+Key Key::Parse(Object* object)
 {
-    Key* key = dynamic_cast<Key*>(MissionItem::Parse(object));
+    Key key = Key();
 
-    key->gate = object->find(ELE_GATE_LINK, "");
+    key.name = object->find(ELE_NAME, "");
+    key.scriptFilePath = object->find(ELE_SCRIPT_FILE, "");
 
     return key;
 }
 
 Object Key::Build()
 {
-    Object object = MissionItem::Build();
+    Object obj = Object();
 
-    object.insert(ELE_GATE_LINK, gate);
+    obj.insert(ELE_NAME, this->name);
+    obj.insert(ELE_SCRIPT_FILE, this->scriptFilePath);
 
-    return object;
+    return obj;
 }

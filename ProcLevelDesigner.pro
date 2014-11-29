@@ -26,10 +26,13 @@ SOURCES += \
     src/ui/questdatabase.cpp \
     src/tilesetview.cpp \
     src/ui/mission/editkeyevent.cpp \
-    src/mission/missionitem.cpp \
     src/mission/key.cpp \
     src/mission/gate.cpp \
-    src/mission/missionitemcollection.cpp
+    src/mission/missionitemcollection.cpp \
+    src/mission/mission.cpp \
+    src/applicationdispatcher.cpp \
+    src/ui/solarusdirectorydialog.cpp \
+    src/preferences.cpp
 
 HEADERS  += \
     include/common.h \
@@ -44,10 +47,13 @@ HEADERS  += \
     include/ui/questdatabase.h \
     include/tilesetview.h \
     include/ui/mission/editkeyevent.h \
-    include/mission/missionitem.h \
     include/mission/key.h \
     include/mission/gate.h \
-    include/mission/missionitemcollection.h
+    include/mission/missionitemcollection.h \
+    include/mission/mission.h \
+    include/applicationdispatcher.h \
+    include/ui/solarusdirectorydialog.h \
+    include/preferences.h
 
 FORMS    += \
     ui/editorwindow.ui \
@@ -55,7 +61,8 @@ FORMS    += \
     ui/openquestdialog.ui \
     ui/newtilesetdialog.ui \
     ui/questdatabase.ui \
-    ui/mission/editkeyevent.ui
+    ui/mission/editkeyevent.ui \
+    ui/solarusdirectorydialog.ui
 
 INCLUDEPATH += include \
                include/ui \

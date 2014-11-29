@@ -57,8 +57,9 @@ bool Quest::Init()
             maps.insert(f.baseName(), Map::parse(f.baseName(), data));
         }
 
-        // Load all existing keys and gates
-        Table* structureData = getData(QString("proc_designer_data") + QDir::separator() + "structureData");
+        // Initialize the mission
+        Table* missionItems = getData(DAT_MISSION_ITEMS);
+        mission.init(missionItems);
 
         return true;
     }
@@ -89,13 +90,21 @@ QDir Quest::getRootDir() const
     return rootDir;
 }
 
+QDir Quest::getExecutableDir() const
+{
+    QDir dir = rootDir;
+    dir.cdUp();
+    return dir;
+}
+
 QString Quest::getName()
 {
     Table* quest = getData(DAT_QUEST);
     if(quest != nullptr)
-        return quest->getElementValue(OBJ_QUEST, ELE_NAME);
-    else
-        return "NULL_NAME";
+    {
+        Object* obj = quest->getObject(OBJ_QUEST);
+        return obj->find(ELE_TITLE_BAR, "NULL_NAME");
+    }
 }
 
 void Quest::saveData() const
@@ -223,28 +232,6 @@ QList<Tileset*> Quest::getTilesetList()
         tilesetList.append(&iter.value());
     }
     return tilesetList;
-}
-
-QList<Key*> Quest::getKeyEventList()
-{
-    QList<Key*> keyList = QList<Key*>();
-    for(QList<Key>::iterator iter = keyEvents.begin(); iter != keyEvents.end(); iter++)
-    {
-        keyList.append(&(*iter));
-    }
-
-    return keyList;
-}
-
-QList<Gate*> Quest::getGateList()
-{
-    QList<Gate*> gateList = QList<Gate*>();
-    for(QList<Gate>::iterator iter = gates.begin(); iter != gates.end(); iter++)
-    {
-        gateList.append(&(*iter));
-    }
-
-    return gateList;
 }
 
 void Quest::addTileSet(Tileset tileset)

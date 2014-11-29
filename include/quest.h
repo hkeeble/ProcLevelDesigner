@@ -9,8 +9,7 @@
 
 #include "filetools.h"
 #include "map.h"
-#include "key.h"
-#include "gate.h"
+#include "mission.h"
 
 // The solarus version supported by this quest object
 const QString SOLARUS_VERSION = "1.3";
@@ -38,6 +37,8 @@ public:
     QFileSystemModel* getMapModel();    /*!< Retrieves the file system model for maps. */
 
     QDir getRootDir() const; /*!< Retrieves the root directory for this quest. */
+
+    QDir getExecutableDir() const; /*!< Retrieves the directory from which this quest is executable through Solarus. */
 
     bool Init(); /*!< Initializes the quest. */
 
@@ -111,15 +112,7 @@ public:
      */
     void addTileSet(Tileset tileset);
 
-    /*!
-     * \brief getKeyEventList Get a list of pointers to the key events contained within this quest.
-     */
-    QList<Key*> getKeyEventList();
-
-    /*!
-     * \brief getGateList Get a list of pointers to the gates contained within this quest.
-     */
-    QList<Gate*> getGateList();
+    Mission mission; /*!< The mission contained within this quest. */
 
 private:
     QDir rootDir;
@@ -131,11 +124,9 @@ private:
 
     QMap<QString,QSharedPointer<Table>> data; /*!< Map containing all the currently loaded data for this quest. */
 
+    // Graphical data members
     QMap<QString,Map> maps;         /*!< The maps contained within this quest. */
     QMap<QString,Tileset> tileSets; /*!< The tilesets contained within this quest. */
-
-    QList<Key> keyEvents;
-    QList<Gate> gates;
 
     void cpy(const Quest& param);
 };

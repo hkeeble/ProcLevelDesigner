@@ -17,6 +17,7 @@ EditorWindow::EditorWindow(QWidget *parent) :
     questOnlyActions.append(ui->actionNew_Script);
     questOnlyActions.append(ui->actionNew_Tileset);
     questOnlyActions.append(ui->actionQuest_Database);
+    questOnlyActions.append(ui->actionRun);
 
     questOnlyWidgets = QList<QWidget*>();
     questOnlyWidgets.append(ui->tabView);
@@ -25,8 +26,10 @@ EditorWindow::EditorWindow(QWidget *parent) :
 
     keyEventModel = nullptr;
     gateModel = nullptr;
+    runningGame = nullptr;
 
     setWindowTitle("ProcLevelDesigner");
+
 }
 
 EditorWindow::~EditorWindow()
@@ -36,9 +39,21 @@ EditorWindow::~EditorWindow()
     if(gateModel)
         delete gateModel;
 
+    clearRunningGame();
+
     delete ui;
 }
 
+void EditorWindow::clearRunningGame()
+{
+    if(runningGame)
+    {
+        if(runningGame->isOpen())
+            runningGame->close();
+        delete runningGame;
+    }
+
+}
 
 void EditorWindow::setQuestOnlyUIEnabled(bool enabled)
 {
@@ -138,8 +153,10 @@ void EditorWindow::initQuestUI()
     else
         gateModel->clear();
 
-    QList<Gate*> gates = quest.getGateList();
-    QList<Key*> keyEvents = quest.getKeyEventList();
+    MissionItemCollection* items = quest.mission.getItems();
+
+    QList<Gate*> gates = items->getGateList();
+    QList<Key*> keyEvents = items->getKeyEventList();
 
     gateModel->setRowCount(gates.length());
     keyEventModel->setRowCount(keyEvents.length());
@@ -176,23 +193,12 @@ void EditorWindow::on_actionClose_triggered()
     setWindowTitle("ProcLevelDesigner");
 }
 
-void EditorWindow::on_mapsView_doubleClicked(const QModelIndex &index)
-{
-    if(index.isValid())
-    {
-        QString mapPath = quest.getMapModel()->fileName(index);
-        mapPath.remove(mapPath.length()-4, 4);
-        Table* table = quest.getData(QString("maps") + QDir::separator() + mapPath);
-        Map map = Map::parse(mapPath, table);
-    }
-}
-
 void EditorWindow::on_actionNew_Map_triggered()
 {
     Map map = Map(32, 40, 40);
     map.setMusic(DEFAULT_MAP_MUSIC);
     map.setName("second_map");
-    map.setTileSet(quest.getTileset("field"));
+    map.setTileSet(quest.getTileset("main"));
 
     for(int x = 0; x < map.getWidth(); x++)
     {
@@ -216,7 +222,7 @@ void EditorWindow::on_actionQuest_Database_triggered()
 {
     QuestDatabase* dialog = new QuestDatabase(&quest, this);
     dialog->exec();
-    setWindowTitle("ProcLevelDesigner - " + quest.getData(DAT_QUEST)->getElementValue(OBJ_QUEST, ELE_NAME));
+    setWindowTitle("ProcLevelDesigner - " + quest.getData(DAT_QUEST)->getElementValue(OBJ_QUEST, ELE_TITLE_BAR));
     delete dialog;
 }
 
@@ -227,4 +233,27 @@ void EditorWindow::on_newKeyEventButton_clicked()
     {
 
     }
+}
+
+void EditorWindow::on_actionRun_triggered()
+{
+    clearRunningGame();
+    runningGame = ApplicationDispatcher::RunThroughTerminal(this, "solarus",
+                                                            QStringList() << quest.getExecutableDir().absolutePath(), true);
+}
+
+void EditorWindow::on_actionSet_Solarus_Directory_triggered()
+{
+    SolarusDirectoryDialog* dialog = new SolarusDirectoryDialog(preferences.getSolarusPath(), this);
+    if(dialog->exec() == QDialog::Accepted)
+    {
+        if(dialog->isDefault())
+            preferences.setSolarusPath("DEFAULT");
+        else
+            preferences.setSolarusPath(dialog->getPath());
+
+        preferences.saveToDisk();
+    }
+
+    delete dialog;
 }

@@ -4,23 +4,23 @@
 #include <QString>
 #include <QList>
 
-#include "missionitem.h"
 #include "filetools.h"
 
-class Key : public MissionItem
+class Key
 {
 public:
     Key();
-    Key(QString name, QString scriptFilePath, QString gate);
+    Key(QString name, QString scriptFilePath);
     virtual ~Key() { }
 
-    inline QString getGate() { return gate; }
+    inline QString getName() { return name; }
+    inline QString getScriptFilePath() { return scriptFilePath; }
 
-    static Key* Parse(Object* object);
-    virtual Object Build() override final;
+    static Key Parse(Object* object);
+    virtual Object Build();
 
 private:
-    QString gate;
+    QString name, scriptFilePath;
 };
 
 #endif // KEY_H

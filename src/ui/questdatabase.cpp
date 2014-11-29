@@ -21,7 +21,7 @@ QuestDatabase::QuestDatabase(Quest* quest, QWidget *parent) :
 void QuestDatabase::initInfoTab()
 {
     Table* qData = quest->getData(DAT_QUEST);
-    ui->questNameEdit->setText(qData->getElementValue(OBJ_QUEST, ELE_NAME));
+    ui->questNameEdit->setText(qData->getElementValue(OBJ_QUEST, ELE_TITLE_BAR));
 }
 
 void QuestDatabase::initTilesetTab()
