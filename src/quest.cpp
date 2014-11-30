@@ -258,3 +258,20 @@ bool Quest::removeTileset(QString name)
         return QFile::remove(datFile) && QFile::remove(tilesFile) & QFile::remove(entitiesFile);
     }
 }
+
+bool Quest::checkForChanges()
+{
+    QMap<QString,QSharedPointer<Table>>::iterator iter;
+
+    // Loop through all loaded data, loading in tables from the disk with the same file names. Check them for equality.
+    for(iter = data.begin(); iter != data.end(); iter++)
+    {
+        Table onDisk(iter.value().data()->getFilePath());
+
+        // If the data does not exist on disk, or the data in memory differs from that on the disk, changes were made.
+        if(!iter.value().data()->areEqual(&onDisk) || !onDisk.existsOnDisk())
+            return true;
+    }
+
+    return false;
+}

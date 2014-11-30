@@ -22,6 +22,14 @@ public:
     virtual ~Gate() { }
 
     inline QString getName() { return name; }
+    inline bool isTriggered() { return triggered; }
+    inline Gate::Type getType() { return type; }
+    inline QStringList getKeys() { return keys; }
+
+    inline void setName(const QString& name) { this->name = name; }
+    inline void setTriggered(const bool& triggered) { this->triggered = triggered; }
+    inline void setType(const Gate::Type& type) { this->type = type; }
+    inline void setKeys(const QStringList& keys) { this->keys = keys; }
 
     static Gate Parse(Object* object, QList<Key*> keys);
     virtual Object Build();

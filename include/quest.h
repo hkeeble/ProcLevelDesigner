@@ -112,6 +112,13 @@ public:
      */
     void addTileSet(Tileset tileset);
 
+    /*!
+     * \brief checkForChanges Use this function to check all loaded data for differences on the disk. If there are differences, or data in the quest
+     *                        does not exist on the disk, returns true.
+     * \return True if changes need to be saved, false if not.
+     */
+    bool checkForChanges();
+
     Mission mission; /*!< The mission contained within this quest. */
 
 private:

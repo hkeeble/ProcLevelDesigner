@@ -28,7 +28,8 @@ void EditKeyEvent::on_okButton_clicked()
 {
     QRegularExpression reg = QRegularExpression("^[A-Za-z0-9]+$");
     if(ui->nameEdit->text().length() == 0 || !reg.match(ui->nameEdit->text()).hasMatch())
-        QMessageBox::warning(this, "Error", "Please enter a valid event name. Must be more than 0 characters, and contain only letters and numbers", QMessageBox::Ok);
+        QMessageBox::warning(this, "Error", "Please enter a valid event name. Must be more than 0 characters, and contain only letters and numbers",
+                             QMessageBox::Ok);
     else
     {
         name = ui->nameEdit->text();

@@ -324,9 +324,18 @@ bool Table::areEqual(Table* table)
     if(otherObjs.length() != objs.length())
         return false;
 
-
+    for(int i = 0; i < objs.length(); i++)
+    {
+        if(*objs[i] != *otherObjs[i])
+            return false;
+    }
 
     return true;
+}
+
+bool Table::existsOnDisk()
+{
+    return QFileInfo(filePath).exists();
 }
 
 bool Table::operator==(Table& param)

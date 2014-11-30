@@ -53,12 +53,22 @@ void MissionItemCollection::Build(Table* table)
 
 Key* MissionItemCollection::getKeyEvent(QString name)
 {
-    &keyEvents.find(name).value();
+    QMap<QString,Key>::iterator iter = keyEvents.find(name);
+
+    if(iter != keyEvents.end())
+        return &iter.value();
+    else
+        return nullptr;
 }
 
 Gate* MissionItemCollection::getGate(QString name)
 {
-    &gates.find(name).value();
+    QMap<QString,Gate>::iterator iter = gates.find(name);
+
+    if(iter != gates.end())
+        return &iter.value();
+    else
+        return nullptr;
 }
 
 QList<Gate*> MissionItemCollection::getGateList()
@@ -79,6 +89,22 @@ QList<Key*> MissionItemCollection::getKeyEventList()
         keyList.append(&iter.value());
     }
     return keyList;
+}
+
+QStringList MissionItemCollection::getKeyEventNameList()
+{
+    QStringList list = QStringList();
+    for(QMap<QString,Key>::iterator iter = keyEvents.begin(); iter != keyEvents.end(); iter++)
+        list << iter.value().getName();
+    return list;
+}
+
+QStringList MissionItemCollection::getGateNameList()
+{
+    QStringList list = QStringList();
+    for(QMap<QString,Gate>::iterator iter = gates.begin(); iter != gates.end(); iter++)
+        list << iter.value().getName();
+    return list;
 }
 
 bool MissionItemCollection::AddGate(QString name, Gate gate)

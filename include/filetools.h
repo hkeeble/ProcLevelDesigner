@@ -223,6 +223,12 @@ public:
      */
     bool areEqual(Table* table);
 
+    /*!
+     * \brief existsOnDisk Check if this table's filepath currently exists on the hard disk.
+     * \return
+     */
+    bool existsOnDisk();
+
     bool operator==(Table& param);
     bool operator!=(Table& param);
 

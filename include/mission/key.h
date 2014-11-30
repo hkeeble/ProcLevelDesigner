@@ -32,6 +32,10 @@ public:
     inline QString getMessage() { return message; }
     inline Key::Type getKeyType() { return type; }
 
+    inline void setName(const QString& name) { this->name = name; }
+    inline void setMessage(const QString& message) { this->message = message; }
+    inline void setType(const Key::Type& type) { this->type = type; }
+
     static Key Parse(Object* object);
     virtual Object Build();
 

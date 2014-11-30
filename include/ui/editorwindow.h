@@ -6,8 +6,7 @@
 #include <QDir>
 #include <QFileSystemModel>
 #include <QList>
-#include <QStandardItem>
-#include <QStandardItemModel>
+#include <QStringListModel>
 
 #include "common.h"
 #include "preferences.h"
@@ -15,6 +14,7 @@
 #include "openquestdialog.h"
 #include "solarusdirectorydialog.h"
 #include "editkeyevent.h"
+#include "editgatedialog.h"
 #include "questdatabase.h"
 #include "quest.h"
 #include "filetools.h"
@@ -37,6 +37,7 @@ public:
     ~EditorWindow();
 
 private slots:
+    // Menu Actions
     void on_actionOpen_Quest_triggered();
     void on_actionExit_triggered();
     void on_actionNew_Quest_triggered();
@@ -44,16 +45,30 @@ private slots:
     void on_actionClose_triggered();
     void on_actionNew_Map_triggered();
     void on_actionQuest_Database_triggered();
-    void on_newKeyEventButton_clicked();
     void on_actionRun_triggered();
-
     void on_actionSet_Solarus_Directory_triggered();
 
-private:
-    void build(); /*!< Builds and outputs data files. */
-    void run(); /*!< Runs the currently output quest. */
+    // Key Event Buttons
+    void on_newKeyEventButton_clicked();
+    void on_editKeyEventButton_clicked();
+    void on_removeKeyEventButton_clicked();
 
+    // Gate Buttons
+    void on_newGateButton_clicked();
+    void on_editGateButton_clicked();
+    void on_removeGateButton_clicked();
+
+protected:
+    void closeEvent(QCloseEvent *event) override final;
+
+private:
     void initQuestUI(); /*!< Initializes the user interface, filling it with all data loaded about the current quest. */
+
+    void updateKeyList();   /*!< Updates the event list with all data currently in the quest's mission. */
+    void updateGateList(); /*!< Updates the gate list with all data currently in the quest's mission. */
+
+    Key* getSelectedKey();
+    Gate* getSelectedGate();
 
     void setQuestOnlyUIEnabled(bool enabled);
 
@@ -71,8 +86,11 @@ private:
     QList<QAction*> questOnlyActions; /*!< List of actions only available when a quest is loaded. */
     QList<QWidget*> questOnlyWidgets; /*!< List of widgets only available when a quest is loaded. */
 
-    QStandardItemModel* keyEventModel; /*!< Model used to represent key events. */
-    QStandardItemModel* gateModel; /*! Model used to represent gates. */
+    // Key/Gate models and data
+    QStringListModel* keyEventModel; /*!< Model used to represent key events. */
+    QStringListModel* gateModel;     /*! Model used to represent gates. */
+    QStringList keyData;
+    QStringList gateData;
 };
 
 #endif // EDITORWINDOW_H

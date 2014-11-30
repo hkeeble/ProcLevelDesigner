@@ -32,7 +32,8 @@ SOURCES += \
     src/mission/mission.cpp \
     src/applicationdispatcher.cpp \
     src/ui/solarusdirectorydialog.cpp \
-    src/preferences.cpp
+    src/preferences.cpp \
+    src/ui/mission/editgatedialog.cpp
 
 HEADERS  += \
     include/common.h \
@@ -53,7 +54,8 @@ HEADERS  += \
     include/mission/mission.h \
     include/applicationdispatcher.h \
     include/ui/solarusdirectorydialog.h \
-    include/preferences.h
+    include/preferences.h \
+    include/ui/mission/editgatedialog.h
 
 FORMS    += \
     ui/editorwindow.ui \
@@ -62,7 +64,8 @@ FORMS    += \
     ui/newtilesetdialog.ui \
     ui/questdatabase.ui \
     ui/mission/editkeyevent.ui \
-    ui/solarusdirectorydialog.ui
+    ui/solarusdirectorydialog.ui \
+    ui/mission/editgatedialog.ui
 
 INCLUDEPATH += include \
                include/ui \

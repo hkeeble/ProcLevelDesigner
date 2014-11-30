@@ -66,6 +66,17 @@ public:
      */
     QList<Key*> getKeyEventList();
 
+    /*!
+     * \brief Retrieves a list of all names of key events.
+     */
+    QStringList getKeyEventNameList();
+
+    /*!
+     * \brief Retrieves a list of all names of gates.
+     * \return
+     */
+    QStringList getGateNameList();
+
 private:
     QMap<QString,Gate> gates; /*!< The gates contained in this collection. */
     QMap<QString,Key> keyEvents; /*!< The key events contained in this collection. */
