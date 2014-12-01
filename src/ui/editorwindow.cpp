@@ -90,13 +90,13 @@ void EditorWindow::on_actionNew_Map_triggered()
     Map map = Map(32, 40, 40);
     map.setMusic(DEFAULT_MAP_MUSIC);
     map.setName("second_map");
-    map.setTileSet(quest.getTileset("main"));
+    map.setTileSet(quest.getTileset("field"));
 
     for(int x = 0; x < map.getWidth(); x++)
     {
         for(int y = 0; y < map.getHeight(); y++)
         {
-            MapTile tile = MapTile(0, x, y, map.getTileSize(), ((double) rand() / (RAND_MAX)) + 1);
+            MapTile tile = MapTile(0, x, y, map.getTileSize(), 0);
             map.setTile(x, y, MapTile(tile));
         }
     }
