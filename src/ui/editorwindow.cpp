@@ -33,15 +33,12 @@ EditorWindow::EditorWindow(QWidget *parent) :
     // Parse preferences file (save in case a new one was created)
     Table* prefTable = new Table(DAT_PREFERENCES);
     preferences = Preferences::Parse(prefTable);
-    preferences.saveToDisk();
+    prefTable->saveToDisk();
 
-    // Check recently opened quests
-    QStringList recents = preferences.getRecentQuestPaths();
-    for(QString recentPath : recents)
-    {
-        //QAction action = QAction(recentPath, ui->actionRecent_Quests);
-        //ui->menubar->addAction(action);
-    }
+    preferences.setAsRecentQuestManager(this, ui->menuOpen_Recent, SLOT(on_actionOpen_Recent_Quest_triggered(QAction*)));
+
+    missionStructureScene = new MissionStructureScene();
+    ui->structureView->setScene(missionStructureScene);
 }
 
 EditorWindow::~EditorWindow()
@@ -50,6 +47,8 @@ EditorWindow::~EditorWindow()
         delete keyEventModel;
     if(gateModel)
         delete gateModel;
+    if(missionStructureScene)
+        delete missionStructureScene;
 
     clearRunningGame();
 
@@ -59,7 +58,9 @@ EditorWindow::~EditorWindow()
 // Close Event, ensures changes can be saved
 void EditorWindow::closeEvent(QCloseEvent *event)
 {
-    preferences.saveToDisk(); // Save preferences out
+    Table* prefTable = new Table(DAT_PREFERENCES);
+    preferences.build(prefTable);
+    prefTable->saveToDisk();
 
     if(quest.checkForChanges())
     {
@@ -131,23 +132,7 @@ void EditorWindow::on_actionOpen_Quest_triggered()
     OpenQuestDialog* dialog = new OpenQuestDialog(this);
     if(dialog->exec() == QDialog::Accepted)
     {
-        quest = Quest(dialog->getFolderPath() + QDir::separator() + "data" + QDir::separator());
-
-        if(quest.Init()) // Attempt to initialize quest from the given path
-        {
-            // Populate the trees and set window title
-            setWindowTitle("ProcLevelDesigner - " + quest.getName());
-
-            // Initialize the UI with quest data
-            initQuestUI();
-
-            setQuestOnlyUIEnabled(true);
-
-            // Update recent quests opened
-            preferences.addRecentQuestPath(quest.getRootDir().absolutePath());
-        }
-        else
-            QMessageBox::warning(this, "Error", "No valid quest was found in this folder.", QMessageBox::Ok);
+        openQuest(dialog->getFolderPath() + QDir::separator() + "data" + QDir::separator());
     }
 }
 
@@ -167,29 +152,7 @@ void EditorWindow::on_actionNew_Quest_triggered()
             QMessageBox::warning(this, "Error", "Existing data found in specified file path. Please use an empty directory, or specify one that does not yet exist.",
                                  QMessageBox::Ok);
         else
-        {
-            QString questPath = dialog->getFolderPath() + QDir::separator() + "data" + QDir::separator();
-            quest = Quest(questPath);
-
-            copyFolder(QDir().currentPath() + QDir::separator() + "game_data" + QDir::separator(),
-                       questPath);
-
-            // Modify the quest object
-            Table* questData = quest.getData(DAT_QUEST);
-            questData->setElementValue(OBJ_QUEST, ELE_NAME, dialog->getQuestName());
-            questData->setElementValue(OBJ_QUEST, ELE_WRT_DIR, dialog->getQuestName());
-            questData->setElementValue(OBJ_QUEST, ELE_SOL_VERS, SOLARUS_VERSION);
-
-            // Save out all modified quest data
-            quest.saveData();
-
-            setWindowTitle("ProcLevelDesigner - " + quest.getName());
-
-            setQuestOnlyUIEnabled(true);
-
-            // Add to recent quests
-            preferences.addRecentQuestPath(quest.getRootDir().absolutePath());
-        }
+            createNewQuest(dialog->getQuestName(), dialog->getFolderPath() + QDir::separator() + "data" + QDir::separator());
     }
     delete dialog;
 }
@@ -218,11 +181,19 @@ void EditorWindow::on_actionSet_Solarus_Directory_triggered()
             preferences.setSolarusPath("DEFAULT");
         else
             preferences.setSolarusPath(dialog->getPath());
-
-        preferences.saveToDisk();
     }
 
     delete dialog;
+}
+
+void EditorWindow::on_actionOpen_Recent_Quest_triggered(QAction* action)
+{
+    if(!openQuest(action->data().toString()))
+    {
+        QMessageBox::information(this, "Quest No Longer Exists", "This quest no longer exists at this location, removing it from recent list.", QMessageBox::Ok);
+        preferences.removeRecentQuestPath(action->data().toString());
+    }
+
 }
 
 /* ------------------------------------------------------------------
@@ -233,8 +204,7 @@ void EditorWindow::on_newKeyEventButton_clicked()
     EditKeyEvent* dialog = new EditKeyEvent(this);
     if(dialog->exec() == QDialog::Accepted)
     {
-        MissionItemCollection* items = quest.mission.getItems();
-        items->AddKeyEvent(dialog->getName(), Key(dialog->getName(), dialog->getType(), dialog->getMessage()));
+        quest.mission.addKeyEvent(dialog->getName(), Key(dialog->getName(), dialog->getType(), dialog->getMessage()));
         updateKeyList();
     }
     delete dialog;
@@ -271,7 +241,7 @@ void EditorWindow::on_removeKeyEventButton_clicked()
         if(QMessageBox::question(this, "Removing Key Event", "Are you sure you wish to remove this key event from the mission?",
                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
         {
-            if(!quest.mission.getItems()->RemoveKeyEvent(removeKey->getName()))
+            if(!quest.mission.removeKeyEvent(removeKey->getName()))
                 QMessageBox::warning(this, "Error", "Could not remove key, not found in item collection!", QMessageBox::Ok);
             else
                 updateKeyList();
@@ -283,10 +253,10 @@ void EditorWindow::on_removeKeyEventButton_clicked()
 
 void EditorWindow::on_newGateButton_clicked()
 {
-    EditGateDialog* dialog = new EditGateDialog(quest.mission.getItems()->getKeyEventNameList(), this);
+    EditGateDialog* dialog = new EditGateDialog(quest.mission.getKeyEventNameList(), this);
     if(dialog->exec() == QDialog::Accepted)
     {
-        quest.mission.getItems()->AddGate(dialog->getName(),
+        quest.mission.addGate(dialog->getName(),
                                           Gate(dialog->getName(), dialog->getType(), dialog->getKeys(), dialog->isTriggered()));
         updateGateList();
     }
@@ -298,10 +268,10 @@ void EditorWindow::on_editGateButton_clicked()
     QVariant selected = ui->gateList->currentIndex().data();
     if(!selected.isNull())
     {
-        Gate* selectedGate = quest.mission.getItems()->getGate(selected.toString());
+        Gate* selectedGate = quest.mission.getGate(selected.toString());
         if(selectedGate != nullptr)
         {
-            EditGateDialog* dialog = new EditGateDialog(selectedGate, quest.mission.getItems()->getKeyEventNameList(), this);
+            EditGateDialog* dialog = new EditGateDialog(selectedGate, quest.mission.getKeyEventNameList(), this);
             if(dialog->exec() == QDialog::Accepted)
             {
                 selectedGate->setKeys(dialog->getKeys());
@@ -331,7 +301,7 @@ void EditorWindow::on_removeGateButton_clicked()
         if(QMessageBox::question(this, "Removing Gate", "Are you sure you wish to remove this gate from the mission?",
                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
         {
-            if(!quest.mission.getItems()->RemoveGate(removeGate->getName()))
+            if(!quest.mission.removeGate(removeGate->getName()))
                 QMessageBox::warning(this, "Error", "Could not remove gate, not found in item collection!", QMessageBox::Ok);
             else
                 updateGateList();
@@ -349,6 +319,55 @@ void EditorWindow::on_generateMissionButton_clicked()
 /* ------------------------------------------------------------------
  *  HELPER FUNCTIONS
  * ------------------------------------------------------------------*/
+bool EditorWindow::openQuest(QString path)
+{
+    quest.clear();
+    quest = Quest(path);
+
+    if(quest.Init()) // Attempt to initialize quest from the given path
+    {
+        // Populate the trees and set window title
+        setWindowTitle("ProcLevelDesigner - " + quest.getName());
+
+        // Initialize the UI with quest data
+        initQuestUI();
+
+        setQuestOnlyUIEnabled(true);
+
+        // Update recent quests opened
+        preferences.addRecentQuestPath(quest.getRootDir().absolutePath());
+
+        missionStructureScene->setMission(&quest.mission);
+
+        return true;
+    }
+    else
+    {
+        QMessageBox::warning(this, "Error", "No valid quest was found in this folder.", QMessageBox::Ok);
+        return false;
+    }
+}
+
+void EditorWindow::createNewQuest(QString name, QString folderPath)
+{
+    Quest newQuest = Quest(folderPath);
+
+    copyFolder(QDir().currentPath() + QDir::separator() + "game_data" + QDir::separator(),
+               folderPath);
+
+    // Modify the quest object
+    Table* questData = newQuest.getData(DAT_QUEST);
+    questData->setElementValue(OBJ_QUEST, ELE_NAME, name);
+    questData->setElementValue(OBJ_QUEST, ELE_WRT_DIR, name);
+    questData->setElementValue(OBJ_QUEST, ELE_SOL_VERS, SOLARUS_VERSION);
+
+    // Save out all modified quest data
+    newQuest.saveData();
+
+    // Open the newly created quest
+    openQuest(folderPath);
+}
+
 void EditorWindow::clearRunningGame()
 {
     if(runningGame)
@@ -404,35 +423,35 @@ void EditorWindow::initQuestUI()
 void EditorWindow::updateKeyList()
 {
     keyData.clear();
-    QList<Key*> keys = quest.mission.getItems()->getKeyEventList();
+    QList<Key*> keys = quest.mission.getKeyEventList();
     for(Key* key : keys)
         keyData.append(key->getName());
     keyEventModel->setStringList(keyData);
 
-    quest.mission.getItems()->Build(quest.getData(DAT_MISSION_ITEMS));
+    quest.mission.build(quest.getData(DAT_MISSION));
 }
 
 void EditorWindow::updateGateList()
 {
     gateData.clear();
-    QList<Gate*> gates = quest.mission.getItems()->getGateList();
+    QList<Gate*> gates = quest.mission.getGateList();
     for(Gate* gate : gates)
         gateData.append(gate->getName());
     gateModel->setStringList(gateData);
 
-    quest.mission.getItems()->Build(quest.getData(DAT_MISSION_ITEMS));
+    quest.mission.build(quest.getData(DAT_MISSION));
 }
 
 Key* EditorWindow::getSelectedKey()
 {
     QVariant selectedKeyID = ui->keyEventList->currentIndex().data();
     QString keyName = selectedKeyID.toString();
-    return quest.mission.getItems()->getKeyEvent(keyName);
+    return quest.mission.getKeyEvent(keyName);
 }
 
 Gate* EditorWindow::getSelectedGate()
 {
     QVariant selectedGateID = ui->keyEventList->currentIndex().data();
     QString gateName = selectedGateID.toString();
-    return quest.mission.getItems()->getGate(gateName);
+    return quest.mission.getGate(gateName);
 }

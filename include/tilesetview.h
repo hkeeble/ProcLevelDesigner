@@ -9,6 +9,9 @@
 
 #include "tileset.h"
 
+/*!
+ * \brief Graphics view used to display a tileset in the editor. Contains functionality for adding/removing and displaying blocked tiles.
+ */
 class TilesetView : public QGraphicsScene
 {
     Q_OBJECT
@@ -34,7 +37,6 @@ private:
     void disableBlocked(int x, int y);
     void mouseOutOfBounds();
     bool isInBounds(QPoint pos);
-
 
     QPoint getMouseTilePos(QPointF scenePos);
 

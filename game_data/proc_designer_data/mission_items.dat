@@ -1,7 +1,0 @@
-key_event {
-	name = "start",
-}
-
-gate {
-	name = "end",
-}

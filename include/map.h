@@ -26,7 +26,7 @@ public:
         layer(layer), x(X), y(Y), size(size), pattern(pattern) { }
 
     static MapTile parse(Object* object); /*!< Parses a map tile from a given data object. */
-    static Object build(MapTile tile); /*!< Builds an object from a map tile. */
+    static Object build(MapTile tile); /*!< builds an object from a map tile. */
 
     // Getters
     inline int getLayer() const        { return layer; }
@@ -65,7 +65,7 @@ public:
     static Map parse(QString name, Table* data);
 
     /*!
-     * \brief Build the map, creating a table containing all of it's contents.
+     * \brief build the map, creating a table containing all of it's contents.
      * \param table The pointer to the table to build the map data into.
      */
     void build(Table* table);

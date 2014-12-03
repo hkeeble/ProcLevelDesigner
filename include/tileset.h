@@ -6,6 +6,9 @@
 
 #include "filetools.h"
 
+/*!
+ * \brief Represents an individual tile pattern within the tileset.
+ */
 struct TilePattern
 {
     TilePattern();
@@ -18,6 +21,9 @@ struct TilePattern
     bool traversable;
 };
 
+/*!
+ * \brief Represents a tileset used to build a level, and contains a collection of all the patterns that form this tileset.
+ */
 class Tileset
 {
 public:

@@ -1,8 +1,10 @@
 #include "preferences.h"
 
+const int Preferences::MAX_RECENT_QUESTS = 5;
+
 Preferences::Preferences()
 {
-
+    recentQuestMenu = nullptr;
 }
 
 Preferences Preferences::Parse(Table* data)
@@ -31,7 +33,21 @@ Preferences Preferences::Parse(Table* data)
     return preferences;
 }
 
-void Preferences::Build(Table* data)
+void Preferences::setAsRecentQuestManager(QObject* receiver, QMenu* recentQuestMenu, const char* openSlot)
+{
+    this->recentQuestMenu = recentQuestMenu;
+    recentQuestActions = QList<QAction*>();
+
+    for(QString recentPath : recentQuestPaths)
+    {
+        QAction* action = recentQuestMenu->addAction(recentPath);
+        action->setData(recentPath);
+        recentQuestActions.append(action);
+        QObject::connect(recentQuestMenu, SIGNAL(triggered(QAction*)), receiver, openSlot, Qt::UniqueConnection);
+    }
+}
+
+void Preferences::build(Table* data)
 {
     data->clear();
 
@@ -43,8 +59,43 @@ void Preferences::Build(Table* data)
     {
         Object obj = Object();
         obj.insert(ELE_PATH, recent);
-        data->addObject(obj);
+        data->addObject(OBJ_RECENT_QUEST, obj);
     }
+}
+
+void Preferences::addRecentQuestPath(QString path)
+{
+    if(!recentQuestPaths.contains(path))
+    {
+        recentQuestPaths.append(path);
+
+        // If we have a recent quest menu, update it with the new quest.
+        if(recentQuestMenu)
+        {
+            QAction* action = recentQuestMenu->addAction(path);
+            action->setData(path);
+            recentQuestActions.append(action);
+        }
+
+        if(recentQuestPaths.length() > MAX_RECENT_QUESTS)
+            removeRecentQuestPath(recentQuestPaths[0]);
+    }
+}
+
+bool Preferences::removeRecentQuestPath(QString path)
+{
+    if(recentQuestMenu != nullptr)
+    {
+        QAction* rmAction = nullptr;
+        for(QAction* action : recentQuestActions)
+        {
+            if(action->data().toString() == path)
+                rmAction = action;
+        }
+        if(rmAction != nullptr)
+            recentQuestMenu->removeAction(rmAction);
+    }
+    recentQuestPaths.removeOne(path);
 }
 
 Preferences::~Preferences()

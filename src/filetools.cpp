@@ -210,7 +210,7 @@ void Table::readElements()
         curObjectData.data.insert(element, value);
     }
 
-    // Build the object
+    // build the object
     objects.insert(currentObjectName, curObjectData);
 }
 

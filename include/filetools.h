@@ -51,8 +51,8 @@ const QString OBJ_TILE_PATTERN = "tile_pattern";
 const QString ELE_DEFAULT_LAYER = "default_layer";
 const QString ELE_GROUND = "ground";
 
-// Mission Items
-const QString DAT_MISSION_ITEMS = "proc_designer_data" + QString(QDir::separator()) + "mission_items";
+// Mission
+const QString DAT_MISSION = "proc_designer_data" + QString(QDir::separator()) + "mission";
 
 // Key Event
 const QString OBJ_KEY_EVENT = "key_event";

@@ -25,7 +25,7 @@ Gate Gate::Parse(Object* object, QList<Key*> keyList)
     return gate;
 }
 
-Object Gate::Build()
+Object Gate::build()
 {
     Object obj = Object();
 

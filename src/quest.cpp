@@ -29,7 +29,7 @@ bool Quest::Init()
 {
     Table* quest = getData(DAT_QUEST);
 
-    if(quest == nullptr)
+    if(quest->isEmpty())
         return false;
     else
     {
@@ -58,8 +58,8 @@ bool Quest::Init()
         }
 
         // Initialize the mission
-        Table* missionItems = getData(DAT_MISSION_ITEMS);
-        mission.init(missionItems);
+        Table* missionData = getData(DAT_MISSION);
+        mission = Mission::Parse(missionData);
 
         return true;
     }

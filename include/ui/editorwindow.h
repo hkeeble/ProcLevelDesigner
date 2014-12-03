@@ -19,6 +19,7 @@
 #include "quest.h"
 #include "filetools.h"
 #include "applicationdispatcher.h"
+#include "missionstructurescene.h"
 
 namespace Ui {
 class EditorWindow;
@@ -47,6 +48,7 @@ private slots:
     void on_actionQuest_Database_triggered();
     void on_actionRun_triggered();
     void on_actionSet_Solarus_Directory_triggered();
+    void on_actionOpen_Recent_Quest_triggered(QAction* action);
 
     // Key Event Buttons
     void on_newKeyEventButton_clicked();
@@ -65,6 +67,12 @@ protected:
     void closeEvent(QCloseEvent *event) override final;
 
 private:
+    bool openQuest(QString path); /*!< Open quest at the specified path. Returns true if quest was opened successfully. */
+    void createNewQuest(QString name, QString folderPath); /*!< Create a new quest at the given path. */
+
+    void addRecentQuestPath(QString path); /*!< Adds a recently opened quest to the menu. */
+    void removeRecentQuestPath(QString path); /*!< Removes a recently opened questt from the menu. */
+
     void initQuestUI(); /*!< Initializes the user interface, filling it with all data loaded about the current quest. */
 
     void updateKeyList();   /*!< Updates the event list with all data currently in the quest's mission. */
@@ -94,6 +102,12 @@ private:
     QStringListModel* gateModel;     /*! Model used to represent gates. */
     QStringList keyData;
     QStringList gateData;
+
+    // Mission view members
+    MissionStructureScene* missionStructureScene;
+
+    // Recent quest array
+    QStringList recentQuests;
 };
 
 #endif // EDITORWINDOW_H

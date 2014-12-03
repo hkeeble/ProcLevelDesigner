@@ -28,13 +28,13 @@ SOURCES += \
     src/ui/mission/editkeyevent.cpp \
     src/mission/key.cpp \
     src/mission/gate.cpp \
-    src/mission/missionitemcollection.cpp \
     src/mission/mission.cpp \
     src/applicationdispatcher.cpp \
     src/ui/solarusdirectorydialog.cpp \
     src/preferences.cpp \
     src/ui/mission/editgatedialog.cpp \
-    src/mission/stage.cpp
+    src/mission/stage.cpp \
+    src/ui/mission/missionstructurescene.cpp
 
 HEADERS  += \
     include/common.h \
@@ -51,13 +51,13 @@ HEADERS  += \
     include/ui/mission/editkeyevent.h \
     include/mission/key.h \
     include/mission/gate.h \
-    include/mission/missionitemcollection.h \
     include/mission/mission.h \
     include/applicationdispatcher.h \
     include/ui/solarusdirectorydialog.h \
     include/preferences.h \
     include/ui/mission/editgatedialog.h \
-    include/mission/stage.h
+    include/mission/stage.h \
+    include/ui/mission/missionstructurescene.h
 
 FORMS    += \
     ui/editorwindow.ui \

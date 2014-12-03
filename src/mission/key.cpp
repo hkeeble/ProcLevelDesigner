@@ -23,7 +23,7 @@ Key Key::Parse(Object* object)
     return key;
 }
 
-Object Key::Build()
+Object Key::build()
 {
     Object obj = Object();
 

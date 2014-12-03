@@ -37,7 +37,7 @@ public:
     inline void setType(const Key::Type& type) { this->type = type; }
 
     static Key Parse(Object* object);
-    virtual Object Build();
+    virtual Object build();
 
 private:
     QString name, message;

@@ -32,7 +32,7 @@ public:
     inline void setKeys(const QStringList& keys) { this->keys = keys; }
 
     static Gate Parse(Object* object, QList<Key*> keys);
-    virtual Object Build();
+    virtual Object build();
 
 private:
     QString name;       /*!< The name of this gate. */
