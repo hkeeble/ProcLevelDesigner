@@ -31,6 +31,16 @@ public:
     inline void setType(const Gate::Type& type) { this->type = type; }
     inline void setKeys(const QStringList& keys) { this->keys = keys; }
 
+    /*!
+     * \brief Adds a key to the gate. If the key already exists, returns false.
+     */
+    bool addKey(const QString& key);
+
+    /*!
+     * \brief Removes a key from the gate. If the key does not exist, returns false.
+     */
+    bool removeKey(const QString& key);
+
     static Gate Parse(Object* object, QList<Key*> keys);
     virtual Object build();
 

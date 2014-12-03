@@ -155,6 +155,7 @@ bool Mission::addGate(QString name, Gate gate)
     if(!gates.contains(name))
     {
         gates.insert(name, gate);
+        observer->emitUpdate();
         return true;
     }
     else
@@ -166,6 +167,7 @@ bool Mission::addKeyEvent(QString name, Key key)
     if(!keyEvents.contains(name))
     {
         keyEvents.insert(name, key);
+        observer->emitUpdate();
         return true;
     }
     else
@@ -177,6 +179,15 @@ bool Mission::removeKeyEvent(QString name)
     if(keyEvents.contains(name))
     {
         keyEvents.remove(name);
+
+        // If the key event is being used by a gate, remove it
+        for(QMap<QString,Gate>::iterator iter = gates.begin(); iter != gates.end(); iter++)
+        {
+            if(iter.value().getKeys().contains(name))
+                iter.value().removeKey(name);
+        }
+
+        observer->emitUpdate();
         return true;
     }
     else
@@ -188,6 +199,7 @@ bool Mission::removeGate(QString name)
     if(gates.contains(name))
     {
         gates.remove(name);
+        observer->emitUpdate();
         return true;
     }
     else

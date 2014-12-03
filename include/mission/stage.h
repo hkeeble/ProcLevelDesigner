@@ -22,6 +22,16 @@ public:
     QList<Key*> getKeys() { return keys; }
 
     /*!
+     * \brief Parse a stage from the data passed in.
+     */
+    static Stage Parse(QList<Gate*> gates, QList<Key*> keys, Object* data);
+
+    /*!
+     * \brief Build the stage into the data passed in.
+     */
+    void build(Object* data);
+
+    /*!
      * \brief Get this stage's ID.
      */
     int getID() { return id; }

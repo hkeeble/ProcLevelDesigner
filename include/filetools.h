@@ -66,12 +66,22 @@ const QString ELE_KEY_LINKS = "key_links";
 const QString ELE_GATE_TYPE = "gate_type";
 const QString ELE_TRIGGERED = "triggered";
 
+// Stage
+const QString OBJ_STAGE = "stage";
+const QString ELE_KEYS = "keys";
+const QString ELE_PREVIOUS_STAGE_ID = "previous_stage_id";
+const QString ELE_NEXT_STAGE_ID = "next_stage_id";
+const QString ELE_PREVIOUS_GATE = "previous_gate";
+const QString ELE_NEXT_GATE = "next_gate";
+
 // Program Preferences
 const QString DAT_PREFERENCES = QDir::currentPath() + QDir::separator() + "preferences.dat";
 const QString OBJ_PREFERENCES = "preferences";
 const QString ELE_SOLARUS_PATH = "solarus_path";
 const QString OBJ_RECENT_QUEST = "recent_quest";
 const QString ELE_PATH = "path";
+
+const QChar LIST_DELIM =      ';'; // Used to delimit lists when parsing
 
 // Object, element and value delimiters for parsing and building .dat files.
 const QVector<QChar> FIND_OBJ_DELIMS =  {'{'};

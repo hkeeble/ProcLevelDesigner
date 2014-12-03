@@ -238,7 +238,7 @@ void EditorWindow::on_removeKeyEventButton_clicked()
 
     if(removeKey != nullptr)
     {
-        if(QMessageBox::question(this, "Removing Key Event", "Are you sure you wish to remove this key event from the mission?",
+        if(QMessageBox::question(this, "Removing Key Event", "Are you sure you wish to remove this key event from the mission? It will be removed from all gates requiring it.",
                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
         {
             if(!quest.mission.removeKeyEvent(removeKey->getName()))
