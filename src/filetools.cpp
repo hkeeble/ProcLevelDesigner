@@ -57,29 +57,12 @@ void Object::insert(QString element, QString value)
     data.insert(element, value);
 }
 
-bool Object::operator==(const Object& param)
+bool Object::operator==(const Object& param) const
 {
-    if(data.size() != data.size())
-        return false;
-
-    ObjectData::iterator iterObj;
-    ObjectData::const_iterator iterOther;
-    for(iterObj = data.begin(), iterOther = param.data.begin();
-        iterObj != data.end(); iterObj++, iterOther++)
-    {
-        if(iterObj.key() == iterOther.key())
-        {
-            if(iterObj.value() != iterOther.value())
-                return false;
-        }
-        else
-            return false;
-    }
-
-    return true;
+    return (data == param.data);
 }
 
-bool Object::operator!=(const Object& param)
+bool Object::operator!=(const Object& param) const
 {
     return !(*this == param);
 }
@@ -316,46 +299,18 @@ void Table::writeObj(QString objectName, Object object)
     out << "}\n";
 }
 
-bool Table::areEqual(Table* table)
-{
-    QList<Object*> otherObjs = table->getObjects();
-    QList<Object*> objs = getObjects();
-
-    if(otherObjs.length() != objs.length())
-        return false;
-
-    for(int i = 0; i < objs.length(); i++)
-    {
-        if(*objs[i] != *otherObjs[i])
-            return false;
-    }
-
-    return true;
-}
-
 bool Table::existsOnDisk()
 {
     return QFileInfo(filePath).exists();
 }
 
-bool Table::operator==(Table& param)
+bool Table::operator==(const Table& param) const
 {
-    QList<Object*> otherObjs = param.getObjects();
-    QList<Object*> objs = getObjects();
+    return (objects == param.objects);
 
-    if(otherObjs.length() != objs.length())
-        return false;
-
-    for(int i = 0; i < objs.length(); i++)
-    {
-        if(objs[0] != otherObjs[0])
-            return false;
-    }
-
-    return true;
 }
 
-bool Table::operator!=(Table& param)
+bool Table::operator!=(const Table& param) const
 {
     return !(*this == param);
 }

@@ -292,7 +292,7 @@
      <x>0</x>
      <y>0</y>
      <width>921</width>
-     <height>25</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuProcedural_Level_Designer">
@@ -304,6 +304,7 @@
     </property>
     <addaction name="actionNew_Quest"/>
     <addaction name="actionOpen_Quest"/>
+    <addaction name="actionRecent_Quests"/>
     <addaction name="separator"/>
     <addaction name="actionSave_Quest"/>
     <addaction name="actionClose"/>
@@ -433,6 +434,11 @@
   <action name="actionSet_Solarus_Directory">
    <property name="text">
     <string>Set Solarus Directory</string>
+   </property>
+  </action>
+  <action name="actionRecent_Quests">
+   <property name="text">
+    <string>Open Recent</string>
    </property>
   </action>
  </widget>

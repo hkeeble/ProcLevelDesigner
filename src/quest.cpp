@@ -269,7 +269,7 @@ bool Quest::checkForChanges()
         Table onDisk(iter.value().data()->getFilePath());
 
         // If the data does not exist on disk, or the data in memory differs from that on the disk, changes were made.
-        if(!iter.value().data()->areEqual(&onDisk) || !onDisk.existsOnDisk())
+        if((*iter.value().data()) != onDisk || !onDisk.existsOnDisk())
             return true;
     }
 

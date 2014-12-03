@@ -58,6 +58,9 @@ private slots:
     void on_editGateButton_clicked();
     void on_removeGateButton_clicked();
 
+    // Generate mission button
+    void on_generateMissionButton_clicked();
+
 protected:
     void closeEvent(QCloseEvent *event) override final;
 

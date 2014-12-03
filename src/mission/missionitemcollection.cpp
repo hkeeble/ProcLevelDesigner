@@ -42,13 +42,13 @@ void MissionItemCollection::Build(Table* table)
     // Clear any existing table data
     table->clear();
 
-    // Build all key events into the table
-    for(QMap<QString,Key>::iterator iter = keyEvents.begin(); iter != keyEvents.end(); iter++)
-        table->addObject(OBJ_KEY_EVENT, iter.value().Build());
-
     // Build all gates into the table
     for(QMap<QString,Gate>::iterator iter = gates.begin(); iter != gates.end(); iter++)
         table->addObject(OBJ_GATE, iter.value().Build());
+
+    // Build all key events into the table
+    for(QMap<QString,Key>::iterator iter = keyEvents.begin(); iter != keyEvents.end(); iter++)
+        table->addObject(OBJ_KEY_EVENT, iter.value().Build());
 }
 
 Key* MissionItemCollection::getKeyEvent(QString name)

@@ -70,6 +70,8 @@ const QString ELE_TRIGGERED = "triggered";
 const QString DAT_PREFERENCES = QDir::currentPath() + QDir::separator() + "preferences.dat";
 const QString OBJ_PREFERENCES = "preferences";
 const QString ELE_SOLARUS_PATH = "solarus_path";
+const QString OBJ_RECENT_QUEST = "recent_quest";
+const QString ELE_PATH = "path";
 
 // Object, element and value delimiters for parsing and building .dat files.
 const QVector<QChar> FIND_OBJ_DELIMS =  {'{'};
@@ -109,8 +111,8 @@ public:
     QString find(QString element, QString defaultVal = "NULL");
     void insert(QString element, QString value);
 
-    bool operator==(const Object& param);
-    bool operator!=(const Object& param);
+    bool operator==(const Object& param) const;
+    bool operator!=(const Object& param) const;
 };
 
 /*!
@@ -229,8 +231,8 @@ public:
      */
     bool existsOnDisk();
 
-    bool operator==(Table& param);
-    bool operator!=(Table& param);
+    bool operator==(const Table& param) const;
+    bool operator!=(const Table& param) const;
 
 private:
 

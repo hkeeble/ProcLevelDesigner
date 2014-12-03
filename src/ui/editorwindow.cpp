@@ -30,6 +30,18 @@ EditorWindow::EditorWindow(QWidget *parent) :
 
     setWindowTitle("ProcLevelDesigner");
 
+    // Parse preferences file (save in case a new one was created)
+    Table* prefTable = new Table(DAT_PREFERENCES);
+    preferences = Preferences::Parse(prefTable);
+    preferences.saveToDisk();
+
+    // Check recently opened quests
+    QStringList recents = preferences.getRecentQuestPaths();
+    for(QString recentPath : recents)
+    {
+        //QAction action = QAction(recentPath, ui->actionRecent_Quests);
+        //ui->menubar->addAction(action);
+    }
 }
 
 EditorWindow::~EditorWindow()
@@ -47,6 +59,8 @@ EditorWindow::~EditorWindow()
 // Close Event, ensures changes can be saved
 void EditorWindow::closeEvent(QCloseEvent *event)
 {
+    preferences.saveToDisk(); // Save preferences out
+
     if(quest.checkForChanges())
     {
         int result = QMessageBox::warning(this, "Unsaved Changes", "There are unsaved changes in this quest. Do you wish to save before closing?",
@@ -90,13 +104,13 @@ void EditorWindow::on_actionNew_Map_triggered()
     Map map = Map(32, 40, 40);
     map.setMusic(DEFAULT_MAP_MUSIC);
     map.setName("second_map");
-    map.setTileSet(quest.getTileset("main"));
+    map.setTileSet(quest.getTileset("field"));
 
     for(int x = 0; x < map.getWidth(); x++)
     {
         for(int y = 0; y < map.getHeight(); y++)
         {
-            MapTile tile = MapTile(0, x, y, map.getTileSize(), ((double) rand() / (RAND_MAX)) + 1);
+            MapTile tile = MapTile(0, x, y, map.getTileSize(), 0);
             map.setTile(x, y, MapTile(tile));
         }
     }
@@ -128,6 +142,9 @@ void EditorWindow::on_actionOpen_Quest_triggered()
             initQuestUI();
 
             setQuestOnlyUIEnabled(true);
+
+            // Update recent quests opened
+            preferences.addRecentQuestPath(quest.getRootDir().absolutePath());
         }
         else
             QMessageBox::warning(this, "Error", "No valid quest was found in this folder.", QMessageBox::Ok);
@@ -169,6 +186,9 @@ void EditorWindow::on_actionNew_Quest_triggered()
             setWindowTitle("ProcLevelDesigner - " + quest.getName());
 
             setQuestOnlyUIEnabled(true);
+
+            // Add to recent quests
+            preferences.addRecentQuestPath(quest.getRootDir().absolutePath());
         }
     }
     delete dialog;
@@ -321,6 +341,11 @@ void EditorWindow::on_removeGateButton_clicked()
         QMessageBox::warning(this, "Error", "Cannot remove gate, no gate selected.", QMessageBox::Ok);
 }
 
+void EditorWindow::on_generateMissionButton_clicked()
+{
+    quest.mission.generate(); // Generate the mission here
+}
+
 /* ------------------------------------------------------------------
  *  HELPER FUNCTIONS
  * ------------------------------------------------------------------*/
@@ -397,7 +422,6 @@ void EditorWindow::updateGateList()
 
     quest.mission.getItems()->Build(quest.getData(DAT_MISSION_ITEMS));
 }
-
 
 Key* EditorWindow::getSelectedKey()
 {

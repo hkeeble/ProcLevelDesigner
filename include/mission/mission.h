@@ -1,13 +1,17 @@
 #ifndef MISSION_H
 #define MISSION_H
 
+#include <QList>
+#include <QDebug>
+
 #include "missionitemcollection.h"
+#include "stage.h"
 
 class Mission
 {
 public:
     Mission();
-    virtual ~Mission() { }
+    virtual ~Mission();
 
     /*!
      * \brief generate Generates this mission.
@@ -24,6 +28,7 @@ public:
 
 private:
     MissionItemCollection itemCollection;
+    QList<Stage*> stages;
 };
 
 #endif // MISSION_H

@@ -33,7 +33,8 @@ SOURCES += \
     src/applicationdispatcher.cpp \
     src/ui/solarusdirectorydialog.cpp \
     src/preferences.cpp \
-    src/ui/mission/editgatedialog.cpp
+    src/ui/mission/editgatedialog.cpp \
+    src/mission/stage.cpp
 
 HEADERS  += \
     include/common.h \
@@ -55,7 +56,8 @@ HEADERS  += \
     include/applicationdispatcher.h \
     include/ui/solarusdirectorydialog.h \
     include/preferences.h \
-    include/ui/mission/editgatedialog.h
+    include/ui/mission/editgatedialog.h \
+    include/mission/stage.h
 
 FORMS    += \
     ui/editorwindow.ui \
