@@ -93,15 +93,25 @@ public:
     /*!
      * \brief Get the list of stages in this mission.
      */
-    QList<Stage*> getStages() { return stages; }
+    QList<Stage*> getStages();
+
+    /*!
+     * \brief Emit an update signal to ensure any slots connected to the mission are updated.
+     */
+    void emitUpdate() { observer->emitUpdate(); }
 
     MissionObserver* getObserver() { return observer; }
 
 private:
+    /*!
+     * \brief Internal function to call whenever stage links have been updated (updates IDs for parsing/building)
+     */
+    void updateStageIDs();
+
     MissionObserver* observer; /*!< This observer is a QObject used to emit an update signal when the mission is modified. */
     QMap<QString,Gate> gates; /*!< The gates contained in this collection. */
     QMap<QString,Key> keyEvents; /*!< The key events contained in this collection. */
-    QList<Stage*> stages;
+    QList<Stage> stages;
 };
 
 #endif // MISSION_H

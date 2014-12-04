@@ -14,7 +14,8 @@ class Stage
 public:
     Stage(int id);
     Stage(int id, QList<Key*> keys);
-    Stage(int id, Stage* previousStage, Stage* nextStage, Gate* previousGate, Gate* nextGate, QList<Key*> keys);
+    Stage(int id, int previousID, int nextID, Gate* exitGate, QList<Key*> keys);
+    Stage(int id, Stage* previous, Stage* next, Gate* exitGate, QList<Key*> keys);
     virtual ~Stage();
 
     void addKey(Key* key) { keys.append(key); }
@@ -39,48 +40,54 @@ public:
     /*!
      * \brief Get the stage that follows this one.
      */
-    Stage* getNextStage()     { return nextStage; }
+    Stage* getNextStage()     { return next; }
 
     /*!
      * \brief Get the stage before this one.
      */
-    Stage* getPreviousStage() { return previousStage; }
+    Stage* getPreviousStage() { return previous; }
 
-    /*!
-     * \brief Get the gate that must be passed to get to this stage.
-     */
-    Gate* getPreviousGate()    { return previousGate; }
+    int getPreviousStageID() { return prevID; }
+
+    int getNextStageID() { return nextID; }
 
     /*!
      * \brief Get the gate that ends this stage.
      */
-    Gate* getNextGate()     { return nextGate; }
+    Gate* getExitGate()     { return exitGate; }
 
     /*!
      * \brief Set the stage that follows this one.
      */
-    void setNextStage(Stage* next) { this->nextStage = next; }
+    void setNextStage(Stage* next) { this->next = next; }
 
     /*!
      * \brief Set the stage before this one.
      */
-    void setPreviousStage(Stage* previous) { this->previousStage = previous; }
+    void setPreviousStage(Stage* previous) { this->previous = previous; }
 
     /*!
-     * \brief Set the gate that must be passed to get to this stage.
+     * \brief Set the stage ID that follows this one.
      */
-    void setPreviousGate(Gate* previous) { this->previousGate = previous; }
+    void setNextStageID(int id) { this->nextID = id; }
+
+    /*!
+     * \brief Set the stage ID before this one.
+     */
+    void setPreviousStageID(int id) { this->prevID = id; }
 
     /*!
      * \brief Set the gate that ends this stage.
      */
-    void setNextGate(Gate* next) { this->nextGate = next; }
+    void setExitGate(Gate* gate) { this->exitGate = gate; }
+
+    void setID(int id) { this->id = id; }
 
 private:
     QList<Key*> keys;
-    int id;
-    Stage *previousStage, *nextStage;
-    Gate *previousGate, *nextGate;
+    int id, nextID, prevID;
+    Stage *previous, *next;
+    Gate* exitGate;
 };
 
 #endif // STAGE_H

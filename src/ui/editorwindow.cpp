@@ -332,11 +332,13 @@ bool EditorWindow::openQuest(QString path)
         // Initialize the UI with quest data
         initQuestUI();
 
+        // Enable all quest only UI elements
         setQuestOnlyUIEnabled(true);
 
         // Update recent quests opened
         preferences.addRecentQuestPath(quest.getRootDir().absolutePath());
 
+        // Set the mission for the mission scene to monitor for updates
         missionStructureScene->setMission(&quest.mission);
 
         return true;
@@ -427,8 +429,6 @@ void EditorWindow::updateKeyList()
     for(Key* key : keys)
         keyData.append(key->getName());
     keyEventModel->setStringList(keyData);
-
-    quest.mission.build(quest.getData(DAT_MISSION));
 }
 
 void EditorWindow::updateGateList()
@@ -438,8 +438,6 @@ void EditorWindow::updateGateList()
     for(Gate* gate : gates)
         gateData.append(gate->getName());
     gateModel->setStringList(gateData);
-
-    quest.mission.build(quest.getData(DAT_MISSION));
 }
 
 Key* EditorWindow::getSelectedKey()
@@ -451,7 +449,7 @@ Key* EditorWindow::getSelectedKey()
 
 Gate* EditorWindow::getSelectedGate()
 {
-    QVariant selectedGateID = ui->keyEventList->currentIndex().data();
+    QVariant selectedGateID = ui->gateList->currentIndex().data();
     QString gateName = selectedGateID.toString();
     return quest.mission.getGate(gateName);
 }

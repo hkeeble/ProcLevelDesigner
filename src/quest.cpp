@@ -65,6 +65,11 @@ bool Quest::Init()
     }
 }
 
+void Quest::build()
+{
+    mission.build(getData(DAT_MISSION));
+}
+
 Quest::~Quest()
 {
     clear();
@@ -107,8 +112,10 @@ QString Quest::getName()
     }
 }
 
-void Quest::saveData() const
+void Quest::saveData()
 {
+    build();
+
     // Loop through all loaded data tables
     for(auto iter : data.toStdMap())
     {

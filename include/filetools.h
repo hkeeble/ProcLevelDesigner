@@ -71,8 +71,7 @@ const QString OBJ_STAGE = "stage";
 const QString ELE_KEYS = "keys";
 const QString ELE_PREVIOUS_STAGE_ID = "previous_stage_id";
 const QString ELE_NEXT_STAGE_ID = "next_stage_id";
-const QString ELE_PREVIOUS_GATE = "previous_gate";
-const QString ELE_NEXT_GATE = "next_gate";
+const QString ELE_EXIT_GATE = "exit_gate";
 
 // Program Preferences
 const QString DAT_PREFERENCES = QDir::currentPath() + QDir::separator() + "preferences.dat";

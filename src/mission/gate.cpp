@@ -19,7 +19,7 @@ Gate Gate::Parse(Object* object, QList<Key*> keyList)
 
     gate.name =      object->find(ELE_NAME, "");
     gate.type =      static_cast<Gate::Type>(object->find(ELE_GATE_TYPE, "").toInt());
-    gate.keys =       object->find(ELE_KEY_LINKS, "").split('LIST_DELIM');
+    gate.keys =       object->find(ELE_KEY_LINKS, "").split(LIST_DELIM);
     gate.triggered = (object->find(ELE_TRIGGERED, "false") == "false" ? false : true);
 
     return gate;

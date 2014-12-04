@@ -42,6 +42,8 @@ public:
 
     bool Init(); /*!< Initializes the quest. */
 
+    void build();
+
     /*!
      * \brief Retrieves a table from the given filepath. If no data exists, creates a blank table to be written to the
      *        specified path.
@@ -59,7 +61,7 @@ public:
     /*!
      * \brief Writes out all currently loaded data to the disk. Should save any changes that have been made to data in program memory.
      */
-    void saveData() const;
+    void saveData();
 
     /*!
      * \brief Clears all quest data, making this object a blank quest.

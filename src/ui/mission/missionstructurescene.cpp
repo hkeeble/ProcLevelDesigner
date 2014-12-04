@@ -109,6 +109,7 @@ void MissionStructureScene::setMission(Mission* mission)
 {
     this->mission = mission;
     QObject::connect(mission->getObserver(), SIGNAL(updated()), this, SLOT(missionUpdated()));
+    missionUpdated();
 }
 
 void MissionStructureScene::missionUpdated()
@@ -146,10 +147,10 @@ void MissionStructureScene::missionUpdated()
         stages.append(stageRect);
 
         // If the stage has a gate, initialize the gate
-        if(stage->getNextGate())
+        if(stage->getExitGate())
         {
             TextRectItem gate;
-            gate.addLine(stage->getNextGate()->getName(), QFont("Mono", 12, QFont::Bold));
+            gate.addLine(stage->getExitGate()->getName(), QFont("Mono", 12, QFont::Bold));
             gate.setPos(stages.last().getPos() + QPointF(stages.last().getWidth(), (stages.last().getHeight()/2)-(gate.getHeight()/2)));
             gates.append(gate);
         }
