@@ -73,6 +73,24 @@ const QString ELE_PREVIOUS_STAGE_ID = "previous_stage_id";
 const QString ELE_NEXT_STAGE_ID = "next_stage_id";
 const QString ELE_EXIT_GATE = "exit_gate";
 
+// Space
+const QString DAT_SPACE = "proc_designer_data" + QString(QDir::separator()) + "space_data" + QString(QDir::separator()) + "space";
+
+// Zone
+const QString OBJ_ZONE = "zone";
+const QString ELE_FILE = "file";
+
+// Area
+const QString OBJ_AREA = "area";
+const QString ELE_AREA_COUNT = "area_count";
+const QString ELE_LOCATION = "location";
+
+// Link
+const QString OBJ_LINK = "link";
+const QString ELE_FIRST = "first";
+const QString ELE_SECOND = "second";
+const QString ELE_GATE_NAME = "gate_name";
+
 // Program Preferences
 const QString DAT_PREFERENCES = QDir::currentPath() + QDir::separator() + "preferences.dat";
 const QString OBJ_PREFERENCES = "preferences";
@@ -87,7 +105,6 @@ const QVector<QChar> FIND_OBJ_DELIMS =  {'{'};
 const QVector<QChar> OBJ_DELIMS =       {'}'};
 const QVector<QChar> ELEM_DELIMS =      {'='};
 const QVector<QChar> VAL_DELIMS =       {','};
-
 
 /*!
  * \brief Will copy all files in the given directory and all subdirectories into the destination directory.

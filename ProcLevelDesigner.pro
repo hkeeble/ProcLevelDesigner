@@ -34,7 +34,11 @@ SOURCES += \
     src/preferences.cpp \
     src/ui/mission/editgatedialog.cpp \
     src/mission/stage.cpp \
-    src/ui/mission/missionstructurescene.cpp
+    src/ui/mission/missionstructurescene.cpp \
+    src/space/space.cpp \
+    src/space/zone.cpp \
+    src/ui/space/editzonedialog.cpp \
+    src/ui/space/spacescene.cpp
 
 HEADERS  += \
     include/common.h \
@@ -57,7 +61,11 @@ HEADERS  += \
     include/preferences.h \
     include/ui/mission/editgatedialog.h \
     include/mission/stage.h \
-    include/ui/mission/missionstructurescene.h
+    include/ui/mission/missionstructurescene.h \
+    include/space/space.h \
+    include/space/zone.h \
+    include/ui/space/editzonedialog.h \
+    include/ui/space/spacescene.h
 
 FORMS    += \
     ui/editorwindow.ui \
@@ -67,12 +75,15 @@ FORMS    += \
     ui/questdatabase.ui \
     ui/mission/editkeyevent.ui \
     ui/solarusdirectorydialog.ui \
-    ui/mission/editgatedialog.ui
+    ui/mission/editgatedialog.ui \
+    ui/space/editzonedialog.ui
 
 INCLUDEPATH += include \
                include/ui \
                include/ui/mission \
+               include/ui/space \
                include/mission \
+               include/space \
 
 # Copy Data & Script Files to build
 data.path = $${OUT_PWD}/game_data

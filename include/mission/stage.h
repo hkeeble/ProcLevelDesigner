@@ -81,6 +81,8 @@ public:
      */
     void setExitGate(Gate* gate) { this->exitGate = gate; }
 
+    void clearKeys() { keys.clear(); }
+
     void setID(int id) { this->id = id; }
 
 private:

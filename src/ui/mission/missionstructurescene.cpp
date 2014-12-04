@@ -123,6 +123,8 @@ void MissionStructureScene::missionUpdated()
 
     QList<Stage*> missionStages = mission->getStages();
 
+    qreal tallest = 0.f;
+
     // Construct lists of stages and gates
     for(Stage* stage : missionStages)
     {
@@ -134,11 +136,14 @@ void MissionStructureScene::missionUpdated()
         // Initialize the stage rect
         TextRectItem stageRect(keyNames, QFont("Mono", 12));
 
-        // Set position
+        // Get height
+        qreal height = stageRect.getHeight();
+        if(height > tallest)
+            tallest = height;
+
+        // Set X position
         if(stages.length() != 0)
-        {
             stageRect.setPos(stages.last().getPos() + QPointF(stages.last().getWidth()+gates.last().getWidth(), 0));
-        }
 
         // Add title
         stageRect.addLineAt(0, "Stage " + QString::number(stage->getID()), QFont("Mono", 12, QFont::Bold));
@@ -152,14 +157,57 @@ void MissionStructureScene::missionUpdated()
             TextRectItem gate;
             gate.addLine(stage->getExitGate()->getName(), QFont("Mono", 12, QFont::Bold));
             gate.setPos(stages.last().getPos() + QPointF(stages.last().getWidth(), (stages.last().getHeight()/2)-(gate.getHeight()/2)));
+            gate.setBrush(QBrush(Qt::lightGray));
             gates.append(gate);
         }
     }
 
-    // Add items to scene
     for(TextRectItem stage : stages)
+    {
+        stage.setPos(QPointF(stage.getPos().x(), (tallest/2)-(stage.getHeight()/2)));
         addItem(stage.getRect());
+    }
 
     for(TextRectItem gate : gates)
+    {
+        gate.setPos(QPointF(gate.getPos().x(), (tallest/2)-(gate.getHeight()/2)));
         addItem(gate.getRect());
+    }
+}
+
+
+void MissionStructureScene::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
+{
+    event->accept();
+}
+
+void MissionStructureScene::dragLeaveEvent(QGraphicsSceneDragDropEvent* event)
+{
+    event->accept();
+}
+
+void MissionStructureScene::dragMoveEvent(QGraphicsSceneDragDropEvent* event)
+{
+    // Change colour of text-rects to show where the mouse is....
+    for(TextRectItem stage : stages)
+    {
+        if(stage.getRect()->boundingRect().contains(event->scenePos()))
+            stage.setBrush(QBrush(Qt::red));
+        else
+            stage.setBrush(QBrush(Qt::white));
+    }
+
+    event->accept();
+}
+
+void MissionStructureScene::dropEvent(QGraphicsSceneDragDropEvent* event)
+{
+    // Find the current stage (if any)
+    for(TextRectItem stage : stages)
+    {
+        if(stage.getRect()->boundingRect().contains(event->scenePos()))
+            stage.setBrush(QBrush(Qt::white)); // Clear the colour highlight
+    }
+
+    event->accept();
 }

@@ -15,11 +15,13 @@
 #include "solarusdirectorydialog.h"
 #include "editkeyevent.h"
 #include "editgatedialog.h"
+#include "editzonedialog.h"
 #include "questdatabase.h"
 #include "quest.h"
 #include "filetools.h"
 #include "applicationdispatcher.h"
 #include "missionstructurescene.h"
+#include "spacescene.h"
 
 namespace Ui {
 class EditorWindow;
@@ -63,6 +65,11 @@ private slots:
     // Generate mission button
     void on_generateMissionButton_clicked();
 
+    // Zone Buttons
+    void on_newZoneButton_clicked();
+    void on_editZoneButton_clicked();
+    void on_removeZoneButton_clicked();
+
 protected:
     void closeEvent(QCloseEvent *event) override final;
 
@@ -77,6 +84,7 @@ private:
 
     void updateKeyList();   /*!< Updates the event list with all data currently in the quest's mission. */
     void updateGateList(); /*!< Updates the gate list with all data currently in the quest's mission. */
+    void updateZoneList(); /*!< Updates the zone list with all data currently in the quest's space. */
 
     Key* getSelectedKey();
     Gate* getSelectedGate();
@@ -90,7 +98,7 @@ private:
     Ui::EditorWindow *ui;   /*!< Pointer to the window UI elements. */
     QString appDir;         /*!< The location of the application. */
 
-    Preferences preferences;
+    Preferences preferences; /*!< Saved user preferences (also manages quest history). */
 
     Quest quest; /*!< The currently loaded quest. */
 
@@ -100,11 +108,16 @@ private:
     // Key/Gate models and data
     QStringListModel* keyEventModel; /*!< Model used to represent key events. */
     QStringListModel* gateModel;     /*! Model used to represent gates. */
+    QStringListModel* zoneModel;
     QStringList keyData;
     QStringList gateData;
+    QStringList zoneData;
 
-    // Mission view members
+    // Mission scene
     MissionStructureScene* missionStructureScene;
+
+    // Space scene
+    SpaceScene* spaceScene;
 
     // Recent quest array
     QStringList recentQuests;

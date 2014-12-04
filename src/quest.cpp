@@ -61,6 +61,10 @@ bool Quest::Init()
         Table* missionData = getData(DAT_MISSION);
         mission = Mission::Parse(missionData);
 
+        // Initialize the space
+        Table* spaceData = getData(DAT_SPACE);
+        space = Space::Parse(spaceData);
+
         return true;
     }
 }

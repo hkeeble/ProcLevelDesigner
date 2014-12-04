@@ -26,7 +26,15 @@ EditorWindow::EditorWindow(QWidget *parent) :
 
     keyEventModel = nullptr;
     gateModel = nullptr;
+    zoneModel = nullptr;
     runningGame = nullptr;
+
+    // Enable key and gate drag and drop
+    ui->keyEventList->setDragEnabled(true);
+    ui->gateList->setDragEnabled(true);
+
+    // Enable the structure view to accept drops
+    ui->structureView->viewport()->setAcceptDrops(true);
 
     setWindowTitle("ProcLevelDesigner");
 
@@ -39,6 +47,9 @@ EditorWindow::EditorWindow(QWidget *parent) :
 
     missionStructureScene = new MissionStructureScene();
     ui->structureView->setScene(missionStructureScene);
+
+    spaceScene = new SpaceScene();
+    ui->spaceView->setScene(spaceScene);
 }
 
 EditorWindow::~EditorWindow()
@@ -47,8 +58,12 @@ EditorWindow::~EditorWindow()
         delete keyEventModel;
     if(gateModel)
         delete gateModel;
+    if(zoneModel)
+        delete zoneModel;
     if(missionStructureScene)
         delete missionStructureScene;
+    if(spaceScene)
+        delete spaceScene;
 
     clearRunningGame();
 
@@ -316,6 +331,23 @@ void EditorWindow::on_generateMissionButton_clicked()
     quest.mission.generate(); // Generate the mission here
 }
 
+void EditorWindow::on_newZoneButton_clicked()
+{
+    EditZoneDialog* dialog = new EditZoneDialog(quest.getTilesetList());
+    dialog->exec();
+    delete dialog;
+}
+
+void EditorWindow::on_editZoneButton_clicked()
+{
+
+}
+
+void EditorWindow::on_removeZoneButton_clicked()
+{
+
+}
+
 /* ------------------------------------------------------------------
  *  HELPER FUNCTIONS
  * ------------------------------------------------------------------*/
@@ -340,6 +372,9 @@ bool EditorWindow::openQuest(QString path)
 
         // Set the mission for the mission scene to monitor for updates
         missionStructureScene->setMission(&quest.mission);
+
+        // Set the space for the space scene to monitor for updates
+        spaceScene->setSpace(&quest.space);
 
         return true;
     }
@@ -397,18 +432,24 @@ void EditorWindow::initQuestUI()
 {
     // Initialize and clear models
     if(!keyEventModel)
-        keyEventModel = new QStringListModel;
+        keyEventModel = new QStringListModel();
     else
         keyEventModel->setStringList(QStringList());
 
     if(!gateModel)
-        gateModel = new QStringListModel;
+        gateModel = new QStringListModel();
     else
         gateModel->setStringList(QStringList());
+
+    if(!zoneModel)
+        zoneModel = new QStringListModel();
+    else
+        zoneModel->setStringList(QStringList());
 
     // Initialize data
     keyData = QStringList();
     gateData = QStringList();
+    zoneData = QStringList();
 
     updateKeyList();
     updateGateList();
@@ -416,10 +457,12 @@ void EditorWindow::initQuestUI()
     // Set view models
     ui->keyEventList->setModel(keyEventModel);
     ui->gateList->setModel(gateModel);
+    ui->zoneList->setModel(zoneModel);
 
     // Disable edit triggers for views
     ui->keyEventList->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->gateList->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->zoneList->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
 void EditorWindow::updateKeyList()
@@ -440,6 +483,15 @@ void EditorWindow::updateGateList()
     gateModel->setStringList(gateData);
 }
 
+void EditorWindow::updateZoneList()
+{
+    zoneData.clear();
+    QList<Zone*> zones = quest.space.getZoneList();
+    for(Zone* zone : zones)
+        zoneData.append(zone->getName());
+    zoneModel->setStringList(zoneData);
+}
+
 Key* EditorWindow::getSelectedKey()
 {
     QVariant selectedKeyID = ui->keyEventList->currentIndex().data();
@@ -453,3 +505,5 @@ Gate* EditorWindow::getSelectedGate()
     QString gateName = selectedGateID.toString();
     return quest.mission.getGate(gateName);
 }
+
+

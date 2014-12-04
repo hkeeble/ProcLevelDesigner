@@ -5,6 +5,7 @@
 #include <QGraphicsTextItem>
 #include <QGraphicsSimpleTextItem>
 #include <QBrush>
+#include <QGraphicsSceneDragDropEvent>
 
 #include "mission.h"
 
@@ -68,6 +69,7 @@ public:
 
     qreal getHeight() { return rect->boundingRect().height(); }
 
+    void setBrush(QBrush brush) { rect->setBrush(brush); }
 
 private:
     static const qreal PADDING;
@@ -95,7 +97,11 @@ public:
      * \brief Sets the mission to show in this structure scene.
      */
     void setMission(Mission* mission);
-
+protected:
+   void dragEnterEvent(QGraphicsSceneDragDropEvent* event) override;
+   void dragLeaveEvent(QGraphicsSceneDragDropEvent* event) override;
+   void dragMoveEvent(QGraphicsSceneDragDropEvent* event) override;
+   void dropEvent (QGraphicsSceneDragDropEvent* event) override;
 public slots:
     void missionUpdated();
 private:

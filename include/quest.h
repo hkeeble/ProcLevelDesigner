@@ -10,6 +10,7 @@
 #include "filetools.h"
 #include "map.h"
 #include "mission.h"
+#include "space.h"
 
 // The solarus version supported by this quest object
 const QString SOLARUS_VERSION = "1.3";
@@ -121,7 +122,9 @@ public:
      */
     bool checkForChanges();
 
+    // The components of this quest:
     Mission mission; /*!< The mission contained within this quest. */
+    Space space;     /*!< The space contained within this quest. */
 
 private:
     QDir rootDir;

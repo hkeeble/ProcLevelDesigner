@@ -13,6 +13,16 @@ Mission::~Mission()
 void Mission::generate()
 {
 
+    // Simple initial algorithm, ensures keys are placed in the stage before they are
+    // required
+    for(Stage& stage : stages)
+    {
+        stage.clearKeys();
+        QStringList reqKeys = stage.getExitGate()->getKeys();
+        for(QString key : reqKeys)
+            stage.addKey(&keyEvents.find(key).value());
+    }
+
     observer->emitUpdate();
 }
 
