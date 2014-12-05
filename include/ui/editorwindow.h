@@ -88,6 +88,7 @@ private:
 
     Key* getSelectedKey();
     Gate* getSelectedGate();
+    Zone* getSelectedZone();
 
     void setQuestOnlyUIEnabled(bool enabled);
 

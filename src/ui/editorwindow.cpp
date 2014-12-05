@@ -333,9 +333,19 @@ void EditorWindow::on_generateMissionButton_clicked()
 
 void EditorWindow::on_newZoneButton_clicked()
 {
-    EditZoneDialog* dialog = new EditZoneDialog(quest.getTilesetList());
-    dialog->exec();
-    delete dialog;
+    QList<Tileset*> tilesets = quest.getTilesetList();
+    if(tilesets.count() > 0)
+    {
+        EditZoneDialog* dialog = new EditZoneDialog(quest.getTilesetList());
+        if(dialog->exec() == QDialog::Accepted)
+        {
+            quest.space.addZone(dialog->getName(), Zone(dialog->getName(), dialog->getAreaCount(), quest.getTileset(dialog->getTileset())));
+            updateZoneList();
+        }
+        delete dialog;
+    }
+    else
+        QMessageBox::warning(this, "Warning", "You must have at least one tileset loaded to create a zone. Go to Tools > Quest Database to load one.", QMessageBox::Ok);
 }
 
 void EditorWindow::on_editZoneButton_clicked()
@@ -506,4 +516,9 @@ Gate* EditorWindow::getSelectedGate()
     return quest.mission.getGate(gateName);
 }
 
-
+Zone* EditorWindow::getSelectedZone()
+{
+    QVariant selectedZoneID = ui->zoneList->currentIndex().data();
+    QString zoneName = selectedZoneID.toString();
+    return quest.space.getZone(zoneName);
+}

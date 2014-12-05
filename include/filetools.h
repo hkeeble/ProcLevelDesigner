@@ -75,20 +75,23 @@ const QString ELE_EXIT_GATE = "exit_gate";
 
 // Space
 const QString DAT_SPACE = "proc_designer_data" + QString(QDir::separator()) + "space_data" + QString(QDir::separator()) + "space";
+const QString DAT_ZONE_SUFFIX = "_zone";
 
 // Zone
 const QString OBJ_ZONE = "zone";
 const QString ELE_FILE = "file";
+const QString ELE_AREA_COUNT = "area_count";
 
 // Area
 const QString OBJ_AREA = "area";
-const QString ELE_AREA_COUNT = "area_count";
-const QString ELE_LOCATION = "location";
+const QString ELE_ZONE = "zone";
 
 // Link
 const QString OBJ_LINK = "link";
-const QString ELE_FIRST = "first";
-const QString ELE_SECOND = "second";
+const QString ELE_FIRST_X = "first_x";
+const QString ELE_FIRST_Y = "first_y";
+const QString ELE_SECOND_X = "second_x";
+const QString ELE_SECOND_Y = "second_y";
 const QString ELE_GATE_NAME = "gate_name";
 
 // Program Preferences

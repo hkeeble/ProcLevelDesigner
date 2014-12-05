@@ -76,6 +76,12 @@ Table::Table()
 Table::Table(QString filePath)
 {
     this->filePath = filePath;
+
+    // If the path to the file does not exist, create it
+    QFileInfo info(filePath);
+    if(!QDir().exists(info.absolutePath()))
+        QDir().mkpath(info.absolutePath());
+
     parse(filePath);
 }
 

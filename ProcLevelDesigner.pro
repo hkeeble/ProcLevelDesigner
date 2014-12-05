@@ -38,7 +38,9 @@ SOURCES += \
     src/space/space.cpp \
     src/space/zone.cpp \
     src/ui/space/editzonedialog.cpp \
-    src/ui/space/spacescene.cpp
+    src/ui/space/spacescene.cpp \
+    src/space/area.cpp \
+    src/space/link.cpp
 
 HEADERS  += \
     include/common.h \
@@ -65,7 +67,9 @@ HEADERS  += \
     include/space/space.h \
     include/space/zone.h \
     include/ui/space/editzonedialog.h \
-    include/ui/space/spacescene.h
+    include/ui/space/spacescene.h \
+    include/space/area.h \
+    include/space/link.h
 
 FORMS    += \
     ui/editorwindow.ui \

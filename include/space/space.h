@@ -2,9 +2,12 @@
 #define SPACE_H
 
 #include <QMap>
+#include <QScopedPointer>
+#include <QDebug>
 
 #include "filetools.h"
 #include "zone.h"
+#include "area.h"
 
 /*!
  * \brief Observes a space object, and is used to emit a signal when space has changed to inform all slots to update.
@@ -31,10 +34,10 @@ public:
     /*!
      * \brief Build a new space object from the given data table.
      */
-    static Space Parse(Table* data);
+    static Space Parse(Table* data, QList<Gate*> gates, QList<Key*> keys, QList<Tileset*> tilesets);
 
     /*!
-     * \brief Build this space into the given data table.
+     * \brief Returns a list of all zone data, built into tables.
      */
     void build(Table* data);
 
@@ -58,10 +61,20 @@ public:
      */
     bool removeZone(QString name);
 
+    /*!
+     * \brief Get the zone with the given name. If the name was not found, returns a null pointer.
+     */
+    Zone* getZone(QString name);
+
+    /*!
+     * \brief Returns a list of pointers to all zones included in this space.
+     */
     QList<Zone*> getZoneList();
 
 private:
     SpaceObserver* observer;
+
+    QMap<QPoint,Area> areas; /*!< Areas contained within this space. */
     QMap<QString,Zone> zones; /*!< Zones contained within this space. */
 };
 

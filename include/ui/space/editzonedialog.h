@@ -1,6 +1,7 @@
 #ifndef EDITZONEDIALOG_H
 #define EDITZONEDIALOG_H
 
+#include <QMessageBox>
 #include <QDialog>
 
 #include "zone.h"

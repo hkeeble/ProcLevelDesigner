@@ -63,7 +63,7 @@ bool Quest::Init()
 
         // Initialize the space
         Table* spaceData = getData(DAT_SPACE);
-        space = Space::Parse(spaceData);
+        space = Space::Parse(spaceData, mission.getGateList(), mission.getKeyEventList(), getTilesetList());
 
         return true;
     }
@@ -72,6 +72,7 @@ bool Quest::Init()
 void Quest::build()
 {
     mission.build(getData(DAT_MISSION));
+    space.build(getData(DAT_SPACE));
 }
 
 Quest::~Quest()
