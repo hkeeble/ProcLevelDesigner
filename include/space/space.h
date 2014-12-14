@@ -8,6 +8,7 @@
 #include "filetools.h"
 #include "zone.h"
 #include "area.h"
+#include "mission.h"
 
 /*!
  * \brief Observes a space object, and is used to emit a signal when space has changed to inform all slots to update.
@@ -30,6 +31,12 @@ class Space
 public:
     Space();
     virtual ~Space();
+
+    /*!
+     * \brief Generate space for the given mission.
+     * \param mission The mission to generate space for.
+     */
+    void generate(const Mission& mission);
 
     /*!
      * \brief Build a new space object from the given data table.
@@ -71,7 +78,10 @@ public:
      */
     QList<Zone*> getZoneList();
 
+    QMap<QPoint,Area>* getAreas() { return &areas; }
+
 private:
+
     SpaceObserver* observer;
 
     QMap<QPoint,Area> areas; /*!< Areas contained within this space. */

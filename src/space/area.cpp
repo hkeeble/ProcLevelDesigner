@@ -27,6 +27,17 @@ Area& Area::operator=(const Area& param)
     }
 }
 
+Area::Area(Zone* zone, QPoint location, int height, int width, QList<Key*> keyEvents)
+    : Area()
+{
+    this->zone = zone;
+    this->location = location;
+    this->keyEvents = keyEvents;
+    this->width = width;
+    this->height = height;
+    this->zoneName = zone->getName();
+}
+
 Area Area::Parse(Object* obj, QList<Key*> keys)
 {
     Area area;
@@ -45,6 +56,9 @@ Area Area::Parse(Object* obj, QList<Key*> keys)
 
     area.zoneName = obj->find(ELE_ZONE, NULL_ELEMENT);
 
+    area.width = obj->find(ELE_WIDTH, "1").toInt();
+    area.height = obj->find(ELE_HEIGHT, "1").toInt();
+
     return area;
 }
 
@@ -54,6 +68,9 @@ void Area::build(Object* obj)
 
     obj->insert(ELE_X, QString::number(location.x()));
     obj->insert(ELE_Y, QString::number(location.y()));
+
+    obj->insert(ELE_WIDTH, QString::number(width));
+    obj->insert(ELE_HEIGHT, QString::number(height));
 
     QString keyList = "";
     for(Key* key : keyEvents)
@@ -72,6 +89,8 @@ void Area::cpy(const Area& param)
     this->location = param.location;
     this->keyEvents = param.keyEvents;
     this->zone = param.zone;
+    this->width = param.width;
+    this->height = param.height;
 
     this->right = this->left = this->down = this->up = nullptr;
 
@@ -123,4 +142,20 @@ void Area::removeUpLink()
         delete up;
 
     up = nullptr;
+}
+
+Map Area::buildMap()
+{
+    Map map(QString::number(location.x()) + QString::number(location.y()), width, height, zone->getTileset()->getTileSize(), "village", "", zone->getTileset());
+
+    for(int x = 0; x < map.getWidth(); x++)
+    {
+        for(int y = 0; y < map.getHeight(); y++)
+        {
+            MapTile tile = MapTile(0, x, y, map.getTileSize(), 0);
+            map.setTile(x, y, MapTile(tile));
+        }
+    }
+
+    return map;
 }

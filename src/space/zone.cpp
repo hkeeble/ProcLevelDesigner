@@ -3,14 +3,16 @@
 Zone::Zone()
 {
     tileset = nullptr;
+    color = Qt::white;
 }
 
-Zone::Zone(QString name, int areaCount, Tileset *tileset)
+Zone::Zone(QString name, int areaCount, Tileset *tileset, QColor color)
     : Zone()
 {
     this->name = name;
     this->areaCount = areaCount;
     this->tileset = tileset;
+    this->color = color;
 }
 
 Zone Zone::Parse(Object* data, QList<Tileset*> tilesets)
@@ -19,6 +21,12 @@ Zone Zone::Parse(Object* data, QList<Tileset*> tilesets)
 
     zone.name = data->find(ELE_NAME, NULL_ELEMENT);
     zone.areaCount = data->find(ELE_AREA_COUNT, "1").toInt();
+
+    // Read zone color
+    int r = data->find(ELE_RED, "0").toInt();
+    int g = data->find(ELE_GREEN, "0").toInt();
+    int b = data->find(ELE_BLUE, "0").toInt();
+    zone.color = QColor(r, g, b);
 
     QString tilesetName = data->find(ELE_TILESET, NULL_ELEMENT);
     if(tilesetName != NULL_ELEMENT)
@@ -40,6 +48,14 @@ void Zone::build(Object* object)
     object->insert(ELE_NAME, name);
     object->insert(ELE_TILESET, tileset->getName());
     object->insert(ELE_AREA_COUNT, QString::number(areaCount));
+
+    // Build color
+    int r, g, b;
+    color.getRgb(&r, &g, &b);
+
+    object->insert(ELE_RED, QString::number(r));
+    object->insert(ELE_GREEN, QString::number(g));
+    object->insert(ELE_BLUE, QString::number(b));
 }
 
 Zone::~Zone()

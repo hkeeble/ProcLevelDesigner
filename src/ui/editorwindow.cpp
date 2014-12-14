@@ -136,7 +136,7 @@ void EditorWindow::on_actionNew_Map_triggered()
     writeToFile(QFileInfo(data->getFilePath()).absoluteDir().absolutePath(), "second_map.lua", ""); // Write map script file
 
     Table* database = quest.getData(DAT_DATABASE);
-    database->addObject(OBJ_MAP, map.getObject());
+    database->addObject(OBJ_MAP, map.getDatabaseObject());
     quest.saveData();
 }
 
@@ -183,6 +183,9 @@ void EditorWindow::on_actionQuest_Database_triggered()
 void EditorWindow::on_actionRun_triggered()
 {
     clearRunningGame();
+
+    quest.build();
+
     runningGame = ApplicationDispatcher::RunThroughTerminal(this, "solarus",
                                                             QStringList() << quest.getExecutableDir().absolutePath(), true);
 }
@@ -339,23 +342,56 @@ void EditorWindow::on_newZoneButton_clicked()
         EditZoneDialog* dialog = new EditZoneDialog(quest.getTilesetList());
         if(dialog->exec() == QDialog::Accepted)
         {
-            quest.space.addZone(dialog->getName(), Zone(dialog->getName(), dialog->getAreaCount(), quest.getTileset(dialog->getTileset())));
+            quest.space.addZone(dialog->getName(), Zone(dialog->getName(), dialog->getAreaCount(),
+                                                        quest.getTileset(dialog->getTileset()), dialog->getColor()));
             updateZoneList();
         }
         delete dialog;
     }
     else
-        QMessageBox::warning(this, "Warning", "You must have at least one tileset loaded to create a zone. Go to Tools > Quest Database to load one.", QMessageBox::Ok);
+        QMessageBox::warning(this, "Warning", "You must have at least one tileset loaded to create a zone. Go to Tools > Quest Database to load one.",
+                             QMessageBox::Ok);
 }
 
 void EditorWindow::on_editZoneButton_clicked()
 {
+    Zone* zone = getSelectedZone();
 
+    if(zone != nullptr)
+    {
+        EditZoneDialog* dialog = new EditZoneDialog(quest.getTilesetList(), zone, this);
+        if(dialog->exec() == QDialog::Accepted)
+        {
+            zone->setTileset(quest.getTileset(dialog->getTileset()));
+            zone->setName(dialog->getName());
+            zone->setAreaCount(dialog->getAreaCount());
+            zone->setColor(dialog->getColor());
+            updateZoneList();
+        }
+        delete dialog;
+    }
+    else
+        QMessageBox::warning(this, "Error", "Cannot edit zone, no zone selected.", QMessageBox::Ok);
 }
 
 void EditorWindow::on_removeZoneButton_clicked()
 {
+    Zone* zone = getSelectedZone();
 
+    if(zone != nullptr)
+    {
+        if(QMessageBox::warning(this, "Removing Zone", "Are you sure you wish to remove this zone from the quest?", QMessageBox::Yes | QMessageBox::No)
+                == QMessageBox::Yes)
+        {
+            quest.space.removeZone(zone->getName());
+            updateZoneList();
+        }
+    }
+}
+
+void EditorWindow::on_generateSpaceButton_clicked()
+{
+    quest.space.generate(quest.mission);
 }
 
 /* ------------------------------------------------------------------
@@ -401,6 +437,12 @@ void EditorWindow::createNewQuest(QString name, QString folderPath)
 
     copyFolder(QDir().currentPath() + QDir::separator() + "game_data" + QDir::separator(),
                folderPath);
+
+    // Create paths
+    QDir dir;
+    dir.mkpath(folderPath + QDir::separator() + "tilesets");
+    dir.mkpath(folderPath + QDir::separator() + "maps");
+    dir.mkpath(folderPath + QDir::separator() + "maps");
 
     // Modify the quest object
     Table* questData = newQuest.getData(DAT_QUEST);
@@ -463,6 +505,7 @@ void EditorWindow::initQuestUI()
 
     updateKeyList();
     updateGateList();
+    updateZoneList();
 
     // Set view models
     ui->keyEventList->setModel(keyEventModel);

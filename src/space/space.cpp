@@ -21,6 +21,13 @@ Space::~Space()
 
 }
 
+void Space::generate(const Mission& mission)
+{
+    areas.insert(QPoint(0,0), Area(&zones.find("field").value(), QPoint(0,0), 2, 1, QList<Key*>()));
+    areas.insert(QPoint(1,1), Area(&zones.find("field").value(), QPoint(1,1), 3, 3, QList<Key*>()));
+    emitUpdate();
+}
+
 Space Space::Parse(Table* data, QList<Gate*> gates, QList<Key*> keys, QList<Tileset*> tilesets)
 {
     Space space;
@@ -51,7 +58,7 @@ Space Space::Parse(Table* data, QList<Gate*> gates, QList<Key*> keys, QList<Tile
     }
 
     // Point areas to their zones
-    for(Area area : space.areas)
+    for(Area& area : space.areas)
     {
         Zone* zone = &space.zones.find(area.getZoneName()).value();
         if(zone)
@@ -59,7 +66,7 @@ Space Space::Parse(Table* data, QList<Gate*> gates, QList<Key*> keys, QList<Tile
     }
 
     // Place all links into their correct areas
-    for(Link link : linkList)
+    for(Link& link : linkList)
     {
         Area* first = &space.areas.find(link.first).value();
         Area* second = &space.areas.find(link.second).value();
@@ -125,13 +132,13 @@ void Space::build(Table *data)
         Link* down = iter.value().getLinkDown();
         Link* up = iter.value().getLinkUp();
 
-        if(!linkList.contains(*right))
+        if(right != nullptr && !linkList.contains(*right))
             linkList.append(*right);
-        if(!linkList.contains(*left))
+        if(left != nullptr && !linkList.contains(*left))
             linkList.append(*left);
-        if(!linkList.contains(*down))
+        if(down != nullptr && !linkList.contains(*down))
             linkList.append(*down);
-        if(!linkList.contains(*up))
+        if(up != nullptr && !linkList.contains(*up))
             linkList.append(*up);
     }
 

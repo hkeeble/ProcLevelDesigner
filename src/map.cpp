@@ -23,6 +23,12 @@ Map::Map(QString name, int width, int height, int tileSize, QString music, QStri
     initTiles();
 }
 
+Map::Map(QString name, int width, int height, int tileSize, QString music, QString world, Tileset* tileset) :
+    Map(name, width, height, tileSize, music, world)
+{
+    this->tileSet = tileset;
+}
+
 Map::~Map()
 {
 
@@ -124,7 +130,7 @@ Object MapTile::build(MapTile tile)
     return object;
 }
 
-Object Map::getObject()
+Object Map::getDatabaseObject()
 {
     Object obj = Object();
 

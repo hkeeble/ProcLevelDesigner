@@ -81,6 +81,9 @@ const QString DAT_ZONE_SUFFIX = "_zone";
 const QString OBJ_ZONE = "zone";
 const QString ELE_FILE = "file";
 const QString ELE_AREA_COUNT = "area_count";
+const QString ELE_RED = "red";
+const QString ELE_GREEN = "green";
+const QString ELE_BLUE = "blue";
 
 // Area
 const QString OBJ_AREA = "area";

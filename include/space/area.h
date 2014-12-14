@@ -7,6 +7,7 @@
 #include "link.h"
 #include "key.h"
 #include "zone.h"
+#include "map.h"
 
 /*!
  * \brief An area is representative of an individual map in game. They are given a Zone pointer,
@@ -20,6 +21,8 @@ class Area
 public:
     Area();
     virtual ~Area();
+
+    Area(Zone* zone, QPoint location, int height, int width, QList<Key*> keyEvents = QList<Key*>());
 
     Area(const Area& param);
     Area& operator=(const Area& param);
@@ -35,6 +38,9 @@ public:
 
     Zone* getZone() { return zone; }
     void setZone(Zone* zone) { this->zone = zone; }
+
+    int getWidth() { return width; }
+    int getHeight() { return height; }
 
     Link* getLinkUp() { return up; }
     Link* getLinkLeft() { return left; }
@@ -53,12 +59,15 @@ public:
     void removeDownLink();
     void removeUpLink();
 
+    Map buildMap();
+
 private:
     void cpy(const Area& param); /*!< Internal copying function. */
 
     QString zoneName;                           /*!< Name of the zone this area should point to (only use this when parsing!) */
     Zone* zone;                                 /*!< The zone this area belongs to. */
     QPoint location;                            /*!< The grid location of this area. */
+    int height, width;                          /*!< The height and width of this area. */
     QList<Key*> keyEvents;                      /*!< The key events that take place in this area. */
     Link *up, *left, *right, *down;             /*!< This area's links to other areas. */
 };

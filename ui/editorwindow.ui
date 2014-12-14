@@ -397,14 +397,25 @@
            </widget>
           </item>
           <item>
-           <widget class="QGraphicsView" name="spaceView">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="QGraphicsView" name="spaceView">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="generateSpaceButton">
+              <property name="text">
+               <string>Generate</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>
@@ -561,7 +572,7 @@
   </action>
   <action name="actionRun">
    <property name="text">
-    <string>Run</string>
+    <string>Build and Run</string>
    </property>
   </action>
   <action name="actionSet_Solarus_Directory">

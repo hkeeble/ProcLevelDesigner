@@ -55,6 +55,7 @@ public:
     Map();
     Map(int tileSize, int width, int height);
     Map(QString name, int width, int height, int tileSize, QString music, QString world);
+    Map(QString name, int width, int height, int tileSize, QString music, QString world, Tileset* tileset);
 
     /*!
      * \brief Parses a map from the table into this object.
@@ -79,7 +80,7 @@ public:
     inline int getTileSize() const      { return tileSize; }
 
     inline void setName(const QString& name)          { this->name = name; }
-    inline void setTileSet(Tileset* tileSet)    { this->tileSet = tileSet; }
+    inline void setTileSet(Tileset* tileSet)          { this->tileSet = tileSet; }
     inline void setMusic(const QString& music)        { this->music = music; }
     inline void setTileSize(const int& size)          { this->tileSize = size; }
 
@@ -93,12 +94,12 @@ public:
     /*!
      * \brief Returns the object for this map (used in the project database)
      */
-    Object getObject();
+    Object getDatabaseObject();
 
 private:
     int width, height, tileSize;
     QString name, world, music;
-    Tileset* tileSet; /*!< The tileset used by this map. */
+    Tileset* tileSet;                /*!< The tileset used by this map. */
     QVector<QVector<MapTile>> tiles; /*!< The tiles contained in this map. */
 };
 

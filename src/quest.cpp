@@ -15,7 +15,6 @@ Quest::Quest(QString dirPath)
     scriptModel = new QFileSystemModel();
     mapModel = new QFileSystemModel();
 
-    maps = QMap<QString,Map>();
     tileSets = QMap<QString,Tileset>();
 
     fsModel->setRootPath(rootDir.absolutePath());
@@ -46,17 +45,6 @@ bool Quest::Init()
             tileSets.insert(f.baseName(), Tileset::parse(f.baseName(), data));
         }
 
-        // Load all existing maps
-        QDir mapDir = QDir(rootDir.absolutePath() + QDir::separator() + "maps" + QDir::separator());
-        mapDir.setNameFilters(filters);
-        QFileInfoList mapData = mapDir.entryInfoList();
-
-        for(QFileInfo f : mapData)
-        {
-            Table* data = getData(QString("maps") + QDir::separator() + f.baseName());
-            maps.insert(f.baseName(), Map::parse(f.baseName(), data));
-        }
-
         // Initialize the mission
         Table* missionData = getData(DAT_MISSION);
         mission = Mission::Parse(missionData);
@@ -73,6 +61,28 @@ void Quest::build()
 {
     mission.build(getData(DAT_MISSION));
     space.build(getData(DAT_SPACE));
+
+    Table* database = getData(DAT_DATABASE);
+    QMap<QPoint,Area>* areas = space.getAreas();
+    QList<Map> maps;
+
+    // Build and output maps
+    for(auto iter = areas->begin(); iter != areas->end(); iter++)
+    {
+        // Build the map
+        Map map = iter.value().buildMap();
+        maps.append(map);
+        Table* data = getData(QString("maps") + QDir::separator() + map.getName());
+        map.build(data);
+
+        // Write out a script file
+        writeToFile(QFileInfo(data->getFilePath()).absoluteDir().absolutePath(), map.getName() + ".lua", "");
+
+        // Add map to quest database
+        database->addObject(OBJ_MAP, map.getDatabaseObject());
+    }
+
+    saveData();
 }
 
 Quest::~Quest()
@@ -119,8 +129,6 @@ QString Quest::getName()
 
 void Quest::saveData()
 {
-    build();
-
     // Loop through all loaded data tables
     for(auto iter : data.toStdMap())
     {
@@ -204,26 +212,6 @@ void Quest::clear()
 
     fsModel = scriptModel = mapModel = nullptr;
 
-}
-
-Map* Quest::getMap(QString name)
-{
-    return &(*maps.find(name));
-}
-
-QMap<QString,Map>* Quest::getMaps()
-{
-    return &maps;
-}
-
-QList<Map*> Quest::getMapList()
-{
-    QList<Map*> mapList = QList<Map*>();
-    for(QMap<QString,Map>::iterator iter = maps.begin(); iter != maps.end(); iter++)
-    {
-        mapList.append(&iter.value());
-    }
-    return mapList;
 }
 
 Tileset* Quest::getTileset(QString name)

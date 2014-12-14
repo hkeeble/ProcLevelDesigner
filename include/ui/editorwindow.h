@@ -70,6 +70,8 @@ private slots:
     void on_editZoneButton_clicked();
     void on_removeZoneButton_clicked();
 
+    void on_generateSpaceButton_clicked();
+
 protected:
     void closeEvent(QCloseEvent *event) override final;
 

@@ -12,17 +12,19 @@ EditZoneDialog::EditZoneDialog(QList<Tileset*> tilesets, QWidget *parent) :
 }
 
 
-EditZoneDialog::EditZoneDialog(QList<Tileset*> tilesets, Zone zone, QWidget *parent)
+EditZoneDialog::EditZoneDialog(QList<Tileset*> tilesets, Zone* zone, QWidget *parent)
     : EditZoneDialog(tilesets, parent)
 {
-    ui->nameEdit->setText(zone.getName());
-    ui->areaCountSpinBox->setValue(zone.getAreaCount());
+    ui->nameEdit->setText(zone->getName());
+    ui->areaCountSpinBox->setValue(zone->getAreaCount());
 
     for(int i = 0; i < ui->tilesetComboBox->count(); i++)
     {
-        if(ui->tilesetComboBox->itemText(i) == zone.getTileset()->getName())
+        if(ui->tilesetComboBox->itemText(i) == zone->getTileset()->getName())
             ui->tilesetComboBox->setCurrentIndex(i);
     }
+
+    setSelectedColor(zone->getColor());
 }
 
 EditZoneDialog::~EditZoneDialog()
@@ -48,4 +50,21 @@ void EditZoneDialog::on_OKButton_clicked()
 void EditZoneDialog::on_cancelButton_clicked()
 {
     reject();
+}
+
+void EditZoneDialog::on_pickColorButton_clicked()
+{
+    QColorDialog dialog;
+    QColor newColor = dialog.getColor(color, this, "Pick Zone Color");
+
+    setSelectedColor(newColor);
+}
+
+void EditZoneDialog::setSelectedColor(QColor newColor)
+{
+    this->color = newColor;
+
+    QPixmap pixmap(ui->colorLabel->width(), ui->colorLabel->height());
+    pixmap.fill(color);
+    ui->colorLabel->setPixmap(pixmap);
 }

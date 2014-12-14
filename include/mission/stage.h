@@ -19,7 +19,7 @@ public:
     virtual ~Stage();
 
     void addKey(Key* key) { keys.append(key); }
-    bool removeKey(Key* key) { keys.removeOne(key); }
+    bool removeKey(Key* key) { return keys.removeOne(key); }
     QList<Key*> getKeys() { return keys; }
 
     /*!

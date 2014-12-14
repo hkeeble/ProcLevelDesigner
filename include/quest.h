@@ -70,23 +70,6 @@ public:
     void clear();
 
     /*!
-     * \brief getMap Gets a pointer to the map of the given name.
-     * \param name The name of the map to find.
-     * \return Pointer to the map, if no map is found with the given name, returns null.
-     */
-    Map* getMap(QString name);
-
-    /*!
-     * \brief getMaps Gets the set of maps contaiend in this quest.
-     */
-    QMap<QString,Map>* getMaps();
-
-    /*!
-     * \brief getMapList Gets the maps contained in this quest as a list.
-     */
-    QList<Map*> getMapList();
-
-    /*!
      * \brief getTileset Gets the tileset of the given name.
      * \param name The name of the tileset to retrieve.
      * \return Pointer to the tilset requested. If not found, returns null.
@@ -136,8 +119,6 @@ private:
 
     QMap<QString,QSharedPointer<Table>> data; /*!< Map containing all the currently loaded data for this quest. */
 
-    // Graphical data members
-    QMap<QString,Map> maps;         /*!< The maps contained within this quest. */
     QMap<QString,Tileset> tileSets; /*!< The tilesets contained within this quest. */
 
     void cpy(const Quest& param);

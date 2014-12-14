@@ -3,6 +3,8 @@
 
 #include <QMessageBox>
 #include <QDialog>
+#include <QColorDialog>
+#include <QDebug>
 
 #include "zone.h"
 
@@ -16,19 +18,25 @@ class EditZoneDialog : public QDialog
 
 public:
     explicit EditZoneDialog(QList<Tileset*> tilesets, QWidget *parent = 0);
-    explicit EditZoneDialog(QList<Tileset*> tilesets, Zone zone, QWidget *parent = 0);
+    explicit EditZoneDialog(QList<Tileset*> tilesets, Zone* zone, QWidget *parent = 0);
     ~EditZoneDialog();
 
     inline QString getTileset() { return tileset; }
     inline QString getName() { return name; }
     inline int getAreaCount() { return areaCount; }
+    inline QColor getColor() { return color; }
 
 private slots:
     void on_OKButton_clicked();
     void on_cancelButton_clicked();
+    void on_pickColorButton_clicked();
 
 private:
+    void setSelectedColor(QColor newColor);
+
     Ui::EditZoneDialog *ui;
+
+    QColor color;
     QString tileset;
     QString name;
     int areaCount;
