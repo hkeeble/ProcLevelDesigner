@@ -211,7 +211,6 @@ void EditorWindow::on_actionOpen_Recent_Quest_triggered(QAction* action)
         QMessageBox::information(this, "Quest No Longer Exists", "This quest no longer exists at this location, removing it from recent list.", QMessageBox::Ok);
         preferences.removeRecentQuestPath(action->data().toString());
     }
-
 }
 
 /* ------------------------------------------------------------------

@@ -78,6 +78,9 @@ public:
      */
     QList<Zone*> getZoneList();
 
+    /*!
+     * \brief Returns a list of the areas in this space.
+     */
     QMap<QPoint,Area>* getAreas() { return &areas; }
 
 private:

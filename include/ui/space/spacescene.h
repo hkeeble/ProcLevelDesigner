@@ -4,6 +4,8 @@
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
 #include <QScopedPointer>
+#include <QColor>
+#include <QGraphicsSceneWheelEvent>
 
 #include "space.h"
 
@@ -21,12 +23,16 @@ public slots:
     void spaceUpdated();
 
 private:
-    qreal cellWidth, cellHeight;
+    const QColor wallColor;
+
+    qreal areaCellWidth, areaCellHeight;
+    qreal gridCellWidth, gridCellHeight;
 
     void clear();
 
     Space* space;
-    QVector<QGraphicsRectItem*> tiles;
+    QVector<QGraphicsRectItem*> areaTiles;
+    QVector<QGraphicsRectItem*> gridTiles;
 };
 
 #endif // SPACESCENE_H

@@ -9,6 +9,8 @@
 #include "zone.h"
 #include "map.h"
 
+static const int AREA_TILE_SIZE = 16; /*!< The tile dimensions of a single area (AREA_TILE_SIZE x AREA_TILE_SIZE tiles make up a single area) */
+
 /*!
  * \brief An area is representative of an individual map in game. They are given a Zone pointer,
  *        which holds aesthetic data such as the tileset to be used by the area in game.
@@ -39,6 +41,9 @@ public:
     Zone* getZone() { return zone; }
     void setZone(Zone* zone) { this->zone = zone; }
 
+    void setGrid(const QVector<QVector<bool>>& grid) { this->grid = grid; }
+    QVector<QVector<bool>> getGrid() const { return grid; }
+
     int getWidth() { return width; }
     int getHeight() { return height; }
 
@@ -67,6 +72,7 @@ private:
     QString zoneName;                           /*!< Name of the zone this area should point to (only use this when parsing!) */
     Zone* zone;                                 /*!< The zone this area belongs to. */
     QPoint location;                            /*!< The grid location of this area. */
+    QVector<QVector<bool>> grid;                /*!< The grid of cells in this area. */
     int height, width;                          /*!< The height and width of this area. */
     QList<Key*> keyEvents;                      /*!< The key events that take place in this area. */
     Link *up, *left, *right, *down;             /*!< This area's links to other areas. */

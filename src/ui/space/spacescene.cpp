@@ -1,10 +1,12 @@
 #include "spacescene.h"
 
 SpaceScene::SpaceScene(QObject *parent) :
-    QGraphicsScene(parent)
+    QGraphicsScene(parent), wallColor(Qt::gray)
 {
-    cellWidth = 64.0f;
-    cellHeight = 64.0f;
+    areaCellWidth = 64.0f;
+    areaCellHeight = 64.0f;
+    gridCellWidth = areaCellWidth/AREA_TILE_SIZE;
+    gridCellHeight = areaCellHeight/AREA_TILE_SIZE;
 }
 
 
@@ -22,10 +24,14 @@ SpaceScene::~SpaceScene()
 
 void SpaceScene::clear()
 {
-    for(QGraphicsRectItem* tile : tiles)
+    for(QGraphicsRectItem* tile : gridTiles)
         delete tile;
 
-    tiles.clear();
+    for(QGraphicsRectItem* tile : areaTiles)
+        delete tile;
+
+    areaTiles.clear();
+    gridTiles.clear();
 }
 
 void SpaceScene::spaceUpdated()
@@ -36,12 +42,34 @@ void SpaceScene::spaceUpdated()
 
     for(QMap<QPoint,Area>::iterator iter = areas->begin(); iter != areas->end(); iter++)
     {
-        QPoint location = iter.value().getLocation();
-        QGraphicsRectItem* tile = new QGraphicsRectItem(location.x()*cellWidth, location.y()*cellHeight, cellWidth*iter.value().getWidth(), cellHeight*iter.value().getHeight());
-        tile->setBrush(iter.value().getZone()->getColor());
-        tiles.append(tile);
-    }
+        // Get area data
+        Area area = iter.value();
+        QPoint location = area.getLocation();
+        int width = area.getWidth();
+        int height = area.getHeight();
+        QVector<QVector<bool>> grid = area.getGrid();
 
-    for(QGraphicsRectItem* tile : tiles)
+        // Create area tile
+        QGraphicsRectItem* tile = new QGraphicsRectItem(location.x()*areaCellWidth, location.y()*areaCellHeight, areaCellWidth*width, areaCellHeight*height);
+        tile->setBrush(iter.value().getZone()->getColor());
+        areaTiles.append(tile);
+
+        // Create grid tiles
+        for(int x = 0; x < grid.length(); x++)
+        {
+            for(int y = 0; y < grid[0].length(); y++)
+            {
+                if(grid[x][y] == false)
+                {
+                    int xr = location.x()*areaCellWidth;
+                    int yr = location.y()*areaCellHeight;
+                    QGraphicsRectItem* gridTile = new QGraphicsRectItem((x*gridCellWidth) + xr, (y*gridCellHeight) + yr, gridCellWidth, gridCellHeight, tile);
+                    gridTile->setBrush(QBrush(wallColor));
+                    gridTiles.append(gridTile);
+                }
+            }
+        }
+
         addItem(tile);
+    }
 }

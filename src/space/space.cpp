@@ -23,8 +23,23 @@ Space::~Space()
 
 void Space::generate(const Mission& mission)
 {
-    areas.insert(QPoint(0,0), Area(&zones.find("field").value(), QPoint(0,0), 2, 1, QList<Key*>()));
-    areas.insert(QPoint(1,1), Area(&zones.find("field").value(), QPoint(1,1), 3, 3, QList<Key*>()));
+    QVector<QVector<bool>> grid = QVector<QVector<bool>>(AREA_TILE_SIZE);
+    for(int x = 0; x < grid.length(); x++)
+        grid[x] = QVector<bool>(AREA_TILE_SIZE);
+
+    for(int x = 0; x < AREA_TILE_SIZE; x++)
+    {
+        for(int y = 0; y < AREA_TILE_SIZE; y++)
+            if((qrand() % ((100 + 1) - 0) + 0) > 50)
+                grid[x][y] = false;
+            else
+                grid[x][y] = true;
+    }
+
+    areas.insert(QPoint(2,0),Area(&zones.find("field").value(), QPoint(2,0), 1, 1, QList<Key*>()));
+    areas.last().setGrid(grid);
+    areas.insert(QPoint(1,0),Area(&zones.find("field").value(), QPoint(1,0), 1, 2, QList<Key*>()));
+    areas.insert(QPoint(2,1),Area(&zones.find("field").value(), QPoint(2, 1), 2, 2));
     emitUpdate();
 }
 

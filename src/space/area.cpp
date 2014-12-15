@@ -27,7 +27,7 @@ Area& Area::operator=(const Area& param)
     }
 }
 
-Area::Area(Zone* zone, QPoint location, int height, int width, QList<Key*> keyEvents)
+Area::Area(Zone* zone, QPoint location, int width, int height, QList<Key*> keyEvents)
     : Area()
 {
     this->zone = zone;
@@ -35,6 +35,19 @@ Area::Area(Zone* zone, QPoint location, int height, int width, QList<Key*> keyEv
     this->keyEvents = keyEvents;
     this->width = width;
     this->height = height;
+    this->grid = QVector<QVector<bool>>(width*AREA_TILE_SIZE);
+
+    for(int x = 0; x < width*AREA_TILE_SIZE; x++)
+        this->grid[x] = QVector<bool>(height*AREA_TILE_SIZE);
+
+    for(int x = 0; x < width*AREA_TILE_SIZE; x++)
+    {
+        for(int y = 0; y < height*AREA_TILE_SIZE; y++)
+        {
+            this->grid[x][y] = true;
+        }
+    }
+
     this->zoneName = zone->getName();
 }
 
@@ -91,6 +104,7 @@ void Area::cpy(const Area& param)
     this->zone = param.zone;
     this->width = param.width;
     this->height = param.height;
+    this->grid = param.grid;
 
     this->right = this->left = this->down = this->up = nullptr;
 
