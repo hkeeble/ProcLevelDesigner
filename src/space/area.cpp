@@ -1,5 +1,50 @@
 #include "area.h"
 
+Cell Cell::Parse(Object* obj, QList<Key*> keys, QList<Gate*> gates)
+{
+    Cell cell;
+
+    QString gateName = obj->find(ELE_GATE_NAME, NULL_ELEMENT);
+    QString keyName = obj->find(ELE_KEY_NAME, NULL_ELEMENT);
+
+    if(gateName != NULL_ELEMENT)
+    {
+        for(Gate* gate : gates)
+        {
+            if(gate->getName() == keyName)
+                cell.gate = gate;
+        }
+    }
+    if(keyName != NULL_ELEMENT)
+    {
+        for(Key* key : keys)
+        {
+            if(key->getName() == keyName)
+                cell.key = key;
+        }
+    }
+
+    cell.traversable = (obj->find(ELE_TRAVERSABLE, "true") == "true" ? true : false);
+
+    int x = obj->find(ELE_X, "0").toInt();
+    int y = obj->find(ELE_Y, "0").toInt();
+    cell.location = QPoint(x, y);
+
+    return cell;
+}
+
+void Cell::build(Object* obj)
+{
+    obj->insert(ELE_X, QString::number(location.x()));
+    obj->insert(ELE_Y, QString::number(location.y()));
+    obj->insert(ELE_TRAVERSABLE, (traversable == true ? "true" : false));
+
+    if(hasKey())
+        obj->insert(ELE_KEY_NAME, key->getName());
+    if(hasGate())
+        obj->insert(ELE_GATE_NAME, gate->getName());
+}
+
 Area::Area()
 {
     up = left = right = down = nullptr;
@@ -35,23 +80,13 @@ Area::Area(Zone* zone, QPoint location, int width, int height, QList<Key*> keyEv
     this->keyEvents = keyEvents;
     this->width = width;
     this->height = height;
-    this->grid = QVector<QVector<bool>>(width*AREA_TILE_SIZE);
 
-    for(int x = 0; x < width*AREA_TILE_SIZE; x++)
-        this->grid[x] = QVector<bool>(height*AREA_TILE_SIZE);
-
-    for(int x = 0; x < width*AREA_TILE_SIZE; x++)
-    {
-        for(int y = 0; y < height*AREA_TILE_SIZE; y++)
-        {
-            this->grid[x][y] = true;
-        }
-    }
+    initGrid(width, height);
 
     this->zoneName = zone->getName();
 }
 
-Area Area::Parse(Object* obj, QList<Key*> keys)
+Area Area::Parse(Object* obj, QString filePath, QList<Key*> keys, QList<Gate*> gates)
 {
     Area area;
     int x = obj->find(ELE_X, "0").toInt();
@@ -68,14 +103,16 @@ Area Area::Parse(Object* obj, QList<Key*> keys)
     }
 
     area.zoneName = obj->find(ELE_ZONE, NULL_ELEMENT);
-
     area.width = obj->find(ELE_WIDTH, "1").toInt();
     area.height = obj->find(ELE_HEIGHT, "1").toInt();
+
+    // Initialize and parse individual cell data
+    area.parseGrid(filePath + QDir::separator() + QString::number(x) + QString::number(y) + DAT_EXT, keys, gates);
 
     return area;
 }
 
-void Area::build(Object* obj)
+void Area::build(Object* obj, QString filePath)
 {
     obj->data.clear(); // Clear any existing data
 
@@ -91,9 +128,40 @@ void Area::build(Object* obj)
     keyList.remove(keyList.length()-1, 1);
 
     obj->insert(ELE_KEYS, keyList);
+    obj->insert(ELE_CELL_FILE, QString::number(location.x()) + QString::number(location.y()) + DAT_EXT);
 
     if(zone)
         obj->insert(ELE_ZONE, zone->getName());
+
+    buildGrid(filePath + QDir::separator() + QString::number(location.x()) + QString::number(location.y()) + ".dat");
+}
+
+void Area::parseGrid(QString filePath, QList<Key*> keys, QList<Gate*> gates)
+{
+    initGrid(width, height);
+    QScopedPointer<Table> cellTable(new Table(filePath));
+    QList<Object*> cellObjects = cellTable->getObjectsOfName(OBJ_CELL);
+    for(Object* cell : cellObjects)
+    {
+        int x = cell->find(ELE_X).toInt();
+        int y = cell->find(ELE_Y).toInt();
+        grid[x][y] = Cell::Parse(cell, keys, gates);
+    }
+}
+
+void Area::buildGrid(QString filePath)
+{
+    QScopedPointer<Table> cellTable(new Table(filePath));
+    for(int x = 0; x < grid.length(); x++)
+    {
+        for(int y = 0; y < grid[0].length(); y++)
+        {
+            Object object;
+            grid[x][y].build(&object);
+            cellTable.data()->addObject(OBJ_CELL, object);
+        }
+    }
+    cellTable.data()->saveToDisk();
 }
 
 void Area::cpy(const Area& param)
@@ -158,18 +226,54 @@ void Area::removeUpLink()
     up = nullptr;
 }
 
+void Area::initGrid(int width, int height)
+{
+    grid = QVector<QVector<Cell>>(width*AREA_TILE_SIZE);
+
+    for(int x = 0; x < width*AREA_TILE_SIZE; x++)
+        grid[x] = QVector<Cell>(height*AREA_TILE_SIZE);
+
+    for(int x = 0; x < width*AREA_TILE_SIZE; x++)
+    {
+        for(int y = 0; y < height*AREA_TILE_SIZE; y++)
+            grid[x][y] = Cell(QPoint(x,y), true);
+    }
+}
+
 Map Area::buildMap()
 {
-    Map map(QString::number(location.x()) + QString::number(location.y()), width, height, zone->getTileset()->getTileSize(), "village", "", zone->getTileset());
+    Map map(QString::number(location.x()) + QString::number(location.y()),
+            width*AREA_TILE_SIZE, height*AREA_TILE_SIZE, zone->getTileset()->getTileSize(), "village", "", zone->getTileset());
+
+    // For now, the blocked tiles are the first impassable pattern found -- TESTING ONLY CODE
+    QList<TilePattern*> patterns = map.getTileSet()->getPatternList();
+    int blocked = 0;
+    for(int i = 0; i < patterns.length(); i++)
+    {
+        if(!patterns[i]->traversable)
+            blocked = i;
+    }
 
     for(int x = 0; x < map.getWidth(); x++)
     {
         for(int y = 0; y < map.getHeight(); y++)
         {
             MapTile tile = MapTile(0, x, y, map.getTileSize(), 0);
+
+            if(!grid[x][y].isTraversable())
+            {
+                tile.setPattern(blocked);
+            }
             map.setTile(x, y, MapTile(tile));
         }
     }
 
     return map;
+}
+
+
+bool Area::operator==(const Area rhs)
+{
+    return (location == rhs.location && zoneName == rhs.zoneName && width == rhs.width && height == rhs.height && grid == rhs.grid &&
+            keyEvents == rhs.keyEvents && up == rhs.up && down == rhs.down && left == rhs.left && right == rhs.right && zone == rhs.zone);
 }

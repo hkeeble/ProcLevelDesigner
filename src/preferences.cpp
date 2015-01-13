@@ -20,7 +20,7 @@ Preferences Preferences::Parse(Table* data)
     }
     else if(data->getObject(OBJ_PREFERENCES)->data.isEmpty()) // Insert default solarus path if not found
     {
-        data->getObject(OBJ_PREFERENCES)->data.insert(ELE_SOLARUS_PATH, "DEFAULT");
+        data->getObject(OBJ_PREFERENCES)->data.insert(ELE_SOLARUS_PATH, Data("DEFAULT"));
     }
 
     Object* prefs = data->getObject(OBJ_PREFERENCES);

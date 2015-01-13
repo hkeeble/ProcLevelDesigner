@@ -67,7 +67,7 @@ Tileset Tileset::parse(QString name, Table* data)
     // Construct the list of patterns from the data
     QList<Object*> patternList = data->getObjectsOfName(OBJ_TILE_PATTERN);
     for(Object* obj : patternList)
-        tileset.patterns.insert(obj->data.find(ELE_ID).value().toInt(), TilePattern::parse(*obj));
+        tileset.patterns.insert(obj->data.find(ELE_ID).value().data.toInt(), TilePattern::parse(*obj));
 
     // Determine the path of the tileset's image file.
     QFileInfo file = QFileInfo(data->getFilePath());

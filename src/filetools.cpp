@@ -43,18 +43,29 @@ void writeToFile(QString dirPath, QString fileName, QString fileContents)
     file.close();
 }
 
+QString convertToDirectoryPath(QString filePath)
+{
+    QFileInfo info = QFileInfo(filePath);
+    return info.absoluteDir().absolutePath();
+}
+
 QString Object::find(QString element, QString defaultVal)
 {
     ObjectData::iterator iter = data.find(element);
     if(iter == data.end())
         return defaultVal;
     else
-        return iter.value();
+        return iter.value().data;
+}
+
+void Object::insert(QString element, DataType dataType, QString value)
+{
+    data.insert(element, Data(dataType, value));
 }
 
 void Object::insert(QString element, QString value)
 {
-    data.insert(element, value);
+    data.insert(element, Data(value));
 }
 
 bool Object::operator==(const Object& param) const
@@ -169,7 +180,7 @@ Object* Table::getObjectWithValue(QString objectName, QString elementName, QStri
 
         if(iter != objs[i]->data.end())
         {
-            if(iter.value() == value)
+            if(iter.value().data == value)
                 return objs[i];
         }
     }
@@ -212,8 +223,22 @@ void Table::readElements()
     while(!str.atEnd())
     {
         QString element = readUntil(str, ELEM_DELIMS).simplified();
-        QString value = readUntil(str, VAL_DELIMS).simplified().remove('"');
-        curObjectData.data.insert(element, value);
+        QString value = readUntil(str, VAL_DELIMS).simplified();
+
+        // Check for the type of value, to be used when saving to disk (so that Solarus can
+        // read the data in correctly).
+        DataType type;
+        if(value[0] == '"' && value[value.length()-1] == '"')
+        {
+            type = DataType::String;
+            value.remove('"');
+        }
+        else if(value == "true" || value == "false")
+            type = DataType::Boolean;
+        else
+            type = DataType::Integer;
+
+        curObjectData.data.insert(element, Data(type, value));
     }
 
     // build the object
@@ -301,7 +326,14 @@ void Table::writeObj(QString objectName, Object object)
 {
     out << objectName << "{";
     for(auto element = object.data.begin(); element != object.data.end(); element++)
-        out << element.key() << " = \"" << element.value() << "\", ";
+    {
+        out << element.key() << " = ";
+        if(element.value().type == DataType::String)
+            out << "\"" << element.value().data << "\"";
+        else if(element.value().type == DataType::Boolean || element.value().type == DataType::Integer)
+            out << element.value().data;
+        out << ',';
+    }
     out << "}\n";
 }
 

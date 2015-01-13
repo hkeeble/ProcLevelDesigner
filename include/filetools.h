@@ -88,6 +88,12 @@ const QString ELE_BLUE = "blue";
 // Area
 const QString OBJ_AREA = "area";
 const QString ELE_ZONE = "zone";
+const QString ELE_CELL_FILE = "cell_file";
+
+// Cell
+const QString OBJ_CELL = "cell";
+const QString ELE_TRAVERSABLE = "traversable";
+const QString ELE_KEY_NAME = "key_name";
 
 // Link
 const QString OBJ_LINK = "link";
@@ -96,6 +102,18 @@ const QString ELE_FIRST_Y = "first_y";
 const QString ELE_SECOND_X = "second_x";
 const QString ELE_SECOND_Y = "second_y";
 const QString ELE_GATE_NAME = "gate_name";
+
+// Door
+const QString OBJ_DOOR = "door";
+const QString ELE_SPRITE = "sprite";
+const QString ELE_DIRECTION = "direction";
+const QString ELE_OPENING_METHOD = "openingMethod";
+
+// Teletransporter
+const QString OBJ_TELETRANSPORTER = "teletransporter";
+const QString ELE_TRANSITION = "transition";
+const QString ELE_DESTINATION_MAP = "destination_map";
+const QString ELE_DESTINATION = "destination";
 
 // Program Preferences
 const QString DAT_PREFERENCES = QDir::currentPath() + QDir::separator() + "preferences.dat";
@@ -128,19 +146,64 @@ void copyFolder(QString sourceDir, QString destDir);
 void writeToFile(QString dirPath, QString fileName, QString fileContents);
 
 /*!
- * \brief ObjectData Typedef used to represent object data in a QMap.
+ * \brief Converts a file path given, into the directory path of that file.
+ * \param filePath The filepath to convert to a directory path.
+ * \return
  */
-typedef QMap<QString,QString> ObjectData;
+QString convertToDirectoryPath(QString filePath);
 
+/*!
+ * \brief Enum used to represent a type of data.
+ */
+enum class DataType
+{
+    Integer,
+    Boolean,
+    String
+};
+
+/*!
+ * \brief An individual piece of data stored within an object.
+ */
+struct Data
+{
+    DataType type;
+    QString data;
+
+    Data(DataType type, QString data)
+    {
+        this->type = type;
+        this->data = data;
+    }
+
+    Data(QString data)
+    {
+        this->type = DataType::String;
+        this->data = data;
+    }
+
+    bool operator==(const Data rhs) const
+    {
+        return(type == rhs.type && data == rhs.data);
+    }
+};
+
+typedef QMap<QString,Data> ObjectData;
+
+/*!
+ * \brief An individual object stored inside of a table.
+ */
 struct Object
 {
 public:
-    Object() : data(QMap<QString,QString>()) { }
+    Object() : data(ObjectData()) { }
     Object(ObjectData data) : data(data) { }
 
     ObjectData data;
 
     QString find(QString element, QString defaultVal = "NULL");
+
+    void insert(QString element, DataType dataType, QString value);
     void insert(QString element, QString value);
 
     bool operator==(const Object& param) const;

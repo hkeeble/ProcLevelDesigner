@@ -31,7 +31,8 @@ Map::Map(QString name, int width, int height, int tileSize, QString music, QStri
 
 Map::~Map()
 {
-
+    for(int i = 0; i < entities.length(); i++)
+        delete entities[i];
 }
 
 void Map::setTile(int x, int y, const MapTile& tile)
@@ -42,6 +43,11 @@ void Map::setTile(int x, int y, const MapTile& tile)
 const MapTile& Map::getTile(int x, int y)
 {
     return tiles[x][y];
+}
+
+void Map::addEntity(MapEntity* entity)
+{
+    entities.append(entity);
 }
 
 Map Map::parse(QString name, Table* data)
@@ -67,6 +73,14 @@ Map Map::parse(QString name, Table* data)
         {
             MapTile tile = MapTile::parse(t);
             map.setTile(tile.getX()/map.getTileSize(), tile.getY()/map.getTileSize(), tile);
+        }
+
+        // Read in all doors
+        QList<Object*> doors = data->getObjectsOfName(OBJ_DOOR);
+        for(auto d : doors)
+        {
+            Door* door = new Door(Door::Parse(d));
+            map.addEntity(door);
         }
 
         return map;
@@ -100,6 +114,14 @@ void Map::build(Table* table)
     {
         for(int x = 0; x < width; x++)
             table->addObject(OBJ_TILE, MapTile::build(tiles[x][y]));
+    }
+
+    // Construct all entities and add them to the table
+    for(int i = 0; i < entities.length(); i++)
+    {
+        QScopedPointer<Object> obj(new Object());
+        entities[i]->build(obj.data());
+        table->addObject(entities[i]->getEntityName(), *obj.data());
     }
 }
 

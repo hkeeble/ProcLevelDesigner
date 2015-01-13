@@ -73,10 +73,15 @@ EditorWindow::~EditorWindow()
 // Close Event, ensures changes can be saved
 void EditorWindow::closeEvent(QCloseEvent *event)
 {
+    // Save preferences
     Table* prefTable = new Table(DAT_PREFERENCES);
     preferences.build(prefTable);
     prefTable->saveToDisk();
 
+    // Build quest
+    quest.build();
+
+    // Check to see if built changes need to be saved to disk
     if(quest.checkForChanges())
     {
         int result = QMessageBox::warning(this, "Unsaved Changes", "There are unsaved changes in this quest. Do you wish to save before closing?",
@@ -182,10 +187,13 @@ void EditorWindow::on_actionQuest_Database_triggered()
 
 void EditorWindow::on_actionRun_triggered()
 {
+    // Clear the running game
     clearRunningGame();
 
-    quest.build();
+    // Build all maps
+    quest.buildMaps();
 
+    // Run the game
     runningGame = ApplicationDispatcher::RunThroughTerminal(this, "solarus",
                                                             QStringList() << quest.getExecutableDir().absolutePath(), true);
 }

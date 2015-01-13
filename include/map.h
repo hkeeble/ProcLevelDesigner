@@ -7,6 +7,8 @@
 
 #include "filetools.h"
 #include "tileset.h"
+#include "mapentity.h"
+#include "door.h"
 
 const int DEFAULT_TILE_SIZE = 32;
 const int DEFAULT_MAP_SIZE = DEFAULT_TILE_SIZE * 10;
@@ -87,6 +89,12 @@ public:
     void setTile(int x, int y, const MapTile& tile);
     const MapTile& getTile(int x, int y);
 
+    /*!
+     * \brief Adds an entity to the map. The map object takes ownership of the entity.
+     * \param The entity to add to the map.
+     */
+    void addEntity(MapEntity* entity);
+
     void initTiles();
 
     virtual ~Map();
@@ -101,6 +109,7 @@ private:
     QString name, world, music;
     Tileset* tileSet;                /*!< The tileset used by this map. */
     QVector<QVector<MapTile>> tiles; /*!< The tiles contained in this map. */
+    QVector<MapEntity*> entities; /*!< The entities contained within this map. */
 };
 
 #endif // MAP_H

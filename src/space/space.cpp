@@ -1,16 +1,5 @@
 #include "space.h"
 
-// Define a '<' operator for QPoint (so we can store it in a QMap)
-bool operator<(const QPoint& lhs, const QPoint& rhs)
-{
-    if(lhs.x() < rhs.x())
-        return true;
-    else if (lhs.x() == rhs.x())
-        return lhs.y() < rhs.y();
-    else
-        return false;
-}
-
 Space::Space()
 {
     observer = new SpaceObserver();
@@ -23,23 +12,24 @@ Space::~Space()
 
 void Space::generate(const Mission& mission)
 {
-    QVector<QVector<bool>> grid = QVector<QVector<bool>>(AREA_TILE_SIZE);
-    for(int x = 0; x < grid.length(); x++)
-        grid[x] = QVector<bool>(AREA_TILE_SIZE);
+    QVector<QVector<Cell>> tileGrid = QVector<QVector<Cell>>(AREA_TILE_SIZE*2);
+    for(int x = 0; x < tileGrid.length(); x++)
+        tileGrid[x] = QVector<Cell>(AREA_TILE_SIZE*2);
 
-    for(int x = 0; x < AREA_TILE_SIZE; x++)
+    for(int x = 0; x < AREA_TILE_SIZE*2; x++)
     {
-        for(int y = 0; y < AREA_TILE_SIZE; y++)
-            if((qrand() % ((100 + 1) - 0) + 0) > 50)
-                grid[x][y] = false;
+        for(int y = 0; y < AREA_TILE_SIZE*2; y++)
+            if((qrand() % ((100 + 1) - 0) + 0) > 80)
+                tileGrid[x][y] = Cell(QPoint(x, y), false);
             else
-                grid[x][y] = true;
+                tileGrid[x][y] = Cell(QPoint(x, y), true);
     }
 
-    areas.insert(QPoint(2,0),Area(&zones.find("field").value(), QPoint(2,0), 1, 1, QList<Key*>()));
-    areas.last().setGrid(grid);
-    areas.insert(QPoint(1,0),Area(&zones.find("field").value(), QPoint(1,0), 1, 2, QList<Key*>()));
-    areas.insert(QPoint(2,1),Area(&zones.find("field").value(), QPoint(2, 1), 2, 2));
+    grid.placeArea(Area(&zones.find("field").value(), QPoint(0,0), 2, 2, QList<Key*>()));
+    grid.placeArea(Area(&zones.find("field").value(), QPoint(0,2), 2, 2, QList<Key*>()));
+    grid.placeArea(Area(&zones.find("field").value(), QPoint(2,0), 2, 2));
+    grid.placeArea(Area(&zones.find("field").value(), QPoint(2,2), 2, 2));
+
     emitUpdate();
 }
 
@@ -55,12 +45,12 @@ Space Space::Parse(Table* data, QList<Gate*> gates, QList<Key*> keys, QList<Tile
         space.zones.insert(zone.getName(), zone);
     }
 
-    // Read in all areas
+    // Read in all areas (areas subvert the quest data system, they must load their cells from a table that they manage,
+    //                      therefore they are given the filepath of the space data to use as a basis for loading this table)
     QList<Object*> areaObjects = data->getObjectsOfName(OBJ_AREA);
     for(Object* obj : areaObjects)
     {
-        Area area = Area::Parse(obj, keys);
-        space.areas.insert(area.getLocation(), area);
+        space.grid.placeArea(Area::Parse(obj, QFileInfo(data->getFilePath()).absoluteDir().absolutePath(), keys, gates));
     }
 
     // Read in all links
@@ -73,7 +63,8 @@ Space Space::Parse(Table* data, QList<Gate*> gates, QList<Key*> keys, QList<Tile
     }
 
     // Point areas to their zones
-    for(Area& area : space.areas)
+    QList<Area>* areas = space.getAreas();
+    for(Area& area : *areas)
     {
         Zone* zone = &space.zones.find(area.getZoneName()).value();
         if(zone)
@@ -83,8 +74,16 @@ Space Space::Parse(Table* data, QList<Gate*> gates, QList<Key*> keys, QList<Tile
     // Place all links into their correct areas
     for(Link& link : linkList)
     {
-        Area* first = &space.areas.find(link.first).value();
-        Area* second = &space.areas.find(link.second).value();
+        Area* first;
+        Area* second;
+
+        for(int i = 0; i < areas->length(); i++)
+        {
+            if((*areas)[i].getLocation() == link.first)
+                first = &(*areas)[i];
+            if((*areas)[i].getLocation() == link.second)
+                second = &(*areas)[i];
+        }
 
         LinkDirection direction;
 
@@ -134,18 +133,22 @@ void Space::build(Table *data)
         data->addObject(OBJ_ZONE, obj);
     }
 
-    // Build all areas and compile a list of the links that need building
+    // Build all areas and compile a list of the links that need building. As with parsing,
+    // areas currently subvert the quest data system as they manage their own tables for cell
+    // data. Therefore the location of the space data is given to the build function in order
+    // to manage this.
     QList<Link> linkList;
-    for(QMap<QPoint,Area>::iterator iter = areas.begin(); iter != areas.end(); iter++)
+    QList<Area>* areas = grid.getAreas();
+    for(Area& area : *areas)
     {
         Object obj;
-        iter.value().build(&obj);
+        area.build(&obj, QFileInfo(data->getFilePath()).absoluteDir().absolutePath());
         data->addObject(OBJ_AREA, obj);
 
-        Link* right = iter.value().getLinkRight();
-        Link* left = iter.value().getLinkLeft();
-        Link* down = iter.value().getLinkDown();
-        Link* up = iter.value().getLinkUp();
+        Link* right = area.getLinkRight();
+        Link* left = area.getLinkLeft();
+        Link* down = area.getLinkDown();
+        Link* up = area.getLinkUp();
 
         if(right != nullptr && !linkList.contains(*right))
             linkList.append(*right);

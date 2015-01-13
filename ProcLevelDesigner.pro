@@ -41,7 +41,12 @@ SOURCES += \
     src/ui/space/spacescene.cpp \
     src/space/area.cpp \
     src/space/link.cpp \
-    src/ui/space/spaceview.cpp
+    src/ui/space/spaceview.cpp \
+    src/entities/door.cpp \
+    src/entities/mapentity.cpp \
+    src/entities/teletransporter.cpp \
+    src/qpointext.cpp \
+    src/space/grid.cpp
 
 HEADERS  += \
     include/common.h \
@@ -71,7 +76,12 @@ HEADERS  += \
     include/ui/space/spacescene.h \
     include/space/area.h \
     include/space/link.h \
-    include/ui/space/spaceview.h
+    include/ui/space/spaceview.h \
+    include/entities/door.h \
+    include/entities/mapentity.h \
+    include/entities/teletransporter.h \
+    include/qpointext.h \
+    include/space/grid.h
 
 FORMS    += \
     ui/editorwindow.ui \
@@ -90,6 +100,7 @@ INCLUDEPATH += include \
                include/ui/space \
                include/mission \
                include/space \
+               include/entities \
 
 # Copy Data & Script Files to build
 data.path = $${OUT_PWD}/game_data

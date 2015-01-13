@@ -11,6 +11,7 @@
 #include "map.h"
 #include "mission.h"
 #include "space.h"
+#include "teletransporter.h"
 
 // The solarus version supported by this quest object
 const QString SOLARUS_VERSION = "1.3";
@@ -43,6 +44,19 @@ public:
 
     bool Init(); /*!< Initializes the quest. */
 
+    /*!
+     * \brief Builds map objects out of the current space.
+     */
+    void buildMaps();
+
+    /*!
+     * \brief Saves all currently built maps out to the quest.
+     */
+    void saveMaps();
+
+    /*!
+     * \brief Builds space and mission into tables, ready for saving to disk.
+     */
     void build();
 
     /*!
@@ -120,6 +134,8 @@ private:
     QMap<QString,QSharedPointer<Table>> data; /*!< Map containing all the currently loaded data for this quest. */
 
     QMap<QString,Tileset> tileSets; /*!< The tilesets contained within this quest. */
+
+    QMap<QPoint,Map> maps; /*!< The maps currently built for this quest. */
 
     void cpy(const Quest& param);
 };

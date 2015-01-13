@@ -5,9 +5,11 @@
 #include <QScopedPointer>
 #include <QDebug>
 
+#include "qpointext.h"
 #include "filetools.h"
 #include "zone.h"
 #include "area.h"
+#include "grid.h"
 #include "mission.h"
 
 /*!
@@ -81,13 +83,12 @@ public:
     /*!
      * \brief Returns a list of the areas in this space.
      */
-    QMap<QPoint,Area>* getAreas() { return &areas; }
+    QList<Area>* getAreas() { return grid.getAreas(); }
 
 private:
-
     SpaceObserver* observer;
 
-    QMap<QPoint,Area> areas; /*!< Areas contained within this space. */
+    Grid grid; /*!< The grid containing all areas contained within this space. */
     QMap<QString,Zone> zones; /*!< Zones contained within this space. */
 };
 
