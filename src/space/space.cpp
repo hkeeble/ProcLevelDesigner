@@ -25,10 +25,10 @@ void Space::generate(const Mission& mission)
                 tileGrid[x][y] = Cell(QPoint(x, y), true);
     }
 
-    grid.placeArea(Area(&zones.find("field").value(), QPoint(0,0), 2, 2, QList<Key*>()));
-    grid.placeArea(Area(&zones.find("field").value(), QPoint(0,2), 2, 2, QList<Key*>()));
-    grid.placeArea(Area(&zones.find("field").value(), QPoint(2,0), 2, 2));
-    grid.placeArea(Area(&zones.find("field").value(), QPoint(2,2), 2, 2));
+    placeArea(Area(&zones.find("field").value(), QPoint(0,0), 2, 2, QList<Key*>()));
+    placeArea(Area(&zones.find("field").value(), QPoint(0,2), 2, 2, QList<Key*>()));
+    placeArea(Area(&zones.find("field").value(), QPoint(2,0), 2, 2));
+    placeArea(Area(&zones.find("field").value(), QPoint(2,2), 2, 2));
 
     emitUpdate();
 }
@@ -50,7 +50,7 @@ Space Space::Parse(Table* data, QList<Gate*> gates, QList<Key*> keys, QList<Tile
     QList<Object*> areaObjects = data->getObjectsOfName(OBJ_AREA);
     for(Object* obj : areaObjects)
     {
-        space.grid.placeArea(Area::Parse(obj, QFileInfo(data->getFilePath()).absoluteDir().absolutePath(), keys, gates));
+        space.placeArea(Area::Parse(obj, QFileInfo(data->getFilePath()).absoluteDir().absolutePath(), keys, gates));
     }
 
     // Read in all links
@@ -138,8 +138,7 @@ void Space::build(Table *data)
     // data. Therefore the location of the space data is given to the build function in order
     // to manage this.
     QList<Link> linkList;
-    QList<Area>* areas = grid.getAreas();
-    for(Area& area : *areas)
+    for(Area& area : areas)
     {
         Object obj;
         area.build(&obj, QFileInfo(data->getFilePath()).absoluteDir().absolutePath());
@@ -206,4 +205,84 @@ QList<Zone*> Space::getZoneList()
     for(QMap<QString,Zone>::iterator iter = zones.begin(); iter != zones.end(); iter++)
         zoneList.append(&iter.value());
     return zoneList;
+}
+
+void Space::placeArea(Area area)
+{
+    // Only allow this area to exist once within the grid (remove any existing instances)
+    if(areas.contains(area))
+        removeArea(area);
+
+    // Ensure there is enough room in the grid for the new area.
+    while(cells.length() < area.getLocation().x() + area.getWidth())
+    {
+        cells.append(QVector<GridCell>());
+        while(cells.last().length() < area.getLocation().y() + area.getHeight())
+            cells.last().append(GridCell());
+    }
+
+    for(int i = area.getLocation().x(); i < area.getWidth(); i++)
+    {
+        for(int j = area.getLocation().y(); j < area.getHeight(); j++)
+        {
+            // Remove any areas in the way of this one
+            if(cells[i][j].getArea() != nullptr)
+                removeArea(i, j);
+
+            cells[i][j] = GridCell(&area);
+        }
+    }
+
+    areas.append(area);
+}
+
+bool Space::removeArea(int x, int y)
+{
+    if(cells[x][y].getArea() != nullptr)
+    {
+        Area* area = cells[x][y].getArea();
+
+        for(int i = x; i < area->getWidth(); i++)
+        {
+            for(int j = y; j < area->getHeight(); j++)
+            {
+                cells[i][j].removeArea();
+            }
+        }
+
+        areas.removeOne(*area);
+
+        return true;
+    }
+
+    return false;
+}
+
+bool Space::removeArea(Area area)
+{
+    if(areas.contains(area))
+    {
+        if(*cells[area.getLocation().x()][area.getLocation().y()].getArea() == area) // Failsafe to check if the area is in the correct location
+        {
+            for(int x = area.getLocation().x(); x < area.getWidth(); x++)
+            {
+                for(int y = area.getLocation().y(); y < area.getHeight(); y++)
+                {
+                    cells[x][y].removeArea();
+                }
+            }
+
+            areas.removeOne(area);
+        }
+        else
+            return false;
+    }
+    else
+        return false;
+}
+
+GridCell* Space::getCell(int x, int y)
+{
+    if(x < cells.length() && y < cells[x].length())
+        return &cells[x][y];
 }

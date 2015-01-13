@@ -60,79 +60,14 @@ bool Quest::Init()
 void Quest::buildMaps()
 {
     QList<Area>* areas = space.getAreas();
-    maps = QMap<QPoint,Map>();
 
-    // Build and add maps to collection
-    for(auto iter = areas->begin(); iter != areas->end(); iter++)
+    // Build all areas into maps.
+    maps = QList<Map>();
+    for(Area& area : *areas)
     {
-        // Build and add map
-        // maps.insert(iter.key(), iter.value().buildMap());
+        maps.append(area.buildMap());
     }
 
-    // Link all maps to one another
-    for(QMap<QPoint, Map>::iterator iter = maps.begin(); iter != maps.end(); iter++)
-    {
-        QMap<QPoint, Map*> neighbours;
-
-        // Find all neighbouring maps
-        // - North
-        if(maps.contains(iter.key() + QPoint(0,1)))
-                neighbours.insert(iter.key() + QPoint(0,1), &maps.find(iter.key() + QPoint(0,1)).value());
-        // - South
-        if(maps.contains(iter.key() + QPoint(0,-1)))
-                neighbours.insert(iter.key() + QPoint(0,-1), &maps.find(iter.key() + QPoint(0,-1)).value());
-        // - East
-        if(maps.contains(iter.key() + QPoint(1,0)))
-                neighbours.insert(iter.key() + QPoint(1,0), &maps.find(iter.key() + QPoint(1,0)).value());
-        // - West
-        if(maps.contains(iter.key() + QPoint(-1,0)))
-                neighbours.insert(iter.key() + QPoint(-1,0), &maps.find(iter.key() + QPoint(-1,0)).value());
-
-        // Create teletransporters to each neighbour
-        for(QMap<QPoint, Map*>::iterator nIter = neighbours.begin(); nIter != neighbours.end(); nIter++)
-        {
-            Teletransporter* transporter;
-            int x, y, width, height;
-
-            // Determine width, height and location based upon direction of the neighbour
-            // - East
-            if(nIter.key().x() > iter.key().x())
-            {
-                x = 0;
-                y = 0;
-                width = iter.value().getTileSize();
-                height = iter.value().getHeight() * AREA_TILE_SIZE;
-            }
-            // - West
-            if(nIter.key().x() < iter.key().x())
-            {
-                x = 0;
-                y = 0;
-                width = iter.value().getTileSize();
-                height = iter.value().getHeight() * AREA_TILE_SIZE;
-            }
-            // - South
-            if(nIter.key().y() > iter.key().y())
-            {
-                x = 0;
-                y = 0;
-                width = iter.value().getTileSize();
-                height = iter.value().getHeight() * AREA_TILE_SIZE;
-            }
-            // - North
-            if(nIter.key().y() < iter.key().y())
-            {
-                x = 0;
-                y = 0;
-                width = iter.value().getTileSize();
-                height = iter.value().getHeight() * AREA_TILE_SIZE;
-            }
-
-            // Create and add the entity
-            transporter = new Teletransporter(x, y, width, height, nIter.value()->getName(), "_side", Teletransporter::Transition::Scroll);
-            iter.value().addEntity(transporter);
-        }
-    }
 
     // Save maps (may need to move this...)
     saveMaps();
@@ -142,16 +77,16 @@ void Quest::saveMaps()
 {
     Table* database = getData(DAT_DATABASE);
 
-    for(auto iter = maps.begin(); iter != maps.end(); iter++)
+    for(Map& map : maps)
     {
-        Table* data = getData(QString("maps") + QDir::separator() + iter.value().getName());
-        iter.value().build(data);
+        Table* data = getData(QString("maps") + QDir::separator() + map.getName());
+        map.build(data);
 
         // Write out a script file
-        writeToFile(QFileInfo(data->getFilePath()).absoluteDir().absolutePath(), iter.value().getName() + ".lua", "");
+        writeToFile(QFileInfo(data->getFilePath()).absoluteDir().absolutePath(), map.getName() + ".lua", "");
 
         // Add map to quest database
-        database->addObject(OBJ_MAP, iter.value().getDatabaseObject());
+        database->addObject(OBJ_MAP, map.getDatabaseObject());
 
         data->saveToDisk();
     }

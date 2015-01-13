@@ -9,7 +9,6 @@
 #include "filetools.h"
 #include "zone.h"
 #include "area.h"
-#include "grid.h"
 #include "mission.h"
 
 /*!
@@ -28,6 +27,26 @@ signals:
     void updated();
 };
 
+/*!
+ * \brief Each cell contains a reference to the area contained within it. Null cells contain no area.
+ */
+class GridCell
+{
+public:
+    GridCell() : area(nullptr) { }
+    GridCell(Area* area) : area(area) { }
+
+    inline Area* getArea() { return area; }
+
+    inline void removeArea() { area = nullptr; }
+
+private:
+    Area* area;
+};
+
+/*!
+ * \brief Represents the space structure for a mission. Contains all areas, and a grid showing their layout.
+ */
 class Space
 {
 public:
@@ -83,12 +102,39 @@ public:
     /*!
      * \brief Returns a list of the areas in this space.
      */
-    QList<Area>* getAreas() { return grid.getAreas(); }
+    QList<Area>* getAreas() { return &areas; }
+
+    /*!
+     * \brief Places a new area at the given location in the grid.
+     * \param x The X location of the top-left corner of the area.
+     * \param y The Y location of the top-left corner of the area.
+     */
+    void placeArea(Area area);
+
+    /*!
+     * \brief Removes an area from the location given. If no area is found, returns false.
+     * \param x The X location of the top-left corner of the area to remove.
+     * \param y The Y location of the top-left corner of the area to remove.
+     */
+    bool removeArea(int x, int y);
+
+    /*!
+     * \brief Removes an area equivalent to the area given. If no area is removed, returns false.
+     * \param The area to remove.
+     */
+    bool removeArea(Area area);
+
+    /*!
+     * \brief Retrieves the cell at the given location.
+     */
+    GridCell* getCell(int x, int y);
 
 private:
     SpaceObserver* observer;
 
-    Grid grid; /*!< The grid containing all areas contained within this space. */
+    QVector<QVector<GridCell>> cells;
+    QList<Area> areas;
+
     QMap<QString,Zone> zones; /*!< Zones contained within this space. */
 };
 

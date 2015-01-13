@@ -135,7 +135,7 @@ private:
 
     QMap<QString,Tileset> tileSets; /*!< The tilesets contained within this quest. */
 
-    QMap<QPoint,Map> maps; /*!< The maps currently built for this quest. */
+    QList<Map> maps; /*!< The maps currently built for this quest. */
 
     void cpy(const Quest& param);
 };
