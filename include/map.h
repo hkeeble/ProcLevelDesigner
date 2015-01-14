@@ -59,6 +59,12 @@ public:
     Map(QString name, int width, int height, int tileSize, QString music, QString world);
     Map(QString name, int width, int height, int tileSize, QString music, QString world, Tileset* tileset);
 
+
+    virtual ~Map();
+
+    Map& operator=(const Map& rhs);
+    Map(const Map& param);
+
     /*!
      * \brief Parses a map from the table into this object.
      * \param data The table containing the map data.
@@ -97,14 +103,14 @@ public:
 
     void initTiles();
 
-    virtual ~Map();
-
     /*!
      * \brief Returns the object for this map (used in the project database)
      */
     Object getDatabaseObject();
 
 private:
+    void copy(const Map& param); /*!< Internal deep copy function. */
+
     int width, height, tileSize;
     QString name, world, music;
     Tileset* tileSet;                /*!< The tileset used by this map. */

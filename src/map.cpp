@@ -35,6 +35,45 @@ Map::~Map()
         delete entities[i];
 }
 
+Map& Map::operator=(const Map& rhs)
+{
+    if(this == &rhs)
+        return *this;
+    else
+    {
+        // Delete existing entities to prevent leaks
+        for(MapEntity* entity : entities)
+        {
+            delete entity;
+        }
+
+        copy(rhs);
+        return *this;
+    }
+}
+
+Map::Map(const Map& param)
+{
+    copy(param);
+}
+
+void Map::copy(const Map& param)
+{
+    this->width = param.width;
+    this->height = param.height;
+    this->name = param.name;
+    this->world = param.world;
+    this->music = param.music;
+    this->tileSet = param.tileSet;
+    this->tiles = param.tiles;
+    this->tileSize = param.tileSize;
+
+    // Deep copy entities
+    entities.clear(); // Clear existing entities
+    for(MapEntity* entity : param.entities)
+        this->entities.append(entity->clone());
+}
+
 void Map::setTile(int x, int y, const MapTile& tile)
 {
     tiles[x][y] = tile;

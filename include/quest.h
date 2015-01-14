@@ -45,19 +45,19 @@ public:
     bool Init(); /*!< Initializes the quest. */
 
     /*!
-     * \brief Builds map objects out of the current space.
+     * \brief Builds space and mission into tables, ready for saving to disk.
+     */
+    void build();
+
+    /*!
+     * \brief Builds all map data.
      */
     void buildMaps();
 
     /*!
-     * \brief Saves all currently built maps out to the quest.
+     * \brief Saves all currently built map data to disk.
      */
     void saveMaps();
-
-    /*!
-     * \brief Builds space and mission into tables, ready for saving to disk.
-     */
-    void build();
 
     /*!
      * \brief Retrieves a table from the given filepath. If no data exists, creates a blank table to be written to the

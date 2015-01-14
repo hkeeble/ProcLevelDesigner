@@ -19,6 +19,11 @@ public:
     static void Parse(MapEntity* mapEntity, Object* object);
     virtual void build(Object* object);
 
+    /*!
+     * \brief Clones an entity, for use in copying polymorphic collections.
+     */
+    virtual MapEntity* clone() = 0;
+
     QString getEntityName() { return entityName; }
 };
 

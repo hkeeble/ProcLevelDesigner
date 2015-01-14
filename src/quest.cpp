@@ -59,18 +59,7 @@ bool Quest::Init()
 
 void Quest::buildMaps()
 {
-    QList<Area>* areas = space.getAreas();
-
-    // Build all areas into maps.
-    maps = QList<Map>();
-    for(Area& area : *areas)
-    {
-        maps.append(area.buildMap());
-    }
-
-
-    // Save maps (may need to move this...)
-    saveMaps();
+    maps = space.buildMaps();
 }
 
 void Quest::saveMaps()

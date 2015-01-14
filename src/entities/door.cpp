@@ -53,3 +53,8 @@ void Door::build(Object* object)
 
     object->insert(ELE_SPRITE, sprite);
 }
+
+Door* Door::clone()
+{
+    return new Door(*this);
+}

@@ -38,19 +38,21 @@ void SpaceScene::spaceUpdated()
 {
     clear(); // Clear existing tiles
 
-    QList<Area>* areas = space->getAreas();
+    QMap<QPoint,Area>* areas = space->getAreas();
 
-    for(Area& area : *areas)
+    for(auto iter = areas->begin(); iter != areas->end(); iter++)
     {
+        Area* area = &iter.value();
+
         // Get area data
-        QPoint location = area.getLocation();
-        int width = area.getWidth();
-        int height = area.getHeight();
-        QVector<QVector<Cell>> grid = area.getGrid();
+        QPoint location = area->getLocation();
+        int width = area->getWidth();
+        int height = area->getHeight();
+        QVector<QVector<Cell>> grid = area->getGrid();
 
         // Create area tile
         QGraphicsRectItem* tile = new QGraphicsRectItem(location.x()*areaCellWidth, location.y()*areaCellHeight, areaCellWidth*width, areaCellHeight*height);
-        tile->setBrush(area.getZone()->getColor());
+        tile->setBrush(area->getZone()->getColor());
         areaTiles.append(tile);
 
         // Create grid tiles

@@ -1,5 +1,7 @@
 #include "space.h"
 
+static constexpr int SIDE_MAP_TRANSPORTER_SIZE = 16; /*!< The size that every side map transporter must be. */
+
 Space::Space()
 {
     observer = new SpaceObserver();
@@ -25,10 +27,14 @@ void Space::generate(const Mission& mission)
                 tileGrid[x][y] = Cell(QPoint(x, y), true);
     }
 
-    placeArea(Area(&zones.find("field").value(), QPoint(0,0), 2, 2, QList<Key*>()));
-    placeArea(Area(&zones.find("field").value(), QPoint(0,2), 2, 2, QList<Key*>()));
+    placeArea(Area(&zones.find("field").value(), QPoint(0,0), 2, 2));
+    areas.last().setGrid(tileGrid);
+    placeArea(Area(&zones.find("field").value(), QPoint(0,2), 2, 2));
+    areas.last().setGrid(tileGrid);
     placeArea(Area(&zones.find("field").value(), QPoint(2,0), 2, 2));
+    areas.last().setGrid(tileGrid);
     placeArea(Area(&zones.find("field").value(), QPoint(2,2), 2, 2));
+    areas.last().setGrid(tileGrid);
 
     emitUpdate();
 }
@@ -63,27 +69,19 @@ Space Space::Parse(Table* data, QList<Gate*> gates, QList<Key*> keys, QList<Tile
     }
 
     // Point areas to their zones
-    QList<Area>* areas = space.getAreas();
-    for(Area& area : *areas)
+    QMap<QPoint,Area>* areas = space.getAreas();
+    for(auto iter = areas->begin(); iter != areas->end(); iter++)
     {
-        Zone* zone = &space.zones.find(area.getZoneName()).value();
+        Zone* zone = &space.zones.find(iter.value().getZoneName()).value();
         if(zone)
-            area.setZone(zone);
+            iter.value().setZone(zone);
     }
 
     // Place all links into their correct areas
     for(Link& link : linkList)
     {
-        Area* first;
-        Area* second;
-
-        for(int i = 0; i < areas->length(); i++)
-        {
-            if((*areas)[i].getLocation() == link.first)
-                first = &(*areas)[i];
-            if((*areas)[i].getLocation() == link.second)
-                second = &(*areas)[i];
-        }
+        Area* first = &areas->find(link.first).value();
+        Area* second = &areas->find(link.second).value();
 
         LinkDirection direction;
 
@@ -138,16 +136,16 @@ void Space::build(Table *data)
     // data. Therefore the location of the space data is given to the build function in order
     // to manage this.
     QList<Link> linkList;
-    for(Area& area : areas)
+    for(auto iter = areas.begin(); iter != areas.end(); iter++)
     {
         Object obj;
-        area.build(&obj, QFileInfo(data->getFilePath()).absoluteDir().absolutePath());
+        iter.value().build(&obj, QFileInfo(data->getFilePath()).absoluteDir().absolutePath());
         data->addObject(OBJ_AREA, obj);
 
-        Link* right = area.getLinkRight();
-        Link* left = area.getLinkLeft();
-        Link* down = area.getLinkDown();
-        Link* up = area.getLinkUp();
+        Link* right = iter.value().getLinkRight();
+        Link* left = iter.value().getLinkLeft();
+        Link* down = iter.value().getLinkDown();
+        Link* up = iter.value().getLinkUp();
 
         if(right != nullptr && !linkList.contains(*right))
             linkList.append(*right);
@@ -209,48 +207,59 @@ QList<Zone*> Space::getZoneList()
 
 void Space::placeArea(Area area)
 {
-    // Only allow this area to exist once within the grid (remove any existing instances)
-    if(areas.contains(area))
-        removeArea(area);
-
     // Ensure there is enough room in the grid for the new area.
-    while(cells.length() < area.getLocation().x() + area.getWidth())
+    // - Expand X direction
+    if(cells.length() < area.getLocation().x() + area.getWidth())
     {
-        cells.append(QVector<GridCell>());
-        while(cells.last().length() < area.getLocation().y() + area.getHeight())
-            cells.last().append(GridCell());
-    }
-
-    for(int i = area.getLocation().x(); i < area.getWidth(); i++)
-    {
-        for(int j = area.getLocation().y(); j < area.getHeight(); j++)
+        while(cells.length() < area.getLocation().x() + area.getWidth())
         {
-            // Remove any areas in the way of this one
-            if(cells[i][j].getArea() != nullptr)
-                removeArea(i, j);
-
-            cells[i][j] = GridCell(&area);
+            cells.append(QVector<GridCell>());
+            while(cells[0].length() > cells.last().length())
+                cells.last().append(GridCell());
+        }
+    }
+    // - Expand Y direction
+    if(cells[0].length() < area.getLocation().y() + area.getHeight())
+    {
+        for(int x = 0; x < cells.length(); x++)
+        {
+            while(cells[x].length() < area.getLocation().y() + area.getHeight())
+                cells[x].append(GridCell());
         }
     }
 
-    areas.append(area);
+    for(int i = area.getLocation().x(); i < area.getLocation().x() + area.getWidth(); i++)
+    {
+        for(int j = area.getLocation().y(); j < area.getLocation().y() + area.getHeight(); j++)
+        {
+            // Remove any areas in the way of this one
+            if(cells[i][j].containsArea())
+                removeArea(cells[i][j].getAreaOrigin());
+
+            // Assign the cell to the correct area ID:
+            cells[i][j] = GridCell(area.getLocation());
+        }
+    }
+
+    // Insert area into area map
+    areas.insert(area.getLocation(), area);
 }
 
 bool Space::removeArea(int x, int y)
 {
-    if(cells[x][y].getArea() != nullptr)
+    if(cells[x][y].containsArea())
     {
-        Area* area = cells[x][y].getArea();
+        Area area = areas.find(QPoint(x,y)).value();
 
-        for(int i = x; i < area->getWidth(); i++)
+        for(int i = x; i < area.getWidth(); i++)
         {
-            for(int j = y; j < area->getHeight(); j++)
+            for(int j = y; j < area.getHeight(); j++)
             {
                 cells[i][j].removeArea();
             }
         }
 
-        areas.removeOne(*area);
+        areas.remove(QPoint(x,y));
 
         return true;
     }
@@ -260,29 +269,105 @@ bool Space::removeArea(int x, int y)
 
 bool Space::removeArea(Area area)
 {
-    if(areas.contains(area))
+    for(auto iter = areas.begin(); iter != areas.end(); iter++)
     {
-        if(*cells[area.getLocation().x()][area.getLocation().y()].getArea() == area) // Failsafe to check if the area is in the correct location
+        if(iter.value() == area)
         {
-            for(int x = area.getLocation().x(); x < area.getWidth(); x++)
-            {
-                for(int y = area.getLocation().y(); y < area.getHeight(); y++)
-                {
-                    cells[x][y].removeArea();
-                }
-            }
-
-            areas.removeOne(area);
+            areas.remove(iter.key());
+            return true;
         }
-        else
-            return false;
     }
-    else
-        return false;
+
+    return false;
 }
 
 GridCell* Space::getCell(int x, int y)
 {
     if(x < cells.length() && y < cells[x].length())
         return &cells[x][y];
+}
+
+QList<Map> Space::buildMaps()
+{
+    // Build all areas into maps.
+    QMap<QPoint, Map> maps = QMap<QPoint, Map>();
+    for(auto iter = areas.begin(); iter != areas.end(); iter++)
+    {
+        maps.insert(iter.key(), iter.value().buildMap());
+    }
+
+    // Link all maps together by looping grid cells
+    for(int x = 0; x < getWidth(); x++)
+    {
+        for(int y = 0; y < getHeight(); y++)
+        {
+            if(cells[x][y].containsArea())
+            {
+                // Retrieve the area and map associated with the area (by using area location).
+                Area area = areas.find(cells[x][y].getAreaOrigin()).value();
+                Map* map = &maps.find(area.getLocation()).value();
+
+                // Retrieve all valid adjacent cells
+                GridCell* left = nullptr;
+                GridCell* right = nullptr;
+                GridCell* up = nullptr;
+                GridCell* down = nullptr;
+                if(x - 1 > 0)
+                    left = &cells[x-1][y];
+                if(y - 1 > 0)
+                    up = &cells[x][y-1];
+                if(x + 1 < getWidth())
+                    right = &cells[x+1][y];
+                if(y + 1 < getHeight())
+                    down = &cells[x][y+1];
+
+                QVector<MapEntity*> transporters = QVector<MapEntity*>(); // collection of transporters that need adding to the map
+
+                // If the there is a valid link to a different area, create a valid teletransporter to link the two cells
+                if(left /*&& area.getLinkLeft() != nullptr*/ && left->getAreaOrigin() != area.getLocation())
+                {
+                    Map* destination = &maps.find(left->getAreaOrigin()).value();
+                    int yPos = (AREA_TILE_SIZE*map->getTileSize()) * (y - area.getLocation().y());
+                    int xPos = -SIDE_MAP_TRANSPORTER_SIZE;
+                    transporters.append(new Teletransporter(xPos, yPos, SIDE_MAP_TRANSPORTER_SIZE, (AREA_TILE_SIZE*SIDE_MAP_TRANSPORTER_SIZE)*map->getTileSize(), destination->getName(), "_side",
+                                                                  Teletransporter::Transition::Scroll));
+                }
+                if(right /*&& area.getLinkRight() != nullptr*/ && right->getAreaOrigin() != area.getLocation())
+                {
+                    Map* destination = &maps.find(right->getAreaOrigin()).value();
+                    int yPos = (AREA_TILE_SIZE*map->getTileSize()) * (y - area.getLocation().y());
+                    int xPos = (map->getWidth()*map->getTileSize());
+                    transporters.append(new Teletransporter(xPos, yPos, SIDE_MAP_TRANSPORTER_SIZE, (AREA_TILE_SIZE*SIDE_MAP_TRANSPORTER_SIZE)*map->getTileSize(), destination->getName(), "_side",
+                                                                  Teletransporter::Transition::Scroll, "entities/teletransporter"));
+                }
+                if(down /*&& area.getLinkDown() != nullptr*/ && down->getAreaOrigin() != area.getLocation())
+                {
+                    Map* destination = &maps.find(down->getAreaOrigin()).value();
+                    int yPos = (map->getHeight()*map->getTileSize());
+                    int xPos = (AREA_TILE_SIZE*map->getTileSize()) * (x - area.getLocation().x());
+                    transporters.append(new Teletransporter(xPos, yPos, (AREA_TILE_SIZE*SIDE_MAP_TRANSPORTER_SIZE)*map->getTileSize(), SIDE_MAP_TRANSPORTER_SIZE, destination->getName(), "_side",
+                                                                  Teletransporter::Transition::Scroll));
+                }
+                if(up /*&& area.getLinkUp() != nullptr*/ && up->getAreaOrigin() != area.getLocation())
+                {
+                    Map* destination = &maps.find(up->getAreaOrigin()).value();
+                    int yPos = -SIDE_MAP_TRANSPORTER_SIZE;
+                    int xPos = (AREA_TILE_SIZE*map->getTileSize()) * (x - area.getLocation().x());
+                    transporters.append(new Teletransporter(xPos, yPos, (AREA_TILE_SIZE*SIDE_MAP_TRANSPORTER_SIZE)*map->getTileSize(), SIDE_MAP_TRANSPORTER_SIZE, destination->getName(), "_side",
+                                                                  Teletransporter::Transition::Scroll));
+                }
+
+                // Add all transporters to the map.
+                for(MapEntity* transporter : transporters)
+                    map->addEntity(transporter);
+            }
+        }
+    }
+
+    QList<Map> mapList = QList<Map>();
+    for(auto iter = maps.begin(); iter != maps.end(); iter++)
+    {
+        mapList.append(iter.value());
+    }
+    return mapList;
 }

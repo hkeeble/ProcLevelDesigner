@@ -10,6 +10,7 @@
 #include "zone.h"
 #include "area.h"
 #include "mission.h"
+#include "teletransporter.h"
 
 /*!
  * \brief Observes a space object, and is used to emit a signal when space has changed to inform all slots to update.
@@ -28,20 +29,23 @@ signals:
 };
 
 /*!
- * \brief Each cell contains a reference to the area contained within it. Null cells contain no area.
+ * \brief Each cell contains an area origin representing the origin of the area contained within it. This can be used as a key to access to area
+ *        within the space map. Some cells will contain no area.
  */
 class GridCell
 {
 public:
-    GridCell() : area(nullptr) { }
-    GridCell(Area* area) : area(area) { }
+    GridCell() : areaOrigin(QPoint(0,0)), hasArea(false) { }
+    GridCell(QPoint areaOrigin) : areaOrigin(areaOrigin), hasArea(true) { }
 
-    inline Area* getArea() { return area; }
-
-    inline void removeArea() { area = nullptr; }
+    inline bool containsArea() { return hasArea; }
+    inline QPoint getAreaOrigin() { return areaOrigin; }
+    inline void setArea(QPoint areaOrigin) { this->areaOrigin = areaOrigin; hasArea = true; }
+    inline void removeArea() { areaOrigin = QPoint(0,0); hasArea = false; }
 
 private:
-    Area* area;
+    QPoint areaOrigin;
+    bool hasArea;
 };
 
 /*!
@@ -65,9 +69,14 @@ public:
     static Space Parse(Table* data, QList<Gate*> gates, QList<Key*> keys, QList<Tileset*> tilesets);
 
     /*!
-     * \brief Returns a list of all zone data, built into tables.
+     * \brief Returns a list of all zone and area data, built into tables.
      */
     void build(Table* data);
+
+    /*!
+     * \brief Builds map objects out of the current space.
+     */
+    QList<Map> buildMaps();
 
     /*!
      * \brief Emit an update informing any slots watching this space to update.
@@ -102,7 +111,7 @@ public:
     /*!
      * \brief Returns a list of the areas in this space.
      */
-    QList<Area>* getAreas() { return &areas; }
+    QMap<QPoint,Area>* getAreas() { return &areas; }
 
     /*!
      * \brief Places a new area at the given location in the grid.
@@ -119,6 +128,12 @@ public:
     bool removeArea(int x, int y);
 
     /*!
+     * \brief Removes an area from the location given. If no area is found, returns false.
+     * \param areaOrigin The origin of the area to remove.
+     */
+    bool removeArea(QPoint areaOrigin) { return removeArea(areaOrigin.x(), areaOrigin.y()); }
+
+    /*!
      * \brief Removes an area equivalent to the area given. If no area is removed, returns false.
      * \param The area to remove.
      */
@@ -129,11 +144,25 @@ public:
      */
     GridCell* getCell(int x, int y);
 
-private:
-    SpaceObserver* observer;
+    /*!
+     * \brief Retrieve the width of the space grid.
+     */
+    int getWidth() { return cells.length(); }
 
-    QVector<QVector<GridCell>> cells;
-    QList<Area> areas;
+    /*!
+     * \brief Retrieve the height of the space grid.
+     */
+    int getHeight() { return cells[0].length(); }
+
+private:
+    void copy(const Space& param); /*!< Internal deep copy helper function. */
+
+    SpaceObserver* observer; /*!< The observer is used to inform the space scene whenever the space changes. */
+
+    QVector<QVector<GridCell>> cells; /*!< The grid of cells representing this area. Each cell contains (or does not contain) a reference to
+                                           the area that it holds. */
+
+    QMap<QPoint,Area> areas; /*!< Map containing all areas contained by this space. The location represents the origin of the area. */
 
     QMap<QString,Zone> zones; /*!< Zones contained within this space. */
 };

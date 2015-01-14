@@ -14,6 +14,13 @@ Teletransporter::Teletransporter(int x, int y, int width, int height, QString de
     this->destinationMap = destinationMap;
     this->destination = destination;
     this->transition = transition;
+    this->sprite = NULL_ELEMENT;
+}
+
+Teletransporter::Teletransporter(int x, int y, int width, int height, QString destinationMap, QString destination, Transition transition, QString sprite)
+    : Teletransporter(x,y,width,height,destinationMap,destination,transition)
+{
+    this->sprite = sprite;
 }
 
 Teletransporter Teletransporter::Parse(Object* object)
@@ -26,6 +33,7 @@ Teletransporter Teletransporter::Parse(Object* object)
     teletransporter.height = object->find(ELE_HEIGHT, "32").toInt();
     teletransporter.destination = object->find(ELE_DESTINATION, NULL_ELEMENT);
     teletransporter.destinationMap = object->find(ELE_DESTINATION_MAP, NULL_ELEMENT);
+    teletransporter.sprite = object->find(ELE_SPRITE, NULL_ELEMENT);
 
     // Determine transition
     QString trans = object->find(ELE_TRANSITION, IMMEDIATE);
@@ -51,6 +59,10 @@ void Teletransporter::build(Object* object)
     object->insert(ELE_DESTINATION, destination);
     object->insert(ELE_DESTINATION_MAP, destinationMap);
 
+    // Output sprite if neccessary
+    if(sprite != NULL_ELEMENT)
+        object->insert(ELE_SPRITE, sprite);
+
     // Determine transition
     if(transition == Transition::Immediate)
         object->insert(ELE_TRANSITION, IMMEDIATE);
@@ -58,4 +70,9 @@ void Teletransporter::build(Object* object)
         object->insert(ELE_TRANSITION, FADE);
     else if(transition == Transition::Scroll)
         object->insert(ELE_TRANSITION, SCROLL);
+}
+
+Teletransporter* Teletransporter::clone()
+{
+    return new Teletransporter(*this);
 }

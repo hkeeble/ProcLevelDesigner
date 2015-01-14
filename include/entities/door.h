@@ -14,6 +14,8 @@ class Door : public MapEntity
 public:
     Door() : direction(Direction::EAST), openingMethod(OpeningMethod::None), sprite("NULL") { entityName = OBJ_DOOR; }
 
+    virtual Door* clone() override final;
+
     /*!
      * \brief The direction a door is facing.
      */

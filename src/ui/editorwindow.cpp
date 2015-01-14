@@ -192,6 +192,7 @@ void EditorWindow::on_actionRun_triggered()
 
     // Build all maps
     quest.buildMaps();
+    quest.saveMaps();
 
     // Run the game
     runningGame = ApplicationDispatcher::RunThroughTerminal(this, "solarus",

@@ -23,6 +23,9 @@ public:
         destinationMap(""), destination(""), transition(Transition::Immediate), MapEntity() { entityName = OBJ_TELETRANSPORTER; }
 
     Teletransporter(int x, int y, int width, int height, QString destinationMap, QString destination, Transition transition);
+    Teletransporter(int x, int y, int width, int height, QString destinationMap, QString destination, Transition transition, QString sprite);
+
+    virtual Teletransporter* clone() override final;
 
     static Teletransporter Parse(Object* object);
     virtual void build(Object* object) override final;
@@ -36,6 +39,7 @@ private:
     Transition transition;
     QString destinationMap;
     QString destination;
+    QString sprite;
 };
 
 #endif // TELETRANSPORTER_H
