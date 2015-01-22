@@ -152,7 +152,7 @@ public:
     /*!
      * \brief Retrieve the height of the space grid.
      */
-    int getHeight() { return cells[0].length(); }
+    int getHeight() { if(cells.length() == 0) return 0; else return cells[0].length(); }
 
 private:
     void copy(const Space& param); /*!< Internal deep copy helper function. */

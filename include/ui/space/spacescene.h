@@ -31,8 +31,10 @@ private:
     void clear();
 
     Space* space;
+    QGraphicsRectItem* gridParent;
+    QVector<QVector<QGraphicsRectItem*>> gridTiles;
     QVector<QGraphicsRectItem*> areaTiles;
-    QVector<QGraphicsRectItem*> gridTiles;
+    QVector<QGraphicsRectItem*> blockedTiles;
 };
 
 #endif // SPACESCENE_H

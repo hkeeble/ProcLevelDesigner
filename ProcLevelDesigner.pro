@@ -45,7 +45,9 @@ SOURCES += \
     src/entities/door.cpp \
     src/entities/mapentity.cpp \
     src/entities/teletransporter.cpp \
-    src/qpointext.cpp
+    src/qpointext.cpp \
+    src/mapscript.cpp \
+    src/entities/switchentity.cpp
 
 HEADERS  += \
     include/common.h \
@@ -79,7 +81,9 @@ HEADERS  += \
     include/entities/door.h \
     include/entities/mapentity.h \
     include/entities/teletransporter.h \
-    include/qpointext.h
+    include/qpointext.h \
+    include/mapscript.h \
+    include/entities/switchentity.h
 
 FORMS    += \
     ui/editorwindow.ui \

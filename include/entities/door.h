@@ -12,10 +12,6 @@
 class Door : public MapEntity
 {
 public:
-    Door() : direction(Direction::EAST), openingMethod(OpeningMethod::None), sprite("NULL") { entityName = OBJ_DOOR; }
-
-    virtual Door* clone() override final;
-
     /*!
      * \brief The direction a door is facing.
      */
@@ -38,6 +34,12 @@ public:
         InteractionIfItem,
         Explosion
     };
+
+    Door() : MapEntity(0, 0, 0, "NULL"), direction(Direction::EAST), openingMethod(OpeningMethod::None), sprite("NULL") { entityName = OBJ_DOOR; }
+    Door(int layer, int x, int y, QString name, Direction direction, OpeningMethod openingMethod, QString sprite) : MapEntity(layer, x, y, name),
+        direction(direction), openingMethod(openingMethod), sprite(sprite) { entityName = OBJ_DOOR; }
+
+    virtual Door* clone() override final;
 
     /*!
      * \brief Parses a door object from a data object.

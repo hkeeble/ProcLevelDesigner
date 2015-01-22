@@ -14,6 +14,17 @@ Space::~Space()
 
 void Space::generate(const Mission& mission)
 {
+    // Create grid size here
+    int gridSize = 10;
+    for(int x = 0; x < gridSize; x++)
+    {
+        cells.push_back(QVector<GridCell>());
+        for(int y = 0; y < gridSize; y++)
+        {
+            cells[x].push_back(GridCell());
+        }
+    }
+
     QVector<QVector<Cell>> tileGrid = QVector<QVector<Cell>>(AREA_TILE_SIZE*2);
     for(int x = 0; x < tileGrid.length(); x++)
         tileGrid[x] = QVector<Cell>(AREA_TILE_SIZE*2);

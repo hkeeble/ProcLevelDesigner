@@ -109,6 +109,13 @@ const QString ELE_SPRITE = "sprite";
 const QString ELE_DIRECTION = "direction";
 const QString ELE_OPENING_METHOD = "openingMethod";
 
+// Switch
+const QString OBJ_SWITCH = "switch";
+const QString ELE_SUBTYPE = "subtype";
+const QString ELE_SOUND = "sound";
+const QString ELE_NEEDS_BLOCK = "needs_block";
+const QString ELE_INACTIVATE_WHEN_LEAVING = "inactivate_when_leaving";
+
 // Teletransporter
 const QString OBJ_TELETRANSPORTER = "teletransporter";
 const QString ELE_TRANSITION = "transition";

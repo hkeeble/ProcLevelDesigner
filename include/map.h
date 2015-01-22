@@ -9,6 +9,7 @@
 #include "tileset.h"
 #include "mapentity.h"
 #include "door.h"
+#include "mapscript.h"
 
 const int DEFAULT_TILE_SIZE = 32;
 const int DEFAULT_MAP_SIZE = DEFAULT_TILE_SIZE * 10;
@@ -58,7 +59,6 @@ public:
     Map(int tileSize, int width, int height);
     Map(QString name, int width, int height, int tileSize, QString music, QString world);
     Map(QString name, int width, int height, int tileSize, QString music, QString world, Tileset* tileset);
-
 
     virtual ~Map();
 
