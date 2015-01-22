@@ -61,7 +61,7 @@ public:
         QStringList lines;
     };
 
-    MapScript(QString mapName);
+    MapScript();
     virtual ~MapScript();
 
     Function* getFunction(QString name);
@@ -86,7 +86,6 @@ public:
     void writeToFile(QFile& file);
 
 private:
-    QString mapName;
     QMap<QString,Function> functions;
     QMap<QString,Variable> variables;
 };

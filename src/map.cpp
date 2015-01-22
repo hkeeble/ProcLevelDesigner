@@ -67,6 +67,7 @@ void Map::copy(const Map& param)
     this->tileSet = param.tileSet;
     this->tiles = param.tiles;
     this->tileSize = param.tileSize;
+    this->script = param.script;
 
     // Deep copy entities
     entities.clear(); // Clear existing entities
@@ -87,6 +88,18 @@ const MapTile& Map::getTile(int x, int y)
 void Map::addEntity(MapEntity* entity)
 {
     entities.append(entity);
+}
+
+void Map::addSwitch(SwitchEntity* switchEntity)
+{
+    addEntity(switchEntity);
+    script.addSwitch(*switchEntity);
+}
+
+void Map::addDoor(Door* door)
+{
+    addEntity(door);
+    script.addDoor(*door);
 }
 
 Map Map::parse(QString name, Table* data)
@@ -120,6 +133,22 @@ Map Map::parse(QString name, Table* data)
         {
             Door* door = new Door(Door::Parse(d));
             map.addEntity(door);
+        }
+
+        // Read in all switches
+        QList<Object*> switches = data->getObjectsOfName(OBJ_SWITCH);
+        for(auto s : switches)
+        {
+            SwitchEntity* switchEntity = new SwitchEntity(SwitchEntity::Parse(s));
+            map.addEntity(switchEntity);
+        }
+
+        // Read in all teletransporters
+        QList<Object*> transporters = data->getObjectsOfName(OBJ_TELETRANSPORTER);
+        for(auto t : transporters)
+        {
+            Teletransporter* transporter = new Teletransporter(Teletransporter::Parse(t));
+            map.addEntity(transporter);
         }
 
         return map;

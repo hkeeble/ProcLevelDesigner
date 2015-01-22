@@ -268,6 +268,35 @@ Map Area::buildMap()
         }
     }
 
+    // Add key entities
+    for(Key* key : keyEvents)
+    {
+        // If the key is a switch, add a switch to the map
+        if(key->getKeyType() == Key::Type::Switch)
+        {
+            SwitchEntity* switchEntity = new SwitchEntity(0, 0, 0, key->getName(), SwitchEntity::SubType::SOLID, "");
+            map.addSwitch(switchEntity);
+        }
+    }
+
+    // Add gate entities
+    if(up->gate != nullptr)
+    {
+
+    }
+    if(left->gate != nullptr)
+    {
+
+    }
+    if(right->gate != nullptr)
+    {
+
+    }
+    if(down->gate != nullptr)
+    {
+
+    }
+
     return map;
 }
 

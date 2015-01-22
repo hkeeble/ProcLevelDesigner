@@ -9,6 +9,8 @@
 #include "tileset.h"
 #include "mapentity.h"
 #include "door.h"
+#include "switchentity.h"
+#include "teletransporter.h"
 #include "mapscript.h"
 
 const int DEFAULT_TILE_SIZE = 32;
@@ -96,10 +98,24 @@ public:
     const MapTile& getTile(int x, int y);
 
     /*!
-     * \brief Adds an entity to the map. The map object takes ownership of the entity.
-     * \param The entity to add to the map.
+     * \brief Adds an entity to the map. Use only for entities that do not require additions to the map script file. For entities that
+     *        require additions to the script file, use the supplied function for that specific entity type. The map object takes
+     *        ownership of the entity.
+     * \param entity The entity to add to the map.
      */
     void addEntity(MapEntity* entity);
+
+    /*!
+     * \brief Adds a switch to the map, and appends to the script file accordingly. The map object takes ownership of the switch.
+     * \param switchEntity The switch entity to add to the map.
+     */
+    void addSwitch(SwitchEntity* switchEntity);
+
+    /*!
+     * \brief Adds a door to the map, and appends to the script file accordingly. The map object takes ownership of the door.
+     * \param door The door entity to add to the map.
+     */
+    void addDoor(Door* door);
 
     void initTiles();
 
@@ -113,9 +129,10 @@ private:
 
     int width, height, tileSize;
     QString name, world, music;
+    MapScript script;                /*!< The script for this map. */
     Tileset* tileSet;                /*!< The tileset used by this map. */
     QVector<QVector<MapTile>> tiles; /*!< The tiles contained in this map. */
-    QVector<MapEntity*> entities; /*!< The entities contained within this map. */
+    QVector<MapEntity*> entities;    /*!< The entities contained within this map. */
 };
 
 #endif // MAP_H

@@ -1,9 +1,9 @@
 #include "mapscript.h"
 
-MapScript::MapScript(QString mapName)
+MapScript::MapScript()
 {
-    this->mapName = mapName;
     functions = QMap<QString,Function>();
+    variables = QMap<QString,Variable>();
 
     functions.insert("map:on_started", Function("map:on_started"));
     functions.insert("map:on_update", Function("map:on_update"));
