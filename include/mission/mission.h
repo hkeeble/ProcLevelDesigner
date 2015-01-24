@@ -80,6 +80,11 @@ public:
     QList<Key*> getKeyEventList();
 
     /*!
+     * \brief getKeys Get the map of keys in this mission.
+     */
+    QMap<QString,Key*> getKeys();
+
+    /*!
      * \brief Retrieves a list of all names of key events.
      */
     QStringList getKeyEventNameList();
@@ -108,9 +113,9 @@ private:
      */
     void updateStageIDs();
 
-    MissionObserver* observer; /*!< This observer is a QObject used to emit an update signal when the mission is modified. */
-    QMap<QString,Gate> gates; /*!< The gates contained in this collection. */
-    QMap<QString,Key> keyEvents; /*!< The key events contained in this collection. */
+    MissionObserver* observer;   /*!< This observer is a QObject used to emit an update signal when the mission is modified. */
+    QMap<QString,Gate*> gates;    /*!< The gates contained in this collection. */
+    QMap<QString,Key*> keyEvents; /*!< The key events contained in this collection. */
     QList<Stage> stages;
 };
 

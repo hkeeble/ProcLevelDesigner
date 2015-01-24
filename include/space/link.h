@@ -33,6 +33,7 @@ public:
     QPoint first, second;
 
     Gate* getGate() { return gate; }
+    void setGate(Gate* gate) { this->gate = gate; }
 
 private:
     Gate* gate;     /*!< The gate attached to this link. Null pointer means there is no gate. */

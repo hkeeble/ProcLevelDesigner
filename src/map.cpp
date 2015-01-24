@@ -96,10 +96,10 @@ void Map::addSwitch(SwitchEntity* switchEntity)
     script.addSwitch(*switchEntity);
 }
 
-void Map::addDoor(Door* door)
+void Map::addDoor(Door* door, QList<Key*> keys)
 {
     addEntity(door);
-    script.addDoor(*door, QList<SwitchEntity>());
+    script.addDoor(*door, keys);
 }
 
 Map Map::parse(QString name, Table* data)

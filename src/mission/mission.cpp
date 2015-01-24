@@ -7,7 +7,10 @@ Mission::Mission()
 
 Mission::~Mission()
 {
-
+    for(auto iter = keyEvents.begin(); iter != keyEvents.end(); iter++)
+        delete iter.value();
+    for(auto iter = gates.begin(); iter != gates.end(); iter++)
+        delete iter.value();
 }
 
 void Mission::generate()
@@ -18,9 +21,9 @@ void Mission::generate()
     for(Stage& stage : stages)
     {
         stage.clearKeys();
-        QStringList reqKeys = stage.getExitGate()->getKeys();
-        for(QString key : reqKeys)
-            stage.addKey(&keyEvents.find(key).value());
+        QList<Key*> reqKeys = stage.getExitGate()->getKeys();
+        for(Key* key : reqKeys)
+            stage.addKey(key);
     }
 
     observer->emitUpdate();
@@ -42,13 +45,13 @@ Mission Mission::Parse(Table* data)
     for(Object* obj : keyObjects)
     {
         Key key = Key::Parse(obj);
-        mission.keyEvents.insert(key.getName(), key);
+        mission.keyEvents.insert(key.getName(), new Key(key));
     }
 
     for(Object* obj : gateObjects)
     {
-        Gate gate = Gate::Parse(obj, mission.getKeyEventList());
-        mission.gates.insert(gate.getName(), gate);
+        Gate gate = Gate::Parse(obj, mission.getKeys());
+        mission.gates.insert(gate.getName(), new Gate(gate));
     }
 
     // Parse all stages
@@ -81,12 +84,12 @@ void Mission::build(Table* table)
     table->clear();
 
     // build all gates into the table
-    for(QMap<QString,Gate>::iterator iter = gates.begin(); iter != gates.end(); iter++)
-        table->addObject(OBJ_GATE, iter.value().build());
+    for(QMap<QString,Gate*>::iterator iter = gates.begin(); iter != gates.end(); iter++)
+        table->addObject(OBJ_GATE, iter.value()->build());
 
     // build all key events into the table
-    for(QMap<QString,Key>::iterator iter = keyEvents.begin(); iter != keyEvents.end(); iter++)
-        table->addObject(OBJ_KEY_EVENT, iter.value().build());
+    for(QMap<QString,Key*>::iterator iter = keyEvents.begin(); iter != keyEvents.end(); iter++)
+        table->addObject(OBJ_KEY_EVENT, iter.value()->build());
 
     // build all stages into the table
     for(QList<Stage>::iterator iter = stages.begin(); iter != stages.end(); iter++)
@@ -99,20 +102,20 @@ void Mission::build(Table* table)
 
 Key* Mission::getKeyEvent(QString name)
 {
-    QMap<QString,Key>::iterator iter = keyEvents.find(name);
+    QMap<QString,Key*>::iterator iter = keyEvents.find(name);
 
     if(iter != keyEvents.end())
-        return &iter.value();
+        return iter.value();
     else
         return nullptr;
 }
 
 Gate* Mission::getGate(QString name)
 {
-    QMap<QString,Gate>::iterator iter = gates.find(name);
+    QMap<QString,Gate*>::iterator iter = gates.find(name);
 
     if(iter != gates.end())
-        return &iter.value();
+        return iter.value();
     else
         return nullptr;
 }
@@ -120,9 +123,9 @@ Gate* Mission::getGate(QString name)
 QList<Gate*> Mission::getGateList()
 {
     QList<Gate*> gateList = QList<Gate*>();
-    for(QMap<QString,Gate>::iterator iter = gates.begin(); iter != gates.end(); iter++)
+    for(QMap<QString,Gate*>::iterator iter = gates.begin(); iter != gates.end(); iter++)
     {
-        gateList.append(&iter.value());
+        gateList.append(iter.value());
     }
     return gateList;
 }
@@ -130,11 +133,16 @@ QList<Gate*> Mission::getGateList()
 QList<Key*> Mission::getKeyEventList()
 {
     QList<Key*> keyList = QList<Key*>();
-    for(QMap<QString,Key>::iterator iter = keyEvents.begin(); iter != keyEvents.end(); iter++)
+    for(QMap<QString,Key*>::iterator iter = keyEvents.begin(); iter != keyEvents.end(); iter++)
     {
-        keyList.append(&iter.value());
+        keyList.append(iter.value());
     }
     return keyList;
+}
+
+QMap<QString,Key*> Mission::getKeys()
+{
+    return keyEvents;
 }
 
 QList<Stage*> Mission::getStages()
@@ -150,16 +158,16 @@ QList<Stage*> Mission::getStages()
 QStringList Mission::getKeyEventNameList()
 {
     QStringList list = QStringList();
-    for(QMap<QString,Key>::iterator iter = keyEvents.begin(); iter != keyEvents.end(); iter++)
-        list << iter.value().getName();
+    for(QMap<QString,Key*>::iterator iter = keyEvents.begin(); iter != keyEvents.end(); iter++)
+        list << iter.value()->getName();
     return list;
 }
 
 QStringList Mission::getGateNameList()
 {
     QStringList list = QStringList();
-    for(QMap<QString,Gate>::iterator iter = gates.begin(); iter != gates.end(); iter++)
-        list << iter.value().getName();
+    for(QMap<QString,Gate*>::iterator iter = gates.begin(); iter != gates.end(); iter++)
+        list << iter.value()->getName();
     return list;
 }
 
@@ -167,10 +175,10 @@ bool Mission::addGate(QString name, Gate gate)
 {
     if(!gates.contains(name))
     {
-        gates.insert(name, gate);
+        gates.insert(name, new Gate(gate));
 
         // Add a new stage due to the addition of a new gate
-        Stage newStage = Stage(stages.count()-1, nullptr, nullptr, &gates.last(), QList<Key*>());
+        Stage newStage = Stage(stages.count()-1, nullptr, nullptr, gates.last(), QList<Key*>());
 
         // Set the new stage's previous stage
         if(stages.count() > 0)
@@ -196,7 +204,7 @@ bool Mission::addKeyEvent(QString name, Key key)
 {
     if(!keyEvents.contains(name))
     {
-        keyEvents.insert(name, key);
+        keyEvents.insert(name, new Key(key));
         observer->emitUpdate();
         return true;
     }
@@ -208,13 +216,13 @@ bool Mission::removeKeyEvent(QString name)
 {
     if(keyEvents.contains(name))
     {
-        keyEvents.remove(name);
+        Key* key = keyEvents.take(name);
 
         // If the key event is being used by a gate, remove it
-        for(QMap<QString,Gate>::iterator iter = gates.begin(); iter != gates.end(); iter++)
+        for(QMap<QString,Gate*>::iterator iter = gates.begin(); iter != gates.end(); iter++)
         {
-            if(iter.value().getKeys().contains(name))
-                iter.value().removeKey(name);
+            if(iter.value()->getKeys().contains(key))
+                iter.value()->removeKey(key);
         }
 
         observer->emitUpdate();
@@ -228,13 +236,13 @@ bool Mission::removeGate(QString name)
 {
     if(gates.contains(name))
     {
-        Gate gate = gates.take(name);
+        Gate* gate = gates.take(name);
 
         // Find the stage ending with this gate and remove it, relink other stages
         bool found = false;
         for(int i = 0; i < stages.length(); i++)
         {
-            if(stages[i].getExitGate()->getName() == gate.getName())
+            if(stages[i].getExitGate()->getName() == gate->getName())
             {
                 found = true;
                 Stage stage = stages.takeAt(i);

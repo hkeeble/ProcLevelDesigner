@@ -12,6 +12,7 @@
 #include "switchentity.h"
 #include "teletransporter.h"
 #include "mapscript.h"
+#include "key.h"
 
 const int DEFAULT_TILE_SIZE = 32;
 const int DEFAULT_MAP_SIZE = DEFAULT_TILE_SIZE * 10;
@@ -120,8 +121,10 @@ public:
     /*!
      * \brief Adds a door to the map, and appends to the script file accordingly. The map object takes ownership of the door.
      * \param door The door entity to add to the map.
+     * \param keys The list of keys to open this door. When all of these are set to active in game values, the door
+     *                    will open.
      */
-    void addDoor(Door* door);
+    void addDoor(Door* door, QList<Key*> keys);
 
     void initTiles();
 

@@ -282,8 +282,12 @@ void EditorWindow::on_newGateButton_clicked()
     EditGateDialog* dialog = new EditGateDialog(quest.mission.getKeyEventNameList(), this);
     if(dialog->exec() == QDialog::Accepted)
     {
+        QList<Key*> keys;
+        for(QString keyName : dialog->getKeys())
+            keys.append(quest.mission.getKeyEvent(keyName));
+
         quest.mission.addGate(dialog->getName(),
-                                          Gate(dialog->getName(), dialog->getType(), dialog->getKeys(), dialog->isTriggered()));
+                                          Gate(dialog->getName(), dialog->getType(), keys, dialog->isTriggered()));
         updateGateList();
     }
     delete dialog;
@@ -300,7 +304,12 @@ void EditorWindow::on_editGateButton_clicked()
             EditGateDialog* dialog = new EditGateDialog(selectedGate, quest.mission.getKeyEventNameList(), this);
             if(dialog->exec() == QDialog::Accepted)
             {
-                selectedGate->setKeys(dialog->getKeys());
+                QList<Key*> keys;
+                for(QString keyName : dialog->getKeys())
+                    keys.append(quest.mission.getKeyEvent(keyName));
+
+                selectedGate->setKeys(keys);
+
                 selectedGate->setName(dialog->getName());
                 selectedGate->setTriggered(dialog->isTriggered());
                 selectedGate->setType(dialog->getType());

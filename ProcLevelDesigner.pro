@@ -104,6 +104,9 @@ INCLUDEPATH += include \
                include/space \
                include/entities \
 
+# Used to surpress initializer list assignment order
+QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder
+
 # Copy Data & Script Files to build
 data.path = $${OUT_PWD}/game_data
 data.files += game_data/*

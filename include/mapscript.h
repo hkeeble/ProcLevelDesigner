@@ -6,6 +6,7 @@
 
 #include "door.h"
 #include "switchentity.h"
+#include "key.h"
 
 /**
  * @brief Represents an individual map script. Use member functions to add to the script.
@@ -70,9 +71,9 @@ public:
     /**
      * @brief Adds the ability for this script to handle a door of a given name.
      * @param gateName The name of the gate containing the door.
-     * @param keyNames The names of the keys required to open the gate.
+     * @param keys The keys required to open the gate.
      */
-    void addDoor(Door door, QList<SwitchEntity> switches);
+    void addDoor(Door door, QList<Key*> keys);
 
     /**
      * @brief Write this script out to the given file.

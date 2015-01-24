@@ -274,7 +274,7 @@ Map Area::buildMap()
         // If the key is a switch, add a switch to the map
         if(key->getKeyType() == Key::Type::Switch)
         {
-            SwitchEntity* switchEntity = new SwitchEntity(0, 0, 0, key->getName(), SwitchEntity::SubType::SOLID, "");
+            SwitchEntity* switchEntity = new SwitchEntity(0, 0, 0, key->getName(), SwitchEntity::SubType::SOLID, SPR_SWITCH);
             map.addSwitch(switchEntity);
         }
     }
@@ -282,7 +282,12 @@ Map Area::buildMap()
     // Add gate entities
     if(up != nullptr && up->getGate() != nullptr)
     {
-
+        Gate* gate = up->getGate();
+        if(gate->getType() == Gate::Type::Door)
+        {
+            Door* door = new Door(0, 16, 0, gate->getName(), Door::EAST, Door::OpeningMethod::None, SPR_DOOR);
+            map.addDoor(door, gate->getKeys());
+        }
     }
     if(left != nullptr && left->getGate() != nullptr)
     {

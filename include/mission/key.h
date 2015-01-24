@@ -39,6 +39,8 @@ public:
     static Key Parse(Object* object);
     virtual Object build();
 
+    bool operator==(const Key& rhs) { return rhs.name == name && rhs.type == type; }
+
 private:
     QString name, message;
     Key::Type type; /*!< The type of this key event. */

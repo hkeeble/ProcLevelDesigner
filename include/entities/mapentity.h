@@ -3,6 +3,10 @@
 
 #include "filetools.h"
 
+// Common sprite locations
+static const QString SPR_SWITCH = "entities/switch";
+static const QString SPR_DOOR = "entities/door";
+
 /*!
  * \brief Abstract class, represents a map entity. Derive for custom map entities.
  */
@@ -18,6 +22,8 @@ protected:
     int layer, x, y;
 
 public:
+    virtual ~MapEntity() { }
+
     static void Parse(MapEntity* mapEntity, Object* object);
     virtual void build(Object* object);
 

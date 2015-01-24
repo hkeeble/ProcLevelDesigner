@@ -1,0 +1,17 @@
+animation{
+  name = "inactivated",
+  src_image = "entities/switch.png",
+  directions = {
+    { x = 0, y = 0, frame_width = 16, frame_height = 16 },
+  },
+}
+
+animation{
+  name = "activated",
+  src_image = "entities/switch.png",
+  directions = {
+    { x = 16, y = 0, frame_width = 16, frame_height = 16 },
+  },
+}
+
+

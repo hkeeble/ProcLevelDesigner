@@ -30,12 +30,12 @@ EditGateDialog::EditGateDialog(Gate* gate, QStringList keys, QWidget* parent)
 
     ui->typeComboBox->setCurrentIndex(gate->getType());
 
-    for(QString string : gate->getKeys())
+    for(Key* key : gate->getKeys())
     {
-        ui->keyListAdded->addItem(string);
+        ui->keyListAdded->addItem(key->getName());
 
         // Find and remove the item from other view
-        removeKeyFromList(string, ui->keyList);
+        removeKeyFromList(key->getName(), ui->keyList);
     }
 }
 

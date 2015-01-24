@@ -50,15 +50,15 @@ void MapScript::addSwitch(SwitchEntity switchEntity)
     variables.insert(switchVar.getName(), switchVar);
 }
 
-void MapScript::addDoor(Door door, QList<SwitchEntity> switches)
+void MapScript::addDoor(Door door, QList<Key*> keys)
 {
     Function& onStarted = functions.find("map:on_started").value();
 
     QString ifStatement;
-    for(int i = 0; i < switches.size(); i++)
+    for(int i = 0; i < keys.size(); i++)
     {
-        ifStatement += "if(game:get_value(\"" + switches[i].getName() + "Active\") == true";
-        if(i != switches.size()-1)
+        ifStatement += "if(game:get_value(\"" + keys[i]->getName() + "Active\") == true";
+        if(i != keys.size()-1)
             ifStatement += "and";
         else
             ifStatement += ") then";

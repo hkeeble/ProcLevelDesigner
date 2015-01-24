@@ -38,8 +38,6 @@ void Space::generate(const Mission& mission)
                 tileGrid[x][y] = Cell(QPoint(x, y), true);
     }
 
-    Key* switchTest = new Key("switchTest", Key::Type::Switch, "Test");
-
     placeArea(Area(&zones.find("field").value(), QPoint(0,0), 2, 2));
     areas.last().setGrid(tileGrid);
     placeArea(Area(&zones.find("field").value(), QPoint(0,2), 2, 2));
@@ -48,7 +46,16 @@ void Space::generate(const Mission& mission)
     areas.last().setGrid(tileGrid);
     placeArea(Area(&zones.find("field").value(), QPoint(2,2), 2, 2));
     areas.last().setGrid(tileGrid);
+
+    // Testing keys and gates (would usually avoid creating these here, as they are already part of the mission object and we just need
+    //                          to access them)
+    Key* switchTest = new Key("switchTest", Key::Type::Switch, "Test");
+    QList<Key*> keys;
+    keys.append(switchTest);
+    Gate* gate = new Gate("door1", Gate::Type::Door, keys, true);
     areas.last().addKeyEvent(switchTest);
+    areas.last().setLinkUp(Link());
+    areas.last().getLinkUp()->setGate(gate);
 
     emitUpdate();
 }

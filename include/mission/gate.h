@@ -18,36 +18,36 @@ public:
     };
 
     Gate();
-    Gate(QString name, Gate::Type type, QStringList keys, bool isTriggered);
+    Gate(QString name, Gate::Type type, QList<Key*> keys, bool isTriggered);
     virtual ~Gate() { }
 
     inline QString getName() { return name; }
     inline bool isTriggered() { return triggered; }
     inline Gate::Type getType() { return type; }
-    inline QStringList getKeys() { return keys; }
+    inline QList<Key*> getKeys() { return keys; }
 
     inline void setName(const QString& name) { this->name = name; }
     inline void setTriggered(const bool& triggered) { this->triggered = triggered; }
     inline void setType(const Gate::Type& type) { this->type = type; }
-    inline void setKeys(const QStringList& keys) { this->keys = keys; }
+    inline void setKeys(QList<Key*> keys) { this->keys = keys; }
 
     /*!
      * \brief Adds a key to the gate. If the key already exists, returns false.
      */
-    bool addKey(const QString& key);
+    bool addKey(Key* key);
 
     /*!
      * \brief Removes a key from the gate. If the key does not exist, returns false.
      */
-    bool removeKey(const QString& key);
+    bool removeKey(Key* key);
 
-    static Gate Parse(Object* object, QList<Key*> keys);
+    static Gate Parse(Object* object, QMap<QString,Key*> keys);
     virtual Object build();
 
 private:
     QString name;       /*!< The name of this gate. */
-    Gate::Type type;      /*!< The type of gate. */
-    QStringList keys;   /*!< The list of keys that are neccesary to access this gate. */
+    Gate::Type type;    /*!< The type of gate. */
+    QList<Key*> keys;   /*!< The list of keys that are neccesary to access this gate. */
     bool triggered;     /*!< Whether or not this gate is triggered (checks for trigger on map load, or is accessed through direct player interaction). */
 };
 
