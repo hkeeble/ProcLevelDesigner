@@ -50,13 +50,8 @@ public:
 
         void addLine(QString line) { lines.append(line); }
 
-        virtual QString build() override final
-        {
-            QString concat = "function " + name + "()";
-            for(QString line : lines)
-                concat += "\n" + line;
-            concat += "\nend";
-        }
+        virtual QString build() override final;
+
     private:
         QStringList lines;
     };
@@ -77,7 +72,7 @@ public:
      * @param gateName The name of the gate containing the door.
      * @param keyNames The names of the keys required to open the gate.
      */
-    void addDoor(const Door& door, QList<SwitchEntity> switches);
+    void addDoor(Door door, QList<SwitchEntity> switches);
 
     /**
      * @brief Write this script out to the given file.

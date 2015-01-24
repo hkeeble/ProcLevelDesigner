@@ -280,19 +280,19 @@ Map Area::buildMap()
     }
 
     // Add gate entities
-    if(up->gate != nullptr)
+    if(up != nullptr && up->getGate() != nullptr)
     {
 
     }
-    if(left->gate != nullptr)
+    if(left != nullptr && left->getGate() != nullptr)
     {
 
     }
-    if(right->gate != nullptr)
+    if(right != nullptr && right->getGate() != nullptr)
     {
 
     }
-    if(down->gate != nullptr)
+    if(down != nullptr && down->getGate() != nullptr)
     {
 
     }
@@ -305,4 +305,9 @@ bool Area::operator==(const Area rhs)
 {
     return (location == rhs.location && zoneName == rhs.zoneName && width == rhs.width && height == rhs.height && grid == rhs.grid &&
             keyEvents == rhs.keyEvents && up == rhs.up && down == rhs.down && left == rhs.left && right == rhs.right && zone == rhs.zone);
+}
+
+void Area::addKeyEvent(Key* key)
+{
+    keyEvents.append(key);
 }

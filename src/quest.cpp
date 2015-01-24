@@ -71,8 +71,9 @@ void Quest::saveMaps()
         Table* data = getData(QString("maps") + QDir::separator() + map.getName());
         map.build(data);
 
-        // Write out a script file
-        writeToFile(QFileInfo(data->getFilePath()).absoluteDir().absolutePath(), map.getName() + ".lua", "");
+        // Write out the script file
+        QFile file(QFileInfo(data->getFilePath()).absoluteDir().absolutePath() + QDir::separator() + map.getName() + ".lua");
+        map.saveScript(file);
 
         // Add map to quest database
         database->addObject(OBJ_MAP, map.getDatabaseObject());

@@ -38,6 +38,8 @@ void Space::generate(const Mission& mission)
                 tileGrid[x][y] = Cell(QPoint(x, y), true);
     }
 
+    Key* switchTest = new Key("switchTest", Key::Type::Switch, "Test");
+
     placeArea(Area(&zones.find("field").value(), QPoint(0,0), 2, 2));
     areas.last().setGrid(tileGrid);
     placeArea(Area(&zones.find("field").value(), QPoint(0,2), 2, 2));
@@ -46,6 +48,7 @@ void Space::generate(const Mission& mission)
     areas.last().setGrid(tileGrid);
     placeArea(Area(&zones.find("field").value(), QPoint(2,2), 2, 2));
     areas.last().setGrid(tileGrid);
+    areas.last().addKeyEvent(switchTest);
 
     emitUpdate();
 }

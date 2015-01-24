@@ -99,7 +99,7 @@ void Map::addSwitch(SwitchEntity* switchEntity)
 void Map::addDoor(Door* door)
 {
     addEntity(door);
-    script.addDoor(*door);
+    script.addDoor(*door, QList<SwitchEntity>());
 }
 
 Map Map::parse(QString name, Table* data)
@@ -191,6 +191,11 @@ void Map::build(Table* table)
         entities[i]->build(obj.data());
         table->addObject(entities[i]->getEntityName(), *obj.data());
     }
+}
+
+void Map::saveScript(QFile& file)
+{
+    script.writeToFile(file);
 }
 
 MapTile MapTile::parse(Object* object)

@@ -107,6 +107,12 @@ public:
     void removeUpLink();
 
     /*!
+     * \brief Add a key event to this area. The area does not take ownership over the key.
+     * \param key The key to add to this area.
+     */
+    void addKeyEvent(Key* key);
+
+    /*!
      * \brief Build the map object for this area, making use of the grid, key events, gates and links.
      * \return
      */

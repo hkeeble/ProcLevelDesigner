@@ -81,6 +81,12 @@ public:
      */
     void build(Table* table);
 
+    /*!
+     * \brief Saves this map's script into the given file.
+     * \param file The file to write the script out to.
+     */
+    void saveScript(QFile& file);
+
     inline QString getName() const     { return name; }
     inline Tileset* getTileSet() const  { return tileSet; }
     inline QString getMusic() const    { return music; }

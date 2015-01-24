@@ -32,8 +32,10 @@ public:
 
     QPoint first, second;
 
+    Gate* getGate() { return gate; }
+
 private:
-    Gate* gate;     /*!< The gate attached to this link. Null pointer means there is not gate. */
+    Gate* gate;     /*!< The gate attached to this link. Null pointer means there is no gate. */
 };
 
 #endif // LINK_H
