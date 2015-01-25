@@ -2,6 +2,7 @@
 #define FILETOOLS_H
 
 #include <functional>
+#include <limits>
 #include <QMap>
 #include <QString>
 #include <QFile>
@@ -115,6 +116,10 @@ const QString ELE_SUBTYPE = "subtype";
 const QString ELE_SOUND = "sound";
 const QString ELE_NEEDS_BLOCK = "needs_block";
 const QString ELE_INACTIVATE_WHEN_LEAVING = "inactivate_when_leaving";
+
+// Destination
+const QString OBJ_DESTINATION = "destination";
+const QString ELE_DEFAULT_DESTINATION = "default";
 
 // Teletransporter
 const QString OBJ_TELETRANSPORTER = "teletransporter";
@@ -265,6 +270,17 @@ public:
     void addObject(QString name, Object object);
 
     /*!
+     * \brief Sets the given name as a priority object. Priority objects will be written to files before all other objects, and in the order
+     *        in which they have been added to the priority list. A priority object must exist in the table before being added to the
+     *        priority list, or this function will have no effect. To indicate this, the function returns false if the table
+     *        does not currently contain an object with the given name. The name given will include ALL objects with that name
+     *        currently in the table. Some Solarus data files require this, such as the properties object in a map data file.
+     * \param name The name of the object to add to the priority list.
+     * \return True if the obejct was successfully added to the priorities list, false if otherwise.
+     */
+    bool setAsPriorityObject(QString name, int priority = std::numeric_limits<int>::max());
+
+    /*!
      * \brief Retrieve an object's collection of elements and their values. If multiple objects of the same name are found, returns
      *        the last object added to the table.
      * \param objectName The name of the object to retrieve from the table.
@@ -363,6 +379,8 @@ private:
     QTextStream out;      /*!< The stream currently being used for writing. */
 
     QString filePath;
+
+    QList<QString> priorityList;        /*!< A list of priority object names that must be written out before others. */
     QMultiMap<QString, Object> objects; /*!< Map of all objects, containing a map of respective elements. */
 };
 

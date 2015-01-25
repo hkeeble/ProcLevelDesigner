@@ -5,6 +5,7 @@
 
 #include "filetools.h"
 #include "mapentity.h"
+#include "direction.h"
 
 /*!
  * \brief Represents a door map entity.
@@ -12,17 +13,6 @@
 class Door : public MapEntity
 {
 public:
-    /*!
-     * \brief The direction a door is facing.
-     */
-    enum Direction
-    {
-        EAST,
-        NORTH,
-        WEST,
-        SOUTH
-    };
-
     /*!
      * \brief The opening method for a door.
      */

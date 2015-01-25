@@ -13,7 +13,7 @@ Gate::Gate(QString name, Gate::Type type, QList<Key*> keys, bool isTriggered)
     this->triggered = isTriggered;
 }
 
-Gate Gate::Parse(Object* object, QMap<QString,Key*> keys)
+Gate Gate::Parse(Object* object, QMap<QString,Key>* keys)
 {
     Gate gate = Gate();
 
@@ -22,8 +22,7 @@ Gate Gate::Parse(Object* object, QMap<QString,Key*> keys)
 
     QStringList keyNames = object->find(ELE_KEY_LINKS, "").split(LIST_DELIM);
     for(QString keyName : keyNames)
-        gate.keys.append(keys.find(keyName).value());
-
+        gate.keys.append(&keys->find(keyName).value());
 
     gate.triggered = (object->find(ELE_TRIGGERED, "false") == "false" ? false : true);
 
@@ -46,7 +45,6 @@ Object Gate::build()
 
     return obj;
 }
-
 
 bool Gate::addKey(Key* key)
 {

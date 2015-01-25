@@ -47,7 +47,9 @@ SOURCES += \
     src/entities/teletransporter.cpp \
     src/qpointext.cpp \
     src/mapscript.cpp \
-    src/entities/switchentity.cpp
+    src/entities/switchentity.cpp \
+    src/randomengine.cpp \
+    src/entities/destination.cpp
 
 HEADERS  += \
     include/common.h \
@@ -83,7 +85,10 @@ HEADERS  += \
     include/entities/teletransporter.h \
     include/qpointext.h \
     include/mapscript.h \
-    include/entities/switchentity.h
+    include/entities/switchentity.h \
+    include/randomengine.h \
+    include/direction.h \
+    include/entities/destination.h
 
 FORMS    += \
     ui/editorwindow.ui \

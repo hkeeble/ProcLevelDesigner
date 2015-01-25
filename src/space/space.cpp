@@ -12,50 +12,160 @@ Space::~Space()
 
 }
 
-void Space::generate(const Mission& mission)
+// Temporary function - generates walls around an area in directions it is not linked
+QVector<QVector<Cell>> generateWalls(Area& area)
 {
-    // Create grid size here
-    int gridSize = 10;
-    for(int x = 0; x < gridSize; x++)
+    // Initialize a grid
+    QVector<QVector<Cell>> cells;
+    for(int x = 0; x < area.getWidth() * AREA_TILE_SIZE; x++)
     {
-        cells.push_back(QVector<GridCell>());
-        for(int y = 0; y < gridSize; y++)
+        cells.append(QVector<Cell>());
+        for(int y = 0; y < area.getHeight() * AREA_TILE_SIZE; y++)
         {
-            cells[x].push_back(GridCell());
+            cells[x].append(Cell(QPoint(x, y), true));
         }
     }
 
-    QVector<QVector<Cell>> tileGrid = QVector<QVector<Cell>>(AREA_TILE_SIZE*2);
-    for(int x = 0; x < tileGrid.length(); x++)
-        tileGrid[x] = QVector<Cell>(AREA_TILE_SIZE*2);
-
-    for(int x = 0; x < AREA_TILE_SIZE*2; x++)
+    // Set values (wall off the area)
+    for(int y = 0; y < area.getHeight() * AREA_TILE_SIZE; y++)
     {
-        for(int y = 0; y < AREA_TILE_SIZE*2; y++)
-            if((qrand() % ((100 + 1) - 0) + 0) > 80)
-                tileGrid[x][y] = Cell(QPoint(x, y), false);
-            else
-                tileGrid[x][y] = Cell(QPoint(x, y), true);
+        cells[0][y].setTraversable(false);
+    }
+    for(int y = 0; y < area.getHeight() * AREA_TILE_SIZE; y++)
+    {
+        cells[cells.size()-1][y].setTraversable(false);
+    }
+    for(int x = 0; x < area.getWidth() * AREA_TILE_SIZE; x++)
+    {
+        cells[x][0].setTraversable(false);
+    }
+    for(int x = 0; x < area.getWidth() * AREA_TILE_SIZE; x++)
+    {
+        cells[x][cells[x].size()-1].setTraversable(false);
     }
 
-    placeArea(Area(&zones.find("field").value(), QPoint(0,0), 2, 2));
-    areas.last().setGrid(tileGrid);
-    placeArea(Area(&zones.find("field").value(), QPoint(0,2), 2, 2));
-    areas.last().setGrid(tileGrid);
-    placeArea(Area(&zones.find("field").value(), QPoint(2,0), 2, 2));
-    areas.last().setGrid(tileGrid);
-    placeArea(Area(&zones.find("field").value(), QPoint(2,2), 2, 2));
-    areas.last().setGrid(tileGrid);
+    // break walls where there are links
+    if(area.getLinkRight())
+        cells[cells.size()-1][(cells[0].size()-1)/2].setTraversable(true);
+    if(area.getLinkLeft())
+        cells[0][(cells[0].size()-1)/2].setTraversable(true);
+    if(area.getLinkUp())
+        cells[(cells.size()-1)/2][0].setTraversable(true);
+    if(area.getLinkDown())
+        cells[(cells.size()-1)/2][cells[0].size()-1].setTraversable(true);
 
-    // Testing keys and gates (would usually avoid creating these here, as they are already part of the mission object and we just need
-    //                          to access them)
-    Key* switchTest = new Key("switchTest", Key::Type::Switch, "Test");
-    QList<Key*> keys;
-    keys.append(switchTest);
-    Gate* gate = new Gate("door1", Gate::Type::Door, keys, true);
-    areas.last().addKeyEvent(switchTest);
-    areas.last().setLinkUp(Link());
-    areas.last().getLinkUp()->setGate(gate);
+    return cells;
+}
+
+void Space::generate(Mission& mission)
+{
+    clear();
+
+    QList<Stage*> stages = mission.getStages(); // Mission stages
+    QList<Area> newAreas; // Areas to be generated from stages
+    Area* previousArea = nullptr; // Pointer to the previously generated area
+
+    RandomEngine rand;
+    Direction previousDirection = static_cast<Direction>(rand.randomInteger(0, 3));
+
+    for(Stage* stage : stages)
+    {
+        // If this is the first stage to be generated
+        if(previousArea == nullptr)
+        {
+            // Choose a random location
+            QPoint point = QPoint(rand.randomInteger(0, 10), rand.randomInteger(0, 10));
+
+            // Choose a random height and width
+            int height = 1;// rand.randomInteger(1, 3);
+            int width = 1;//rand.randomInteger(1, 3);
+
+            Area area = Area(&zones.begin().value(), point, width, height, stage->getKeys());
+
+            newAreas.append(area);
+            previousArea = &newAreas.last();
+        }
+        else
+        {
+            // Choose a random height and width
+            int height = 1; // rand.randomInteger(1, 3);
+            int width = 1; // rand.randomInteger(1, 3);
+
+            QList<Direction> possibleDirections; // The possible directions the new area can lead into
+            if(previousDirection != Direction::EAST && previousArea->getLocation().x() - width >= 0)
+                possibleDirections.append(Direction::WEST);
+            if(previousDirection != Direction::WEST)
+                possibleDirections.append(Direction::EAST);
+            if(previousDirection != Direction::SOUTH && previousArea->getLocation().y() - height >= 0)
+                possibleDirections.append(Direction::NORTH);
+            if(previousDirection != Direction::NORTH)
+                possibleDirections.append(Direction::SOUTH);
+
+            // Choose a random new direction
+            Direction newDirection = possibleDirections[rand.randomInteger(0, possibleDirections.size()-1)];
+
+            // Choose an appropriate position based on direction
+            int x, y;
+            if(newDirection == Direction::WEST)
+            {
+                x = previousArea->getLocation().x()-width;
+                y = previousArea->getLocation().y();
+            }
+            else if(newDirection == Direction::NORTH)
+            {
+                x = previousArea->getLocation().x();
+                y = previousArea->getLocation().y()-height;
+            }
+            else if(newDirection == Direction::EAST)
+            {
+                x = previousArea->getLocation().x() + previousArea->getWidth();
+                y = previousArea->getLocation().y();
+            }
+            else if(newDirection == Direction::SOUTH)
+            {
+                x = previousArea->getLocation().x();
+                y = previousArea->getLocation().y() + previousArea->getHeight();
+            }
+
+            Area area = Area(&zones.begin().value(), QPoint(x, y), width, height, stage->getKeys());
+
+            // Generate links and gates
+            if(newDirection == Direction::NORTH)
+            {
+                area.setLinkDown(Link(stage->getExitGate()));
+                previousArea->setLinkUp(Link());
+            }
+            else if(newDirection == Direction::SOUTH)
+            {
+                area.setLinkUp(Link(stage->getExitGate()));
+                previousArea->setLinkDown(Link());
+            }
+            else if(newDirection == Direction::WEST)
+            {
+                area.setLinkRight(Link(stage->getExitGate()));
+                previousArea->setLinkLeft(Link());
+            }
+            else if(newDirection == Direction::EAST)
+            {
+                area.setLinkLeft(Link(stage->getExitGate()));
+                previousArea->setLinkRight(Link());
+            }
+
+            newAreas.append(area);
+            previousDirection = newDirection;
+            previousArea = &newAreas.last();
+        }
+    }
+
+    for(Area& area : newAreas)
+    {
+        QVector<QVector<Cell>> grid = generateWalls(area);
+        area.setGrid(grid);
+
+        placeArea(area);
+    }
+
+    setStartingArea(newAreas[0].getLocation(), QPoint(8, 8));
 
     emitUpdate();
 }
@@ -270,11 +380,11 @@ bool Space::removeArea(int x, int y)
 {
     if(cells[x][y].containsArea())
     {
-        Area area = areas.find(QPoint(x,y)).value();
+        Area* area = &areas.find(QPoint(x,y)).value();
 
-        for(int i = x; i < area.getWidth(); i++)
+        for(int i = x; i < area->getWidth(); i++)
         {
-            for(int j = y; j < area.getHeight(); j++)
+            for(int j = y; j < area->getHeight(); j++)
             {
                 cells[i][j].removeArea();
             }
@@ -306,6 +416,38 @@ GridCell* Space::getCell(int x, int y)
 {
     if(x < cells.length() && y < cells[x].length())
         return &cells[x][y];
+
+    return nullptr;
+}
+
+void Space::clear()
+{
+    areas.clear();
+    for(int x = 0; x < cells.size(); x++)
+    {
+        for(int y = 0; y < cells[0].size(); y++)
+        {
+            cells[x][y] = GridCell();
+        }
+    }
+}
+
+bool Space::setStartingArea(QPoint areaOrigin, QPoint position)
+{
+    // Ensure this is a valid starting area before assigning it
+    if(!areas.contains(areaOrigin))
+        return false;
+
+    Area* area = &areas.find(areaOrigin).value();
+
+    if(position.x() < 0 && position.y() < 0 &&
+            position.x() > area->getWidth() * AREA_TILE_SIZE && position.y() > area->getHeight() * AREA_TILE_SIZE)
+        return false;
+
+    startingArea = areaOrigin;
+    startingLocation = position;
+
+    return true;
 }
 
 QList<Map> Space::buildMaps()
@@ -315,6 +457,11 @@ QList<Map> Space::buildMaps()
     for(auto iter = areas.begin(); iter != areas.end(); iter++)
     {
         maps.insert(iter.key(), iter.value().buildMap());
+
+        Map* map = &maps.last();
+
+        if(iter.key() == startingArea)
+            map->addEntity(new Destination(0, startingLocation.x() * map->getTileSize(), startingLocation.y() * map->getTileSize(), "start", Direction::EAST));
     }
 
     // Link all maps together by looping grid cells
@@ -333,9 +480,9 @@ QList<Map> Space::buildMaps()
                 GridCell* right = nullptr;
                 GridCell* up = nullptr;
                 GridCell* down = nullptr;
-                if(x - 1 > 0)
+                if(x - 1 >= 0)
                     left = &cells[x-1][y];
-                if(y - 1 > 0)
+                if(y - 1 >= 0)
                     up = &cells[x][y-1];
                 if(x + 1 < getWidth())
                     right = &cells[x+1][y];
@@ -345,7 +492,7 @@ QList<Map> Space::buildMaps()
                 QVector<MapEntity*> transporters = QVector<MapEntity*>(); // collection of transporters that need adding to the map
 
                 // If the there is a valid link to a different area, create a valid teletransporter to link the two cells
-                if(left /*&& area.getLinkLeft() != nullptr*/ && left->getAreaOrigin() != area.getLocation())
+                if(left && left->containsArea() && area.getLinkLeft() != nullptr && left->getAreaOrigin() != area.getLocation())
                 {
                     Map* destination = &maps.find(left->getAreaOrigin()).value();
                     int yPos = (AREA_TILE_SIZE*map->getTileSize()) * (y - area.getLocation().y());
@@ -353,7 +500,7 @@ QList<Map> Space::buildMaps()
                     transporters.append(new Teletransporter(xPos, yPos, SIDE_MAP_TRANSPORTER_SIZE, (AREA_TILE_SIZE*SIDE_MAP_TRANSPORTER_SIZE)*map->getTileSize(), destination->getName(), "_side",
                                                                   Teletransporter::Transition::Scroll));
                 }
-                if(right /*&& area.getLinkRight() != nullptr*/ && right->getAreaOrigin() != area.getLocation())
+                if(right && right->containsArea() && area.getLinkRight() != nullptr  && right->getAreaOrigin() != area.getLocation())
                 {
                     Map* destination = &maps.find(right->getAreaOrigin()).value();
                     int yPos = (AREA_TILE_SIZE*map->getTileSize()) * (y - area.getLocation().y());
@@ -361,7 +508,7 @@ QList<Map> Space::buildMaps()
                     transporters.append(new Teletransporter(xPos, yPos, SIDE_MAP_TRANSPORTER_SIZE, (AREA_TILE_SIZE*SIDE_MAP_TRANSPORTER_SIZE)*map->getTileSize(), destination->getName(), "_side",
                                                                   Teletransporter::Transition::Scroll, "entities/teletransporter"));
                 }
-                if(down /*&& area.getLinkDown() != nullptr*/ && down->getAreaOrigin() != area.getLocation())
+                if(down && down->containsArea() && area.getLinkDown() != nullptr  && down->getAreaOrigin() != area.getLocation())
                 {
                     Map* destination = &maps.find(down->getAreaOrigin()).value();
                     int yPos = (map->getHeight()*map->getTileSize());
@@ -369,7 +516,7 @@ QList<Map> Space::buildMaps()
                     transporters.append(new Teletransporter(xPos, yPos, (AREA_TILE_SIZE*SIDE_MAP_TRANSPORTER_SIZE)*map->getTileSize(), SIDE_MAP_TRANSPORTER_SIZE, destination->getName(), "_side",
                                                                   Teletransporter::Transition::Scroll));
                 }
-                if(up /*&& area.getLinkUp() != nullptr*/ && up->getAreaOrigin() != area.getLocation())
+                if(up && up->containsArea() && area.getLinkUp() != nullptr && up->getAreaOrigin() != area.getLocation())
                 {
                     Map* destination = &maps.find(up->getAreaOrigin()).value();
                     int yPos = -SIDE_MAP_TRANSPORTER_SIZE;

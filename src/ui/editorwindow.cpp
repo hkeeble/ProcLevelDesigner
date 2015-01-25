@@ -494,7 +494,6 @@ void EditorWindow::setQuestOnlyUIEnabled(bool enabled)
     // Widgets
     for(QWidget* widget : questOnlyWidgets)
         widget->setEnabled(enabled);
-
 }
 
 void EditorWindow::initQuestUI()

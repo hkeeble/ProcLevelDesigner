@@ -5,6 +5,11 @@ Link::Link()
     gate = nullptr;
 }
 
+Link::Link(Gate *gate)
+{
+    this->gate = gate;
+}
+
 Link::~Link()
 {
 

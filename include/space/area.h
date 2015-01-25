@@ -28,8 +28,11 @@ public:
     Cell(QPoint location, bool traversable)
         : Cell(location, traversable, nullptr, nullptr) { }
 
+    void setTraversable(bool traversable) { this->traversable = traversable; }
     bool isTraversable() const { return traversable; }
 
+    void setKey(Key* key) { this->key = key; }
+    void setGate(Gate* gate) { this->gate = gate; }
     Key* getKey() const { return key; }
     Gate* getGate() const { return gate; }
 
@@ -49,8 +52,37 @@ private:
 
     bool traversable; // In future iterations, this could be a tilepattern as opposed to a traversable tile type
     QPoint location; // Location of this cell (for use in parse and build)
+
     Key* key;
     Gate* gate;
+};
+
+/**
+ * @brief Represents a grid of cells stored within an area.
+ */
+class Grid
+{
+public:
+    Grid();
+    Grid(int width, int height);
+    Grid(QVector<QVector<Cell>> cells);
+
+    ~Grid();
+
+    bool operator==(const Grid& rhs);
+
+    Cell& getCell(int x, int y) { return cells[x][y]; }
+    void setCell(Cell cell, int x, int y);
+
+    int getWidth() { return width; }
+    int getHeight() { return height; }
+
+    void build(Table* table, QList<Key*> keys, QList<Gate*> gates);
+    static Grid Parse(Table* table);
+
+private:
+    int width, height;
+    QVector<QVector<Cell>> cells;
 };
 
 /*!
@@ -66,7 +98,7 @@ public:
     Area();
     virtual ~Area();
 
-    Area(Zone* zone, QPoint location, int height, int width, QList<Key*> keyEvents = QList<Key*>());
+    Area(Zone* zone, QPoint location, int width, int height, QList<Key*> keyEvents = QList<Key*>());
 
     Area(const Area& param);
     Area& operator=(const Area& param);
@@ -83,7 +115,7 @@ public:
     Zone* getZone() { return zone; }
     void setZone(Zone* zone) { this->zone = zone; }
 
-    void setGrid(const QVector<QVector<Cell>>& grid) { this->grid = grid; }
+    void setGrid(QVector<QVector<Cell>> grid) { this->grid = grid; }
     QVector<QVector<Cell>> getGrid() const { return grid; }
 
     int getWidth() { return width; }

@@ -41,7 +41,7 @@ public:
      */
     bool removeKey(Key* key);
 
-    static Gate Parse(Object* object, QMap<QString,Key*> keys);
+    static Gate Parse(Object* object, QMap<QString,Key>* keys);
     virtual Object build();
 
 private:

@@ -177,6 +177,9 @@ void Map::build(Table* table)
     // Add properties to the table
     table->addObject(OBJ_PROPERTIES, properties);
 
+    // Add properties as a priority object to ensure they are written out first
+    table->setAsPriorityObject(OBJ_PROPERTIES);
+
     // Construct all tile objects, and add them to the table
     for(int y = 0; y < height; y++)
     {

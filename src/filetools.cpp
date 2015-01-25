@@ -125,6 +125,28 @@ void Table::addObject(QString name, Object object)
     objects.insert(name, object);
 }
 
+bool Table::setAsPriorityObject(QString name, int priority)
+{
+    QList<Object> objectsWithName;
+
+    if(!objects.contains(name))
+        return false;
+    else
+    {
+        if(priority == std::numeric_limits<int>::max() || priority > priorityList.size()) // If priority not given, or too large, append to list
+            priorityList.append(name);
+        else
+        {
+            if(priority < 0) // If priority less than 0, add to start of list
+                priorityList.insert(0, name);
+            else // Otherwise add at the given location
+                priorityList.insert(priority, name);
+        }
+
+        return true;
+    }
+}
+
 Object* Table::getObject(QString objectName)
 {
     QMap<QString,Object>::iterator iter = objects.find(objectName); // find object
@@ -247,6 +269,8 @@ void Table::readElements()
 
 QString Table::readUntil(QTextStream& stream, QVector<QChar> delims)
 {
+    // Reads a stream until any of the given delimiting characters are found, and returns what has been read
+
     QString current = " ", concat = " ";
     bool stop = false;
 
@@ -307,7 +331,17 @@ void Table::saveToDisk()
     {
         out.setDevice(&file);
 
-        // Write out data
+        // Write out the priority objects first
+        for(QString name : priorityList)
+        {
+            for(auto iter = objects.begin(); iter != objects.end(); iter++)
+            {
+                if(iter.key() == name)
+                    writeObj(iter.key(), iter.value());
+            }
+        }
+
+        // Write out remaining data
         beginWrite();
 
         out.flush();
@@ -319,11 +353,16 @@ void Table::saveToDisk()
 void Table::beginWrite()
 {
     for(auto obj = objects.begin(); obj != objects.end(); obj++)
-        writeObj(obj.key(), obj.value());
+    {
+        // Ignore object in priority list (should already have been written out)
+        if(!priorityList.contains(obj.key()))
+            writeObj(obj.key(), obj.value());
+    }
 }
 
 void Table::writeObj(QString objectName, Object object)
 {
+    // Write out a single object
     out << objectName << "{";
     for(auto element = object.data.begin(); element != object.data.end(); element++)
     {
@@ -356,4 +395,5 @@ bool Table::operator!=(const Table& param) const
 void Table::clear()
 {
     objects.clear();
+    priorityList.clear();
 }

@@ -274,7 +274,9 @@ Map Area::buildMap()
         // If the key is a switch, add a switch to the map
         if(key->getKeyType() == Key::Type::Switch)
         {
-            SwitchEntity* switchEntity = new SwitchEntity(0, 0, 0, key->getName(), SwitchEntity::SubType::SOLID, SPR_SWITCH);
+            SwitchEntity* switchEntity = new SwitchEntity(0, (map.getWidth() * map.getTileSet()->getTileSize())/2 - 8,
+                                                          (map.getHeight()*map.getTileSet()->getTileSize())/2 - 8, key->getName(),
+                                                          SwitchEntity::SubType::SOLID, SPR_SWITCH);
             map.addSwitch(switchEntity);
         }
     }
@@ -285,21 +287,36 @@ Map Area::buildMap()
         Gate* gate = up->getGate();
         if(gate->getType() == Gate::Type::Door)
         {
-            Door* door = new Door(0, 16, 0, gate->getName(), Door::EAST, Door::OpeningMethod::None, SPR_DOOR);
+            Door* door = new Door(0, (map.getWidth()*map.getTileSize())/2 - 8, 0, gate->getName(), Direction::EAST, Door::OpeningMethod::None, SPR_DOOR);
             map.addDoor(door, gate->getKeys());
         }
     }
     if(left != nullptr && left->getGate() != nullptr)
     {
-
+        Gate* gate = left->getGate();
+        if(gate->getType() == Gate::Type::Door)
+        {
+            Door* door = new Door(0, 0, (map.getHeight()*map.getTileSize())/2 - 8, gate->getName(), Direction::EAST, Door::OpeningMethod::None, SPR_DOOR);
+            map.addDoor(door, gate->getKeys());
+        }
     }
     if(right != nullptr && right->getGate() != nullptr)
     {
-
+        Gate* gate = right->getGate();
+        if(gate->getType() == Gate::Type::Door)
+        {
+            Door* door = new Door(0, map.getWidth()*map.getTileSize(), (map.getWidth()*map.getTileSize())/2 - 8, gate->getName(), Direction::EAST, Door::OpeningMethod::None, SPR_DOOR);
+            map.addDoor(door, gate->getKeys());
+        }
     }
     if(down != nullptr && down->getGate() != nullptr)
     {
-
+        Gate* gate = down->getGate();
+        if(gate->getType() == Gate::Type::Door)
+        {
+            Door* door = new Door(0, (map.getWidth()*map.getTileSize())/2 - 8, map.getHeight()*map.getTileSize(), gate->getName(), Direction::EAST, Door::OpeningMethod::None, SPR_DOOR);
+            map.addDoor(door, gate->getKeys());
+        }
     }
 
     return map;

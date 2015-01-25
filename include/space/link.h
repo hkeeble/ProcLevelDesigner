@@ -23,6 +23,7 @@ class Link
 {
 public:
     Link();
+    Link(Gate* gate);
     virtual ~Link();
 
     bool operator ==(const Link& link);

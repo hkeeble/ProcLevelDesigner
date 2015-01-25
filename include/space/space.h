@@ -11,6 +11,9 @@
 #include "area.h"
 #include "mission.h"
 #include "teletransporter.h"
+#include "randomengine.h"
+#include "direction.h"
+#include "destination.h"
 
 /*!
  * \brief Observes a space object, and is used to emit a signal when space has changed to inform all slots to update.
@@ -61,7 +64,7 @@ public:
      * \brief Generate space for the given mission.
      * \param mission The mission to generate space for.
      */
-    void generate(const Mission& mission);
+    void generate(Mission& mission);
 
     /*!
      * \brief Build a new space object from the given data table.
@@ -154,6 +157,19 @@ public:
      */
     int getHeight() { if(cells.length() == 0) return 0; else return cells[0].length(); }
 
+    /*!
+     * \brief Clears all space data.
+     */
+    void clear();
+
+    /*!
+     * \brief Set the starting area in this space. Returns false if the area does not exist (has not been added to the areas) or
+     *        if the position is an invalid one. If false is returned, the function has done nothing.
+     * \param areaOrigin The origin of the area in which the player will start.
+     * \param position The position (in cell coordinates) that the player will begin at.
+     */
+    bool setStartingArea(QPoint areaOrigin, QPoint position);
+
 private:
     void copy(const Space& param); /*!< Internal deep copy helper function. */
 
@@ -161,6 +177,9 @@ private:
 
     QVector<QVector<GridCell>> cells; /*!< The grid of cells representing this area. Each cell contains (or does not contain) a reference to
                                            the area that it holds. */
+
+    // Starting area and location in that area
+    QPoint startingArea, startingLocation;
 
     QMap<QPoint,Area> areas; /*!< Map containing all areas contained by this space. The location represents the origin of the area. */
 
