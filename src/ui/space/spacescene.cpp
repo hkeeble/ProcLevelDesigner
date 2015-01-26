@@ -79,7 +79,7 @@ void SpaceScene::spaceUpdated()
         QPoint location = area->getLocation();
         int width = area->getWidth();
         int height = area->getHeight();
-        QVector<QVector<Cell>> grid = area->getGrid();
+        Grid* grid = area->getGrid();
 
         // Create area tile
         QGraphicsRectItem* tile = new QGraphicsRectItem(location.x()*areaCellWidth, location.y()*areaCellHeight, areaCellWidth*width, areaCellHeight*height);
@@ -87,11 +87,11 @@ void SpaceScene::spaceUpdated()
         areaTiles.append(tile);
 
         // Create blocked tiles
-        for(int x = 0; x < grid.length(); x++)
+        for(int x = 0; x < grid->getWidth(); x++)
         {
-            for(int y = 0; y < grid[0].length(); y++)
+            for(int y = 0; y < grid->getHeight(); y++)
             {
-                if(grid[x][y].isTraversable() == false)
+                if(grid->getCell(x,y).isTraversable() == false)
                 {
                     int xr = location.x()*areaCellWidth;
                     int yr = location.y()*areaCellHeight;

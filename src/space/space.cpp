@@ -13,48 +13,29 @@ Space::~Space()
 }
 
 // Temporary function - generates walls around an area in directions it is not linked
-QVector<QVector<Cell>> generateWalls(Area& area)
+void generateWalls(Area& area)
 {
-    // Initialize a grid
-    QVector<QVector<Cell>> cells;
-    for(int x = 0; x < area.getWidth() * AREA_TILE_SIZE; x++)
-    {
-        cells.append(QVector<Cell>());
-        for(int y = 0; y < area.getHeight() * AREA_TILE_SIZE; y++)
-        {
-            cells[x].append(Cell(QPoint(x, y), true));
-        }
-    }
+    Grid* grid = area.getGrid();
 
     // Set values (wall off the area)
-    for(int y = 0; y < area.getHeight() * AREA_TILE_SIZE; y++)
-    {
-        cells[0][y].setTraversable(false);
-    }
-    for(int y = 0; y < area.getHeight() * AREA_TILE_SIZE; y++)
-    {
-        cells[cells.size()-1][y].setTraversable(false);
-    }
-    for(int x = 0; x < area.getWidth() * AREA_TILE_SIZE; x++)
-    {
-        cells[x][0].setTraversable(false);
-    }
-    for(int x = 0; x < area.getWidth() * AREA_TILE_SIZE; x++)
-    {
-        cells[x][cells[x].size()-1].setTraversable(false);
-    }
+    for(int y = 0; y < grid->getHeight(); y++)
+        grid->setCellTraversable(false, 0, y);
+    for(int y = 0; y < grid->getHeight(); y++)
+        grid->setCellTraversable(false, grid->getWidth()-1, y);
+    for(int x = 0; x < grid->getWidth(); x++)
+        grid->setCellTraversable(false, x, 0);
+    for(int x = 0; x < grid->getWidth(); x++)
+        grid->setCellTraversable(false, x, grid->getHeight()-1);
 
     // break walls where there are links
     if(area.getLinkRight())
-        cells[cells.size()-1][(cells[0].size()-1)/2].setTraversable(true);
+        grid->setCellTraversable(true, grid->getWidth()-1, grid->getHeight()/2);
     if(area.getLinkLeft())
-        cells[0][(cells[0].size()-1)/2].setTraversable(true);
+        grid->setCellTraversable(true, 0, grid->getHeight()/2);
     if(area.getLinkUp())
-        cells[(cells.size()-1)/2][0].setTraversable(true);
+        grid->setCellTraversable(true, grid->getWidth()/2, 0);
     if(area.getLinkDown())
-        cells[(cells.size()-1)/2][cells[0].size()-1].setTraversable(true);
-
-    return cells;
+        grid->setCellTraversable(true, grid->getWidth()/2, grid->getHeight()-1);
 }
 
 void Space::generate(Mission& mission)
@@ -63,27 +44,31 @@ void Space::generate(Mission& mission)
 
     QList<Stage*> stages = mission.getStages(); // Mission stages
     QList<Area> newAreas; // Areas to be generated from stages
+
     Area* previousArea = nullptr; // Pointer to the previously generated area
+    Stage* previousStage = nullptr;
 
     RandomEngine rand;
     Direction previousDirection = static_cast<Direction>(rand.randomInteger(0, 3));
 
     for(Stage* stage : stages)
     {
+        Area area;
+        Direction newDirection;
+
         // If this is the first stage to be generated
         if(previousArea == nullptr)
         {
             // Choose a random location
-            QPoint point = QPoint(rand.randomInteger(0, 10), rand.randomInteger(0, 10));
+            QPoint point = QPoint(rand.randomInteger(0, 5), rand.randomInteger(0, 5));
 
             // Choose a random height and width
             int height = 1;// rand.randomInteger(1, 3);
             int width = 1;//rand.randomInteger(1, 3);
 
-            Area area = Area(&zones.begin().value(), point, width, height, stage->getKeys());
+            area = Area(&zones.begin().value(), point, width, height);
 
-            newAreas.append(area);
-            previousArea = &newAreas.last();
+            newDirection = static_cast<Direction>(rand.randomInteger(0, 3));
         }
         else
         {
@@ -101,67 +86,86 @@ void Space::generate(Mission& mission)
             if(previousDirection != Direction::NORTH)
                 possibleDirections.append(Direction::SOUTH);
 
-            // Choose a random new direction
-            Direction newDirection = possibleDirections[rand.randomInteger(0, possibleDirections.size()-1)];
-
-            // Choose an appropriate position based on direction
             int x, y;
-            if(newDirection == Direction::WEST)
-            {
-                x = previousArea->getLocation().x()-width;
-                y = previousArea->getLocation().y();
-            }
-            else if(newDirection == Direction::NORTH)
-            {
-                x = previousArea->getLocation().x();
-                y = previousArea->getLocation().y()-height;
-            }
-            else if(newDirection == Direction::EAST)
-            {
-                x = previousArea->getLocation().x() + previousArea->getWidth();
-                y = previousArea->getLocation().y();
-            }
-            else if(newDirection == Direction::SOUTH)
-            {
-                x = previousArea->getLocation().x();
-                y = previousArea->getLocation().y() + previousArea->getHeight();
-            }
 
-            Area area = Area(&zones.begin().value(), QPoint(x, y), width, height, stage->getKeys());
+            // Choose a random new direction
+            do {
+                newDirection = possibleDirections[rand.randomInteger(0, possibleDirections.size()-1)];
 
-            // Generate links and gates
+                // Choose an appropriate position based on direction
+                if(newDirection == Direction::WEST)
+                {
+                    x = previousArea->getLocation().x()-width;
+                    y = previousArea->getLocation().y();
+                }
+                else if(newDirection == Direction::NORTH)
+                {
+                    x = previousArea->getLocation().x();
+                    y = previousArea->getLocation().y()-height;
+                }
+                else if(newDirection == Direction::EAST)
+                {
+                    x = previousArea->getLocation().x() + previousArea->getWidth();
+                    y = previousArea->getLocation().y();
+                }
+                else if(newDirection == Direction::SOUTH)
+                {
+                    x = previousArea->getLocation().x();
+                    y = previousArea->getLocation().y() + previousArea->getHeight();
+                }
+            } while(areas.contains(QPoint(x, y)));
+
+            area = Area(&zones.begin().value(), QPoint(x, y), width, height);
+        }
+
+        // Add keys
+        for(Key* key : stage->getKeys())
+            area.addKeyEvent(key, rand.randomInteger(1, area.getGridWidth()-1), rand.randomInteger(1, area.getGridHeight()-1));
+
+        // Generate links and add gates
+        if(previousArea)
+        {
             if(newDirection == Direction::NORTH)
             {
-                area.setLinkDown(Link(stage->getExitGate()));
-                previousArea->setLinkUp(Link());
+                area.setLinkDown(Link(area.getLocation(), previousArea->getLocation()));
+                previousArea->setLinkUp(Link(previousArea->getLocation(), area.getLocation()));
+
+                previousArea->addGate(previousStage->getExitGate(), previousArea->getGridWidth()/2, 0);
             }
             else if(newDirection == Direction::SOUTH)
             {
-                area.setLinkUp(Link(stage->getExitGate()));
-                previousArea->setLinkDown(Link());
+                area.setLinkUp(Link(area.getLocation(), previousArea->getLocation()));
+                previousArea->setLinkDown(Link(previousArea->getLocation(), area.getLocation()));
+
+                previousArea->addGate(previousStage->getExitGate(), previousArea->getGridWidth()/2, previousArea->getGridHeight()-1);
             }
             else if(newDirection == Direction::WEST)
             {
-                area.setLinkRight(Link(stage->getExitGate()));
-                previousArea->setLinkLeft(Link());
+                area.setLinkRight(Link(area.getLocation(), previousArea->getLocation()));
+                previousArea->setLinkLeft(Link(previousArea->getLocation(), area.getLocation()));
+
+                previousArea->addGate(previousStage->getExitGate(), 0, previousArea->getGridHeight()/2);
             }
             else if(newDirection == Direction::EAST)
             {
-                area.setLinkLeft(Link(stage->getExitGate()));
-                previousArea->setLinkRight(Link());
-            }
+                area.setLinkLeft(Link(area.getLocation(), previousArea->getLocation()));
+                previousArea->setLinkRight(Link(previousArea->getLocation(), area.getLocation()));
 
-            newAreas.append(area);
-            previousDirection = newDirection;
-            previousArea = &newAreas.last();
+                previousArea->addGate(previousStage->getExitGate(), previousArea->getGridWidth()-1, previousArea->getGridHeight()/2);
+            }
         }
+
+        newAreas.append(area);
+        previousDirection = newDirection;
+        previousArea = &newAreas.last();
+        previousStage = stage;
     }
+
+
 
     for(Area& area : newAreas)
     {
-        QVector<QVector<Cell>> grid = generateWalls(area);
-        area.setGrid(grid);
-
+        generateWalls(area);
         placeArea(area);
     }
 
@@ -195,7 +199,7 @@ Space Space::Parse(Table* data, QList<Gate*> gates, QList<Key*> keys, QList<Tile
     QList<Object*> linkObjects = data->getObjectsOfName(OBJ_LINK);
     for(Object* obj : linkObjects)
     {
-        Link link = Link::Parse(obj, gates);
+        Link link = Link::Parse(obj);
         linkList.append(link);
     }
 
@@ -211,19 +215,19 @@ Space Space::Parse(Table* data, QList<Gate*> gates, QList<Key*> keys, QList<Tile
     // Place all links into their correct areas
     for(Link& link : linkList)
     {
-        Area* first = &areas->find(link.first).value();
-        Area* second = &areas->find(link.second).value();
+        Area* first = &areas->find(link.getOrigin()).value();
+        Area* second = &areas->find(link.getTarget()).value();
 
         LinkDirection direction;
 
         // Decide on the link direction (respective to first area)
-        if(link.first.x() < link.second.x())
+        if(link.getOrigin().x() < link.getTarget().x())
             direction = LinkDirection::Right;
-        else if(link.first.x() > link.second.x())
+        else if(link.getOrigin().x() > link.getTarget().x())
             direction = LinkDirection::Left;
-        else if(link.first.y() < link.second.y())
+        else if(link.getOrigin().y() < link.getTarget().y())
             direction = LinkDirection::Up;
-        else if(link.first.y() > link.second.y())
+        else if(link.getOrigin().y() > link.getTarget().y())
             direction = LinkDirection::Down;
 
         switch(direction)

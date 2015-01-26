@@ -28,6 +28,26 @@ void copyFolder(QString sourceDir, QString destinationDir)
     }
 }
 
+void deleteFolderContents(QString dir)
+{
+    QDir srcDir(dir);
+    if(!srcDir.exists())
+        return;
+
+    // Remove top level files
+    QStringList files= srcDir.entryList(QDir::Files);
+    for(int i = 0; i < files.size(); i++)
+        srcDir.remove(files[i]);
+
+    // Recursively remove subfolders
+    QStringList folders = srcDir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot);
+    for(int i = 0; i < folders.size(); i++)
+    {
+        QString newDir = dir + QDir::separator() + folders[i];
+        deleteFolderContents(newDir);
+    }
+}
+
 void writeToFile(QString dirPath, QString fileName, QString fileContents)
 {
     if(!QDir().exists(dirPath))

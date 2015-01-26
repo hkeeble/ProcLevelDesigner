@@ -280,3 +280,13 @@ bool Quest::checkForChanges()
 
     return false;
 }
+
+void Quest::buildManagerScript()
+{
+    managerScript.setStartingMap(QString::number(space.getStartingArea().x()) + QString::number(space.getStartingArea().y()));
+    QFile file(rootDir.absolutePath() + QDir::separator() + "scripts" + QDir::separator() + "game_manager.lua");
+    if(file.exists())
+        file.remove();
+
+    managerScript.writeToFile(file);
+}

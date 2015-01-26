@@ -150,6 +150,12 @@ const QVector<QChar> VAL_DELIMS =       {','};
 void copyFolder(QString sourceDir, QString destDir);
 
 /*!
+ * \brief deleteFolderContents Will recursively delete everything inside the given folder.
+ * \param dir The folder to clear.
+ */
+void deleteFolderContents(QString dir);
+
+/*!
  * \brief creatFile Creates a file at the given location with the given file contents.
  * \param dirPath Path to create the file at.
  * \param fileName Name of the file.

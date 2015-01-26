@@ -2,12 +2,13 @@
 
 Link::Link()
 {
-    gate = nullptr;
+
 }
 
-Link::Link(Gate *gate)
+Link::Link(QPoint origin, QPoint target)
 {
-    this->gate = gate;
+    this->first = origin;
+    this->second = target;
 }
 
 Link::~Link()
@@ -20,7 +21,7 @@ bool Link::operator==(const Link& link)
     return this->first == link.first && this->second == link.second;
 }
 
-Link Link::Parse(Object* obj, QList<Gate*> gates)
+Link Link::Parse(Object* obj)
 {
     Link link;
 
@@ -31,22 +32,6 @@ Link Link::Parse(Object* obj, QList<Gate*> gates)
 
     link.first = QPoint(firstX, firstY);
     link.second = QPoint(secondX, secondY);
-
-    QString gateName = obj->find(ELE_GATE_NAME, NULL_ELEMENT);
-
-    if(gateName != NULL_ELEMENT)
-    {
-        for(Gate* gate : gates)
-        {
-            if(gate->getName() == gateName)
-            {
-                link.gate = gate;
-                break;
-            }
-        }
-    }
-    else
-        link.gate = nullptr;
 
     return link;
 }
@@ -59,9 +44,4 @@ void Link::build(Object* obj)
     obj->insert(ELE_FIRST_Y, QString::number(first.y()));
     obj->insert(ELE_SECOND_X, QString::number(second.x()));
     obj->insert(ELE_SECOND_Y, QString::number(second.y()));
-
-    if(gate)
-        obj->insert(ELE_GATE_NAME, gate->getName());
-    else
-        obj->insert(ELE_GATE_NAME, NULL_ELEMENT);
 }

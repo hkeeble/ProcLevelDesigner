@@ -45,6 +45,81 @@ void Cell::build(Object* obj)
         obj->insert(ELE_GATE_NAME, gate->getName());
 }
 
+Grid::Grid()
+{
+    width = 0;
+    height = 0;
+
+    cells = QVector<QVector<Cell>>();
+}
+
+Grid::Grid(int width, int height)
+{
+    this->width = width;
+    this->height = height;
+
+    this->cells = QVector<QVector<Cell>>();
+
+    for(int x = 0; x < width; x++)
+    {
+        cells.append(QVector<Cell>());
+        for(int y = 0; y < height; y++)
+            cells[x].append(Cell());
+    }
+}
+
+Grid::Grid(QVector<QVector<Cell>> cells)
+{
+    width = cells.size();
+    height = cells[0].size();
+    this->cells = cells;
+}
+
+bool Grid::operator==(const Grid& rhs)
+{
+    if(width != rhs.width || height != rhs.height)
+        return false;
+    else
+    {
+        for(int x = 0; x < width; x++)
+        {
+            for(int y = 0; y < height; y++)
+            {
+                if(!(cells[x][y] == rhs.cells[x][y]))
+                   return false;
+            }
+        }
+
+        return true;
+    }
+}
+
+void Grid::build(Table* table)
+{
+    for(int x = 0; x < width; x++)
+    {
+        for(int y = 0; y < height; y++)
+        {
+            Object object;
+            cells[x][y].build(&object);
+            table->addObject(OBJ_CELL, object);
+        }
+    }
+}
+
+Grid Grid::Parse(Table* table, int width, int height, QList<Key*> keys, QList<Gate*> gates)
+{
+    Grid grid = Grid(width, height);
+
+    QList<Object*> cellObjects = table->getObjectsOfName(OBJ_CELL);
+    for(Object* cell : cellObjects)
+    {
+        int x = cell->find(ELE_X).toInt();
+        int y = cell->find(ELE_Y).toInt();
+        grid.cells[x][y] = Cell::Parse(cell, keys, gates);
+    }
+}
+
 Area::Area()
 {
     up = left = right = down = nullptr;
@@ -72,7 +147,7 @@ Area& Area::operator=(const Area& param)
     }
 }
 
-Area::Area(Zone* zone, QPoint location, int width, int height, QList<Key*> keyEvents)
+Area::Area(Zone* zone, QPoint location, int width, int height)
     : Area()
 {
     this->zone = zone;
@@ -81,7 +156,7 @@ Area::Area(Zone* zone, QPoint location, int width, int height, QList<Key*> keyEv
     this->width = width;
     this->height = height;
 
-    initGrid(width, height);
+    this->grid = Grid(width*AREA_TILE_SIZE, height*AREA_TILE_SIZE);
 
     this->zoneName = zone->getName();
 }
@@ -106,8 +181,9 @@ Area Area::Parse(Object* obj, QString filePath, QList<Key*> keys, QList<Gate*> g
     area.width = obj->find(ELE_WIDTH, "1").toInt();
     area.height = obj->find(ELE_HEIGHT, "1").toInt();
 
-    // Initialize and parse individual cell data
-    area.parseGrid(filePath + QDir::separator() + QString::number(x) + QString::number(y) + DAT_EXT, keys, gates);
+    // Initialize and parse grid data
+    QScopedPointer<Table> gridTable(new Table(filePath + QDir::separator() + QString::number(x) + QString::number(y) + DAT_EXT));
+    area.grid = Grid::Parse(gridTable.data(), area.getWidth() * AREA_TILE_SIZE, area.getHeight() * AREA_TILE_SIZE, keys, gates);
 
     return area;
 }
@@ -133,34 +209,9 @@ void Area::build(Object* obj, QString filePath)
     if(zone)
         obj->insert(ELE_ZONE, zone->getName());
 
-    buildGrid(filePath + QDir::separator() + QString::number(location.x()) + QString::number(location.y()) + ".dat");
-}
-
-void Area::parseGrid(QString filePath, QList<Key*> keys, QList<Gate*> gates)
-{
-    initGrid(width, height);
-    QScopedPointer<Table> cellTable(new Table(filePath));
-    QList<Object*> cellObjects = cellTable->getObjectsOfName(OBJ_CELL);
-    for(Object* cell : cellObjects)
-    {
-        int x = cell->find(ELE_X).toInt();
-        int y = cell->find(ELE_Y).toInt();
-        grid[x][y] = Cell::Parse(cell, keys, gates);
-    }
-}
-
-void Area::buildGrid(QString filePath)
-{
-    QScopedPointer<Table> cellTable(new Table(filePath));
-    for(int x = 0; x < grid.length(); x++)
-    {
-        for(int y = 0; y < grid[0].length(); y++)
-        {
-            Object object;
-            grid[x][y].build(&object);
-            cellTable.data()->addObject(OBJ_CELL, object);
-        }
-    }
+    // Build the grid (and save it to disk, as it is not managed by the quest data management system as of yet)
+    QScopedPointer<Table> cellTable(new Table(filePath + QDir::separator() + QString::number(location.x()) + QString::number(location.y()) + ".dat"));
+    grid.build(cellTable.data());
     cellTable.data()->saveToDisk();
 }
 
@@ -226,20 +277,6 @@ void Area::removeUpLink()
     up = nullptr;
 }
 
-void Area::initGrid(int width, int height)
-{
-    grid = QVector<QVector<Cell>>(width*AREA_TILE_SIZE);
-
-    for(int x = 0; x < width*AREA_TILE_SIZE; x++)
-        grid[x] = QVector<Cell>(height*AREA_TILE_SIZE);
-
-    for(int x = 0; x < width*AREA_TILE_SIZE; x++)
-    {
-        for(int y = 0; y < height*AREA_TILE_SIZE; y++)
-            grid[x][y] = Cell(QPoint(x,y), true);
-    }
-}
-
 Map Area::buildMap()
 {
     Map map(QString::number(location.x()) + QString::number(location.y()),
@@ -260,62 +297,36 @@ Map Area::buildMap()
         {
             MapTile tile = MapTile(0, x, y, map.getTileSize(), 0);
 
-            if(!grid[x][y].isTraversable())
+            if(!grid.isCellTraversable(x, y))
             {
                 tile.setPattern(blocked);
             }
             map.setTile(x, y, MapTile(tile));
-        }
-    }
 
-    // Add key entities
-    for(Key* key : keyEvents)
-    {
-        // If the key is a switch, add a switch to the map
-        if(key->getKeyType() == Key::Type::Switch)
-        {
-            SwitchEntity* switchEntity = new SwitchEntity(0, (map.getWidth() * map.getTileSet()->getTileSize())/2 - 8,
-                                                          (map.getHeight()*map.getTileSet()->getTileSize())/2 - 8, key->getName(),
-                                                          SwitchEntity::SubType::SOLID, SPR_SWITCH);
-            map.addSwitch(switchEntity);
-        }
-    }
+            // Add key or gate entity to this tile
+            if(grid.cellHasKey(x, y))
+            {
+                Key* key = grid.getCellKey(x, y);
 
-    // Add gate entities
-    if(up != nullptr && up->getGate() != nullptr)
-    {
-        Gate* gate = up->getGate();
-        if(gate->getType() == Gate::Type::Door)
-        {
-            Door* door = new Door(0, (map.getWidth()*map.getTileSize())/2 - 8, 0, gate->getName(), Direction::EAST, Door::OpeningMethod::None, SPR_DOOR);
-            map.addDoor(door, gate->getKeys());
-        }
-    }
-    if(left != nullptr && left->getGate() != nullptr)
-    {
-        Gate* gate = left->getGate();
-        if(gate->getType() == Gate::Type::Door)
-        {
-            Door* door = new Door(0, 0, (map.getHeight()*map.getTileSize())/2 - 8, gate->getName(), Direction::EAST, Door::OpeningMethod::None, SPR_DOOR);
-            map.addDoor(door, gate->getKeys());
-        }
-    }
-    if(right != nullptr && right->getGate() != nullptr)
-    {
-        Gate* gate = right->getGate();
-        if(gate->getType() == Gate::Type::Door)
-        {
-            Door* door = new Door(0, map.getWidth()*map.getTileSize(), (map.getWidth()*map.getTileSize())/2 - 8, gate->getName(), Direction::EAST, Door::OpeningMethod::None, SPR_DOOR);
-            map.addDoor(door, gate->getKeys());
-        }
-    }
-    if(down != nullptr && down->getGate() != nullptr)
-    {
-        Gate* gate = down->getGate();
-        if(gate->getType() == Gate::Type::Door)
-        {
-            Door* door = new Door(0, (map.getWidth()*map.getTileSize())/2 - 8, map.getHeight()*map.getTileSize(), gate->getName(), Direction::EAST, Door::OpeningMethod::None, SPR_DOOR);
-            map.addDoor(door, gate->getKeys());
+                // If the key is a switch, add a switch to the map
+                if(key->getKeyType() == Key::Type::Switch)
+                {
+                    SwitchEntity* switchEntity = new SwitchEntity(0, map.getTileSize()*x, map.getTileSize()*y, key->getName(),
+                                                                  SwitchEntity::SubType::SOLID, SPR_SWITCH);
+                    map.addSwitch(switchEntity);
+                }
+            }
+            else if(grid.cellHasGate(x, y))
+            {
+                Gate* gate = grid.getCellGate(x, y);
+
+                if(gate->getType() == Gate::Type::Door)
+                {
+                    Door* door = new Door(0, map.getTileSize()*x, map.getTileSize()*y, gate->getName(), Direction::EAST,
+                                          Door::OpeningMethod::None, SPR_DOOR);
+                    map.addDoor(door, gate->getKeys());
+                }
+            }
         }
     }
 
@@ -329,7 +340,18 @@ bool Area::operator==(const Area rhs)
             keyEvents == rhs.keyEvents && up == rhs.up && down == rhs.down && left == rhs.left && right == rhs.right && zone == rhs.zone);
 }
 
-void Area::addKeyEvent(Key* key)
+bool Area::addKeyEvent(Key* key, int x, int y)
 {
-    keyEvents.append(key);
+    if(x < 0 || y < 0 || x > grid.getWidth()-1 || y > grid.getHeight()-1 )
+        return false;
+
+   grid.setCellKey(key, x, y);
+}
+
+bool Area::addGate(Gate* gate, int x, int y)
+{
+    if(x < 0 || y < 0 || x > grid.getWidth()-1 || y > grid.getHeight()-1 )
+        return false;
+
+    grid.setCellGate(gate, x, y);
 }

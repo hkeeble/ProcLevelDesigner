@@ -190,6 +190,12 @@ void EditorWindow::on_actionRun_triggered()
     // Clear the running game
     clearRunningGame();
 
+    // Delete existing maps on disk
+    deleteFolderContents(quest.getRootDir().absolutePath() + QDir::separator() + "maps" + QDir::separator());
+
+    // Build the game manager script
+    quest.buildManagerScript();
+
     // Build all maps
     quest.buildMaps();
     quest.saveMaps();

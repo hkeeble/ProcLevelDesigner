@@ -12,6 +12,7 @@
 #include "mission.h"
 #include "space.h"
 #include "teletransporter.h"
+#include "gamemanagerscript.h"
 
 // The solarus version supported by this quest object
 const QString SOLARUS_VERSION = "1.3";
@@ -123,6 +124,8 @@ public:
     Mission mission; /*!< The mission contained within this quest. */
     Space space;     /*!< The space contained within this quest. */
 
+    void buildManagerScript();
+
 private:
     QDir rootDir;
     QFileSystemModel* fsModel;     /*!< The main file system model representing this quest. */
@@ -130,6 +133,8 @@ private:
     QFileSystemModel* mapModel;    /*!< The file system model representing maps. */
 
     void initFilters();
+
+    GameManagerScript managerScript;
 
     QMap<QString,QSharedPointer<Table>> data; /*!< Map containing all the currently loaded data for this quest. */
 

@@ -46,10 +46,12 @@ SOURCES += \
     src/entities/mapentity.cpp \
     src/entities/teletransporter.cpp \
     src/qpointext.cpp \
-    src/mapscript.cpp \
     src/entities/switchentity.cpp \
     src/randomengine.cpp \
-    src/entities/destination.cpp
+    src/entities/destination.cpp \
+    src/scripts/script.cpp \
+    src/scripts/mapscript.cpp \
+    src/scripts/gamemanagerscript.cpp
 
 HEADERS  += \
     include/common.h \
@@ -84,11 +86,13 @@ HEADERS  += \
     include/entities/mapentity.h \
     include/entities/teletransporter.h \
     include/qpointext.h \
-    include/mapscript.h \
     include/entities/switchentity.h \
     include/randomengine.h \
     include/direction.h \
-    include/entities/destination.h
+    include/entities/destination.h \
+    include/scripts/script.h \
+    include/scripts/mapscript.h \
+    include/scripts/gamemanagerscript.h
 
 FORMS    += \
     ui/editorwindow.ui \
@@ -108,6 +112,7 @@ INCLUDEPATH += include \
                include/mission \
                include/space \
                include/entities \
+               include/scripts \
 
 # Used to surpress initializer list assignment order
 QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder

@@ -4,7 +4,6 @@
 #include <QPoint>
 
 #include "filetools.h"
-#include "gate.h"
 
 /*!< Used to represent the direction of a link. */
 enum class LinkDirection
@@ -23,21 +22,29 @@ class Link
 {
 public:
     Link();
-    Link(Gate* gate);
+
+    /*!
+     * \brief Create a new link, given a destination.
+     * \param origin      The origin of the area this link is leading from.
+     * \param destination The origin of the area that this link leads to.
+     */
+    Link(QPoint origin, QPoint target);
+
     virtual ~Link();
 
     bool operator ==(const Link& link);
 
-    static Link Parse(Object* obj, QList<Gate*> gates);
+    static Link Parse(Object* obj);
     void build(Object* obj);
 
-    QPoint first, second;
+    QPoint getOrigin() { return first; }
+    QPoint getTarget() { return second; }
 
-    Gate* getGate() { return gate; }
-    void setGate(Gate* gate) { this->gate = gate; }
+    void setOrigin(QPoint origin) { this->first = origin; }
+    void setTarget(QPoint target) { this->second = target; }
 
 private:
-    Gate* gate;     /*!< The gate attached to this link. Null pointer means there is no gate. */
+    QPoint first, second;
 };
 
 #endif // LINK_H

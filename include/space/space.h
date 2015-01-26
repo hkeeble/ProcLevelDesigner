@@ -170,6 +170,11 @@ public:
      */
     bool setStartingArea(QPoint areaOrigin, QPoint position);
 
+    /*!
+     * \brief Retrieve the starting area.
+     */
+    QPoint getStartingArea() { return startingArea; }
+
 private:
     void copy(const Space& param); /*!< Internal deep copy helper function. */
 
