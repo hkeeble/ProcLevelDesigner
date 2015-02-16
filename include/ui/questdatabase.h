@@ -9,6 +9,7 @@
 #include "tilesetview.h"
 #include "newtilesetdialog.h"
 #include "quest.h"
+#include "abilitymodel.h"
 
 namespace Ui {
 class QuestDatabase;
@@ -29,7 +30,11 @@ private slots:
     void on_OKButton_clicked();
     void on_questNameEdit_editingFinished();
 
+    void maxHealthChanged(int value);
+    void initialHealthChanged(int value);
+
 private:
+
     void closeEvent(QCloseEvent* event) override final;
 
     bool validate();
@@ -57,6 +62,8 @@ private:
     QList<Tileset*> openTileSets;       /*!< The list of tile sets currently opened. */
     Tileset* selectedTileset;           /*!< The currently selected tileset in the tileset view. */
     TilesetView* tilesetScene;          /*!< Scene used to display the tileset currently selected. */
+
+    AbilityModel abilityModel;           /*!< The model used to display hero ability data. */
 };
 
 #endif // QUESTDATABASE_H

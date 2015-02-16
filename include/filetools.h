@@ -55,6 +55,13 @@ const QString ELE_GROUND = "ground";
 // Mission
 const QString DAT_MISSION = "proc_designer_data" + QString(QDir::separator()) + "mission";
 
+// Space
+const QString DAT_SPACE = "proc_designer_data" + QString(QDir::separator()) + "space_data" + QString(QDir::separator()) + "space";
+const QString DAT_ZONE_SUFFIX = "_zone";
+
+// Hero
+const QString DAT_HERO = "proc_designer_data" + QString(QDir::separator()) + "hero";
+
 // Key Event
 const QString OBJ_KEY_EVENT = "key_event";
 const QString ELE_NAME = "name";
@@ -73,10 +80,6 @@ const QString ELE_KEYS = "keys";
 const QString ELE_PREVIOUS_STAGE_ID = "previous_stage_id";
 const QString ELE_NEXT_STAGE_ID = "next_stage_id";
 const QString ELE_EXIT_GATE = "exit_gate";
-
-// Space
-const QString DAT_SPACE = "proc_designer_data" + QString(QDir::separator()) + "space_data" + QString(QDir::separator()) + "space";
-const QString DAT_ZONE_SUFFIX = "_zone";
 
 // Zone
 const QString OBJ_ZONE = "zone";
@@ -126,6 +129,16 @@ const QString OBJ_TELETRANSPORTER = "teletransporter";
 const QString ELE_TRANSITION = "transition";
 const QString ELE_DESTINATION_MAP = "destination_map";
 const QString ELE_DESTINATION = "destination";
+
+// Hero
+const QString OBJ_HERO = "hero";
+const QString ELE_MAX_LIFE = "max_life";
+const QString ELE_INITIAL_LIFE = "initial_life";
+const QString ELE_STARTING_MAP = "starting_map";
+
+// Ability
+const QString OBJ_ABILITY = "ability";
+const QString ELE_VALUE = "value";
 
 // Program Preferences
 const QString DAT_PREFERENCES = QDir::currentPath() + QDir::separator() + "preferences.dat";

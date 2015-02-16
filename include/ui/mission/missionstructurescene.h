@@ -6,6 +6,8 @@
 #include <QGraphicsSimpleTextItem>
 #include <QBrush>
 #include <QGraphicsSceneDragDropEvent>
+#include <QMimeData>
+#include <QMessageBox>
 
 #include "mission.h"
 
@@ -46,12 +48,12 @@ public:
     /*!
      * \brief Retrieve the graphics rect item.
      */
-    QGraphicsRectItem* getRect();
+    QGraphicsRectItem* getRect() const;
 
     /*!
      * \brief Retrieve the list of graphic text items.
      */
-    QList<QGraphicsSimpleTextItem*> getGraphicLines();
+    QList<QGraphicsSimpleTextItem*> getGraphicLines() const;
 
     /*!
      * \brief Retrieve a text graphic item at the given index. If the index is out-of-bounds, returns nullptr.
@@ -69,7 +71,11 @@ public:
 
     qreal getHeight() { return rect->boundingRect().height(); }
 
-    void setBrush(QBrush brush) { rect->setBrush(brush); }
+    void setBrush(QBrush brush) const { rect->setBrush(brush); }
+
+    friend class QGraphicsRectItem;
+
+    void clear() { graphicLines.clear(); updateRect(); }
 
 private:
     static const qreal PADDING;
@@ -87,6 +93,42 @@ private:
     QList<QGraphicsSimpleTextItem*> graphicLines;
 };
 
+/**
+ * @brief A text rect item that is used to represent a stage in the structure diagram.
+ */
+class StageRect : public TextRectItem
+{
+public:
+    StageRect(Stage* stage);
+
+    virtual ~StageRect();
+
+    void update();
+
+    Stage* getStage() const { return stage; }
+
+private:
+    Stage* stage;
+};
+
+/**
+ * @brief A text rect item that is used to represent a gate in the structure diagram.
+ */
+class GateRect : public TextRectItem
+{
+public:
+    GateRect(Gate* gate);
+
+    virtual ~GateRect();
+
+    void update();
+
+    Gate* getGate() const { return gate; }
+
+private:
+    Gate* gate;
+};
+
 class MissionStructureScene : public QGraphicsScene
 {
     Q_OBJECT
@@ -102,12 +144,16 @@ protected:
    void dragLeaveEvent(QGraphicsSceneDragDropEvent* event) override;
    void dragMoveEvent(QGraphicsSceneDragDropEvent* event) override;
    void dropEvent (QGraphicsSceneDragDropEvent* event) override;
+
+   void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+   void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+
 public slots:
     void missionUpdated();
 private:
     Mission* mission;
 
-    QList<TextRectItem> stages;
+    QList<StageRect> stages;
     QList<TextRectItem> gates;
 };
 

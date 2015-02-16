@@ -12,15 +12,54 @@ Mission::~Mission()
 
 void Mission::generate()
 {
+    RandomEngine rand;
 
-    // Simple initial algorithm, ensures keys are placed in the stage before they are
-    // required
+    // Clear all stages
     for(Stage& stage : stages)
-    {
         stage.clearKeys();
-        QList<Key*> reqKeys = stage.getExitGate()->getKeys();
-        for(Key* key : reqKeys)
-            stage.addKey(key);
+
+    // Randomly arrange gates
+    QList<Stage*> unassignedStages = getStages(); // Stages that have not been assigned a gate
+    QList<Gate*> gateList = getGateList();
+    for(Gate* gate : gateList)
+    {
+        Stage* stage = unassignedStages.at(rand.randomInteger(0, unassignedStages.length()-1));
+        unassignedStages.removeOne(stage);
+        stage->setExitGate(gate);
+    }
+
+    // Randomly arrange all key events
+    QList<Key*> keyList = getKeyEventList();
+    QList<Stage*> stageList = getStages();
+    QList<Stage*> possibleStages; // The list of stages the key can appear in
+    for(Key* key : keyList)
+    {
+        // Get all the stages the key can legally be placed into
+        possibleStages = QList<Stage*>();
+        Stage* currentStage = stageList[0];
+        bool loop = true;
+        while(loop)
+        {
+
+            possibleStages.append(currentStage);
+
+            if(currentStage->getExitGate()->getKeys().contains(key))
+            {
+                loop = false;
+                break;
+            }
+
+            currentStage = currentStage->getNextStage();
+
+            if(currentStage == nullptr)
+            {
+                loop = false;
+                break;
+            }
+        }
+
+        // Randomly select a stage for the key
+        possibleStages[rand.randomInteger(0, possibleStages.length()-1)]->addKey(key);
     }
 
     observer->emitUpdate();
@@ -287,3 +326,59 @@ void Mission::updateStageIDs()
             stage.setPreviousStageID(stage.getPreviousStage()->getID());
     }
 }
+
+bool Mission::validate()
+{
+    bool isValid = true;
+
+    QList<Key*> collectedKeys; // The keys that we have come across so far
+
+    const Stage* currentStage = &stages.at(0);
+    while(currentStage != nullptr)
+    {
+        collectedKeys.append(currentStage->getKeys()); // Add the keys for this stage
+        QList<Key*> requiredKeys = currentStage->getExitGate()->getKeys();
+        for(Key* reqKey : requiredKeys) // Check if the exit gate keys have all been collected by this point
+        {
+            if(!collectedKeys.contains(reqKey))
+            {
+                isValid = false;
+                break;
+            }
+        }
+        if(!isValid) // If mission has become invalid, break loop
+            break;
+
+        currentStage = currentStage->getNextStage();
+
+    }
+
+    return isValid;
+}
+
+bool Mission::validateAddition(Stage* stage, Key* key)
+{
+    const Stage* currentStage = &stages.at(0);
+    while(currentStage != stage)
+    {
+        if(currentStage->getExitGate()->getKeys().contains(key))
+        {
+            return false;
+        }
+        currentStage = currentStage->getNextStage();
+    }
+
+    return true;
+}
+
+ bool Mission::doesKeyExist(Key* key)
+ {
+     const Stage* currentStage = &stages.at(0);
+     while(currentStage != nullptr)
+     {
+         if(currentStage->getKeys().contains(key))
+             return true;
+         currentStage = currentStage->getNextStage();
+     }
+     return false;
+ }

@@ -126,6 +126,8 @@ public:
 
     void buildManagerScript();
 
+    Hero* getHero() { return &hero; }
+
 private:
     QDir rootDir;
     QFileSystemModel* fsModel;     /*!< The main file system model representing this quest. */
@@ -141,6 +143,8 @@ private:
     QMap<QString,Tileset> tileSets; /*!< The tilesets contained within this quest. */
 
     QList<Map> maps; /*!< The maps currently built for this quest. */
+
+    Hero hero; /*!< The hero for this quest. Contains the initial hero state. */
 
     void cpy(const Quest& param);
 };

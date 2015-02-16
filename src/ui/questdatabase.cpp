@@ -16,12 +16,32 @@ QuestDatabase::QuestDatabase(Quest* quest, QWidget *parent) :
     initInfoTab();
     initTilesetTab();
 
+    QObject::connect(ui->maxHealthBox, SIGNAL(valueChanged(int)), this, SLOT(maxHealthChanged(int)));
+    QObject::connect(ui->initialHealthBox, SIGNAL(valueChanged(int)), this, SLOT(initialHealthChanged(int)));
 }
 
 void QuestDatabase::initInfoTab()
 {
     Table* qData = quest->getData(DAT_QUEST);
     ui->questNameEdit->setText(qData->getElementValue(OBJ_QUEST, ELE_TITLE_BAR));
+
+    // Initial state
+    abilityModel.setMap(quest->getHero()->getAbilities());
+    ui->abilityTable->setModel(&abilityModel);
+
+    // Resize table
+    ui->abilityTable->setVisible(false);
+    ui->abilityTable->resizeColumnsToContents();
+    ui->abilityTable->resizeRowsToContents();
+    ui->abilityTable->setVisible(true);
+
+    // Disable resizing
+    ui->abilityTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    ui->abilityTable->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+
+    // Set health values
+    ui->initialHealthBox->setValue(quest->getHero()->getInitialLife());
+    ui->maxHealthBox->setValue(quest->getHero()->getMaxLife());
 }
 
 void QuestDatabase::initTilesetTab()
@@ -39,7 +59,6 @@ void QuestDatabase::initTilesetTab()
 
     // Update the model (initialize it)
     updateTilesetModel();
-
 }
 
 QuestDatabase::~QuestDatabase()
@@ -128,6 +147,13 @@ void QuestDatabase::on_OKButton_clicked()
         qData->setElementValue(OBJ_QUEST, ELE_NAME, ui->questNameEdit->text());
         qData->saveToDisk();
 
+        // Save modified hero info
+        quest->getHero()->setMaxLife(ui->maxHealthBox->value());
+        quest->getHero()->setInitialLife(ui->initialHealthBox->value());
+        Table* hData = quest->getData(DAT_HERO);
+        quest->getHero()->build(hData);
+        hData->saveToDisk();
+
         // Save all opened tilesets (assumption is that all have been modified)
         for(Tileset* set : openTileSets)
             Tileset::build(*set);
@@ -156,4 +182,18 @@ void QuestDatabase::closeEvent(QCloseEvent* event)
 bool QuestDatabase::validate()
 {
     return ui->questNameEdit->text().length() != 0;
+}
+
+void QuestDatabase::maxHealthChanged(int value)
+{
+    // Called when there is a changed in the value of max health, ensures that initial health remains valid
+    if(value < ui->initialHealthBox->value())
+        ui->initialHealthBox->setValue(value);
+}
+
+void QuestDatabase::initialHealthChanged(int value)
+{
+    // Called when there is a change in initial health, to ensure it remains valid
+    if(value > ui->maxHealthBox->value())
+        ui->initialHealthBox->setValue(ui->maxHealthBox->value());
 }

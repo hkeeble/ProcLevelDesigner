@@ -19,6 +19,8 @@ struct Cell
 public:
     Cell() : Cell(QPoint(0,0), true, nullptr, nullptr) { }
 
+    Cell(QPoint location) : Cell(location, true, nullptr, nullptr) { }
+
     Cell(QPoint location, bool traversable, Key* key)
         : Cell(location, traversable, key, nullptr) { }
 
@@ -40,6 +42,7 @@ public:
     bool hasGate() const { return (gate != nullptr); }
 
     QPoint getLocation() const { return location; }
+    void setLocation(QPoint location) { this->location = location; }
 
     static Cell Parse(Object* obj, QList<Key*> keys, QList<Gate*> gates);
     void build(Object* obj);

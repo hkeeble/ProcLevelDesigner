@@ -11,7 +11,7 @@ Cell Cell::Parse(Object* obj, QList<Key*> keys, QList<Gate*> gates)
     {
         for(Gate* gate : gates)
         {
-            if(gate->getName() == keyName)
+            if(gate->getName() == gateName)
                 cell.gate = gate;
         }
     }
@@ -37,7 +37,7 @@ void Cell::build(Object* obj)
 {
     obj->insert(ELE_X, QString::number(location.x()));
     obj->insert(ELE_Y, QString::number(location.y()));
-    obj->insert(ELE_TRAVERSABLE, (traversable == true ? "true" : false));
+    obj->insert(ELE_TRAVERSABLE, (traversable == true ? "true" : "false"));
 
     if(hasKey())
         obj->insert(ELE_KEY_NAME, key->getName());
@@ -64,7 +64,7 @@ Grid::Grid(int width, int height)
     {
         cells.append(QVector<Cell>());
         for(int y = 0; y < height; y++)
-            cells[x].append(Cell());
+            cells[x].append(Cell(QPoint(x, y)));
     }
 }
 
@@ -118,6 +118,8 @@ Grid Grid::Parse(Table* table, int width, int height, QList<Key*> keys, QList<Ga
         int y = cell->find(ELE_Y).toInt();
         grid.cells[x][y] = Cell::Parse(cell, keys, gates);
     }
+
+    return grid;
 }
 
 Area::Area()

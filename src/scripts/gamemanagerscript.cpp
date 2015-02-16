@@ -2,12 +2,6 @@
 
 GameManagerScript::GameManagerScript()
 {
-    maxLife = 12;
-    initialLife = maxLife;
-
-    abilities.insert("lift", 2);
-    abilities.insert("sword", 1);
-
     returnStatement = "return game_manager";
 }
 
@@ -25,12 +19,14 @@ void GameManagerScript::writeToFile(QFile& file)
     Function func = Function("game_manager:start_game");
 
     func.addLine("if not exists then");
-    func.addLine("game:set_max_life(" + QString::number(maxLife) + ")");
-    func.addLine("game:set_starting_location(" + startingMap + ")");
-    func.addLine("game:set_life(" + QString::number(initialLife) + ")");
+    func.addLine("game:set_max_life(" + QString::number(hero.getMaxLife()) + ")");
+    func.addLine("game:set_starting_location(" + hero.getStartingMap() + ")");
+    func.addLine("game:set_life(" + QString::number(hero.getInitialLife()) + ")");
 
-    for(auto iter = abilities.begin(); iter != abilities.end(); iter++)
-        func.addLine("game:set_ability(\"" + iter.key() + "\", " + QString::number(iter.value()) + ")");
+
+    QMap<Hero::Ability,int>* abilities = hero.getAbilities();
+    for(auto iter = abilities->begin(); iter != abilities->end(); iter++)
+        func.addLine("game:set_ability(\"" + ABILITY_STRINGS[iter.key()] + "\", " + QString::number(iter.value()) + ")");
 
     func.addLine("end");
 
@@ -40,6 +36,4 @@ void GameManagerScript::writeToFile(QFile& file)
 
     // Write to file
     Script::writeToFile(file);
-
-
 }

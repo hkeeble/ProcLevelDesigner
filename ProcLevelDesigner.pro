@@ -51,7 +51,10 @@ SOURCES += \
     src/entities/destination.cpp \
     src/scripts/script.cpp \
     src/scripts/mapscript.cpp \
-    src/scripts/gamemanagerscript.cpp
+    src/scripts/gamemanagerscript.cpp \
+    src/hero.cpp \
+    src/ui/abilitymodel.cpp \
+    src/dragdroplistmodel.cpp
 
 HEADERS  += \
     include/common.h \
@@ -92,7 +95,10 @@ HEADERS  += \
     include/entities/destination.h \
     include/scripts/script.h \
     include/scripts/mapscript.h \
-    include/scripts/gamemanagerscript.h
+    include/scripts/gamemanagerscript.h \
+    include/hero.h \
+    include/ui/abilitymodel.h \
+    include/dragdroplistmodel.h
 
 FORMS    += \
     ui/editorwindow.ui \

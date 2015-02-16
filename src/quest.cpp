@@ -53,6 +53,11 @@ bool Quest::Init()
         Table* spaceData = getData(DAT_SPACE);
         space = Space::Parse(spaceData, mission.getGateList(), mission.getKeyEventList(), getTilesetList());
 
+        // Parse current hero data
+        Table* heroData = getData(DAT_HERO);
+        hero = Hero::Parse(heroData);
+        hero.build(heroData); // Build the hero data (in case it has just been created)
+
         return true;
     }
 }
@@ -215,6 +220,9 @@ void Quest::clear()
     if(mapModel)
         delete mapModel;
 
+    tileSets.clear();
+    maps.clear();
+
     fsModel = scriptModel = mapModel = nullptr;
 
 }
@@ -283,7 +291,10 @@ bool Quest::checkForChanges()
 
 void Quest::buildManagerScript()
 {
-    managerScript.setStartingMap(QString::number(space.getStartingArea().x()) + QString::number(space.getStartingArea().y()));
+    hero.setStartingMap(QString::number(space.getStartingArea().x()) + QString::number(space.getStartingArea().y()));
+
+    managerScript.setHero(this->hero);
+
     QFile file(rootDir.absolutePath() + QDir::separator() + "scripts" + QDir::separator() + "game_manager.lua");
     if(file.exists())
         file.remove();

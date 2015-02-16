@@ -1,7 +1,7 @@
 #include "spacescene.h"
 
 SpaceScene::SpaceScene(QObject *parent) :
-    QGraphicsScene(parent), wallColor(Qt::gray)
+    QGraphicsScene(parent), wallColor(Qt::gray), gateColor(Qt::yellow), keyColor(Qt::red)
 {
     areaCellWidth = 64.0f;
     areaCellHeight = 64.0f;
@@ -28,6 +28,12 @@ void SpaceScene::clear()
     for(QGraphicsRectItem* tile : blockedTiles)
         delete tile;
 
+    for(QGraphicsRectItem* gate : gates)
+        delete gate;
+
+    for(QGraphicsRectItem* key : keys)
+        delete key;
+
     for(QGraphicsRectItem* tile : areaTiles)
         delete tile;
 
@@ -43,6 +49,8 @@ void SpaceScene::clear()
     gridTiles.clear();
     areaTiles.clear();
     blockedTiles.clear();
+    keys.clear();
+    gates.clear();
 
     if(gridParent)
         delete gridParent;
@@ -91,13 +99,27 @@ void SpaceScene::spaceUpdated()
         {
             for(int y = 0; y < grid->getHeight(); y++)
             {
-                if(grid->getCell(x,y).isTraversable() == false)
+                if(grid->getCell(x,y).isTraversable() == false || grid->getCell(x,y).hasGate() || grid->getCell(x,y).hasKey())
                 {
                     int xr = location.x()*areaCellWidth;
                     int yr = location.y()*areaCellHeight;
                     QGraphicsRectItem* gridTile = new QGraphicsRectItem((x*gridCellWidth) + xr, (y*gridCellHeight) + yr, gridCellWidth, gridCellHeight, tile);
-                    gridTile->setBrush(QBrush(wallColor));
-                    blockedTiles.append(gridTile);
+
+                    if(grid->getCell(x,y).isTraversable() == false)
+                    {
+                        gridTile->setBrush(QBrush(wallColor));
+                        blockedTiles.append(gridTile);
+                    }
+                    else if (grid->getCell(x,y).hasGate())
+                    {
+                        gridTile->setBrush(QBrush(gateColor));
+                        gates.append(gridTile);
+                    }
+                    else if (grid->getCell(x,y).hasKey())
+                    {
+                        gridTile->setBrush(QBrush(keyColor));
+                        keys.append(gridTile);
+                    }
                 }
             }
         }

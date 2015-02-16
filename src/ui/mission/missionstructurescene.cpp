@@ -60,6 +60,7 @@ void TextRectItem::addLine(QString line, QFont font)
     item->setPos(0, (item->boundingRect().height()*LINE_SPACING) * graphicLines.length());
     graphicLines.append(item);
     updateRect();
+    updateLinePositions();
 }
 
 void TextRectItem::addLineAt(int index, QString line, QFont font)
@@ -84,12 +85,12 @@ void TextRectItem::removeLine(QString line)
 
 }
 
-QGraphicsRectItem* TextRectItem::getRect()
+QGraphicsRectItem* TextRectItem::getRect() const
 {
     return rect;
 }
 
-QList<QGraphicsSimpleTextItem*> TextRectItem::getGraphicLines()
+QList<QGraphicsSimpleTextItem*> TextRectItem::getGraphicLines() const
 {
     return graphicLines;
 }
@@ -97,6 +98,51 @@ QList<QGraphicsSimpleTextItem*> TextRectItem::getGraphicLines()
 QGraphicsSimpleTextItem* TextRectItem::getGraphicLineAt(int index)
 {
     return graphicLines.at(index);
+}
+
+StageRect::StageRect(Stage* stage)
+{
+    this->stage = stage;
+
+    QList<Key*> keys = stage->getKeys();
+    for(Key* key : keys)
+        addLine(key->getName() + "\n(" + KEY_TYPE_STRINGS[key->getKeyType()] + ")", QFont("Mono", 12));
+}
+
+void StageRect::update()
+{
+    clear();
+    QList<Key*> keys = stage->getKeys();
+    for(Key* key : keys)
+        addLine(key->getName() + "\n(" + KEY_TYPE_STRINGS[key->getKeyType()] + ")", QFont("Mono", 12));
+}
+
+StageRect::~StageRect()
+{
+
+}
+
+GateRect::GateRect(Gate* gate)
+{
+    this->gate = gate;
+
+    addLine(gate->getName(), QFont("Mono", 12, QFont::Weight::Bold));
+    QList<Key*> keys = gate->getKeys();
+    for(Key* key : keys)
+        addLine(key->getName(), QFont("Mono", 12));
+}
+
+GateRect::~GateRect()
+{
+
+}
+
+void GateRect::update()
+{
+    clear();
+    QList<Key*> keys = gate->getKeys();
+    for(Key* key : keys)
+        addLine(key->getName() + "\n(" + KEY_TYPE_STRINGS[key->getKeyType()] + ")", QFont("Mono", 12));
 }
 
 MissionStructureScene::MissionStructureScene(QObject *parent) :
@@ -118,7 +164,7 @@ void MissionStructureScene::missionUpdated()
     clear();
 
     // Re-create the lists (as clear has deleted all graphics items)
-    stages = QList<TextRectItem>();
+    stages = QList<StageRect>();
     gates = QList<TextRectItem>();
 
     QList<Stage*> missionStages = mission->getStages();
@@ -128,13 +174,8 @@ void MissionStructureScene::missionUpdated()
     // Construct lists of stages and gates
     for(Stage* stage : missionStages)
     {
-        QList<QString> keyNames; // Names of keys in this stage
-        QList<Key*> keys = stage->getKeys(); // List of keys in this stage
-        for(Key* key : keys)
-            keyNames.append(key->getName());
-
         // Initialize the stage rect
-        TextRectItem stageRect(keyNames, QFont("Mono", 12));
+        StageRect stageRect(stage);
 
         // Get height
         qreal height = stageRect.getHeight();
@@ -145,17 +186,13 @@ void MissionStructureScene::missionUpdated()
         if(stages.length() != 0)
             stageRect.setPos(stages.last().getPos() + QPointF(stages.last().getWidth()+gates.last().getWidth(), 0));
 
-        // Add title
-        stageRect.addLineAt(0, "Stage " + QString::number(stage->getID()), QFont("Mono", 12, QFont::Bold));
-
         // Append to stage list
         stages.append(stageRect);
 
         // If the stage has a gate, initialize the gate
         if(stage->getExitGate())
         {
-            TextRectItem gate;
-            gate.addLine(stage->getExitGate()->getName(), QFont("Mono", 12, QFont::Bold));
+            GateRect gate(stage->getExitGate());
             gate.setPos(stages.last().getPos() + QPointF(stages.last().getWidth(), (stages.last().getHeight()/2)-(gate.getHeight()/2)));
             gate.setBrush(QBrush(Qt::lightGray));
             gates.append(gate);
@@ -188,10 +225,14 @@ void MissionStructureScene::dragLeaveEvent(QGraphicsSceneDragDropEvent* event)
 
 void MissionStructureScene::dragMoveEvent(QGraphicsSceneDragDropEvent* event)
 {
+
     // Change colour of text-rects to show where the mouse is....
     for(TextRectItem stage : stages)
     {
-        if(stage.getRect()->boundingRect().contains(event->scenePos()))
+        QRectF bounds = stage.getRect()->boundingRect();
+        bounds.translate(stage.getRect()->pos().x(), stage.getRect()->pos().y());
+
+        if(bounds.contains(event->scenePos()))
             stage.setBrush(QBrush(Qt::red));
         else
             stage.setBrush(QBrush(Qt::white));
@@ -203,11 +244,78 @@ void MissionStructureScene::dragMoveEvent(QGraphicsSceneDragDropEvent* event)
 void MissionStructureScene::dropEvent(QGraphicsSceneDragDropEvent* event)
 {
     // Find the current stage (if any)
-    for(TextRectItem stage : stages)
+    for(int i = 0; i < stages.size(); i++)
     {
-        if(stage.getRect()->boundingRect().contains(event->scenePos()))
-            stage.setBrush(QBrush(Qt::white)); // Clear the colour highlight
+        stages.at(i).setBrush(QBrush(Qt::white)); // Clear the colour highlight
+
+        // Check if we have dropped they key into a stage
+        QRectF bounds = stages.at(i).getRect()->boundingRect();
+        bounds.translate(stages.at(i).getRect()->pos().x(), stages.at(i).getRect()->pos().y());
+        if(bounds.contains(event->scenePos()))
+        {
+            const QMimeData* data = event->mimeData();
+            if(data->hasText())
+            {
+                QString keyName = data->text();
+
+                Stage* stage = stages.at(i).getStage();
+                Key* key = mission->getKeyEvent(keyName);
+
+                // Only add the key if it does not invalidate the mission
+                if(mission->validateAddition(stage, key))
+                {
+                    if(!mission->doesKeyExist(key)) // Also ignore if the key already exists
+                        stage->addKey(key);
+                    else
+                        QMessageBox::warning(static_cast<QWidget*>(parent()), "Error", "This key already exists in the structure. BrushRemove it before adding it elsewhere.",
+                                                     QMessageBox::Ok);
+
+                }
+                else
+                    QMessageBox::warning(static_cast<QWidget*>(parent()), "Error", "This would create an invalid and impossible mission with the current structure.",
+                                                 QMessageBox::Ok);
+
+                missionUpdated();
+            }
+        }
     }
 
     event->accept();
+}
+
+void MissionStructureScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    for(TextRectItem stage : stages)
+    {
+        QList<QGraphicsSimpleTextItem*> lines = stage.getGraphicLines();
+        for(QGraphicsSimpleTextItem* line : lines)
+        {
+            QRectF bounds = line->boundingRect();
+            bounds.translate(line->pos().x(), line->pos().y());
+            bounds.translate(stage.getRect()->pos().x(), stage.getRect()->pos().y());
+            if(bounds.contains(event->scenePos()))
+            {
+                line->setBrush(QBrush(Qt::red));
+            }
+            else
+            {
+                line->setBrush(QBrush(Qt::black));
+            }
+        }
+    }
+
+    for(TextRectItem gate : gates)
+    {
+        QRectF bounds = gate.getRect()->boundingRect();
+        bounds.translate(gate.getRect()->pos().x(), gate.getRect()->pos().y());
+        if(bounds.contains(event->scenePos()))
+            gate.setBrush(QBrush(Qt::red));
+        else
+            gate.setBrush(QBrush(Qt::gray));
+    }
+}
+
+void MissionStructureScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+
 }

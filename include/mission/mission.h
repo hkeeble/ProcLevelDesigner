@@ -6,6 +6,7 @@
 #include <QObject>
 
 #include "stage.h"
+#include "randomengine.h"
 
 class MissionObserver : public QObject
 {
@@ -104,6 +105,28 @@ public:
      * \brief Emit an update signal to ensure any slots connected to the mission are updated.
      */
     void emitUpdate() { observer->emitUpdate(); }
+
+    /*!
+     * \brief Validates this mission, checking whether or not the mission is valid. Returns false if the mission has become invalid. This should
+     * only ever be called once ALL keys are present in the mission, otherwise it will not work. Call other validation functions to validate other
+     * additions or changes to the structure.
+     */
+    bool validate();
+
+    /*!
+     * \brief Validates the potential addition of the given key to the given stage, and returns whether or not this would invalidate the mission
+     *        structure for any reason.
+     * \param stage The stage we want to add the key to.
+     * \param key The key we want to add.
+     * \return True if the mission structure would still be valid.
+     */
+    bool validateAddition(Stage* stage, Key* key);
+
+    /*!
+     * \brief Checks to see if this key already exists in the mission structure.
+     * \param key The key to check for.
+     */
+    bool doesKeyExist(Key* key);
 
     MissionObserver* getObserver() { return observer; }
 

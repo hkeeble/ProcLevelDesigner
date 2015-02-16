@@ -20,7 +20,7 @@ public:
 
     void addKey(Key* key) { keys.append(key); }
     bool removeKey(Key* key) { return keys.removeOne(key); }
-    QList<Key*> getKeys() { return keys; }
+    QList<Key*> getKeys() const { return keys; }
 
     /*!
      * \brief Parse a stage from the data passed in.
@@ -40,7 +40,7 @@ public:
     /*!
      * \brief Get the stage that follows this one.
      */
-    Stage* getNextStage()     { return next; }
+    Stage* getNextStage() const     { return next; }
 
     /*!
      * \brief Get the stage before this one.
@@ -54,7 +54,7 @@ public:
     /*!
      * \brief Get the gate that ends this stage.
      */
-    Gate* getExitGate()     { return exitGate; }
+    Gate* getExitGate() const     { return exitGate; }
 
     /*!
      * \brief Set the stage that follows this one.

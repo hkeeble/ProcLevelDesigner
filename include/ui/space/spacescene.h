@@ -24,6 +24,8 @@ public slots:
 
 private:
     const QColor wallColor;
+    const QColor gateColor;
+    const QColor keyColor;
 
     qreal areaCellWidth, areaCellHeight;
     qreal gridCellWidth, gridCellHeight;
@@ -35,6 +37,8 @@ private:
     QVector<QVector<QGraphicsRectItem*>> gridTiles;
     QVector<QGraphicsRectItem*> areaTiles;
     QVector<QGraphicsRectItem*> blockedTiles;
+    QVector<QGraphicsRectItem*> gates;
+    QVector<QGraphicsRectItem*> keys;
 };
 
 #endif // SPACESCENE_H

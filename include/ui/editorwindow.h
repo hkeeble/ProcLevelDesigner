@@ -22,6 +22,7 @@
 #include "applicationdispatcher.h"
 #include "missionstructurescene.h"
 #include "spacescene.h"
+#include "dragdroplistmodel.h"
 
 namespace Ui {
 class EditorWindow;
@@ -109,8 +110,8 @@ private:
     QList<QWidget*> questOnlyWidgets; /*!< List of widgets only available when a quest is loaded. */
 
     // Key/Gate models and data
-    QStringListModel* keyEventModel; /*!< Model used to represent key events. */
-    QStringListModel* gateModel;     /*! Model used to represent gates. */
+    DragDropListModel* keyEventModel; /*!< Model used to represent key events. */
+    QStringListModel* gateModel;     /*!< Model used to represent gates. */
     QStringListModel* zoneModel;
     QStringList keyData;
     QStringList gateData;

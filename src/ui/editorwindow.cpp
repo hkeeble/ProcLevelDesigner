@@ -31,6 +31,7 @@ EditorWindow::EditorWindow(QWidget *parent) :
 
     // Enable key and gate drag and drop
     ui->keyEventList->setDragEnabled(true);
+    ui->keyEventList->viewport()->acceptDrops();
     ui->gateList->setDragEnabled(true);
 
     // Enable the structure view to accept drops
@@ -45,8 +46,9 @@ EditorWindow::EditorWindow(QWidget *parent) :
 
     preferences.setAsRecentQuestManager(this, ui->menuOpen_Recent, SLOT(on_actionOpen_Recent_Quest_triggered(QAction*)));
 
-    missionStructureScene = new MissionStructureScene();
+    missionStructureScene = new MissionStructureScene(this);
     ui->structureView->setScene(missionStructureScene);
+    ui->structureView->setMouseTracking(true);
 
     spaceScene = new SpaceScene();
     ui->spaceView->setScene(spaceScene);
@@ -181,7 +183,13 @@ void EditorWindow::on_actionQuest_Database_triggered()
 {
     QuestDatabase* dialog = new QuestDatabase(&quest, this);
     dialog->exec();
+
+    // Set window title in case of change
     setWindowTitle("ProcLevelDesigner - " + quest.getData(DAT_QUEST)->getElementValue(OBJ_QUEST, ELE_TITLE_BAR));
+
+    // Build the hero data in case of change
+    quest.getHero()->build(quest.getData(DAT_HERO));
+
     delete dialog;
 }
 
@@ -285,7 +293,22 @@ void EditorWindow::on_removeKeyEventButton_clicked()
 
 void EditorWindow::on_newGateButton_clicked()
 {
-    EditGateDialog* dialog = new EditGateDialog(quest.mission.getKeyEventNameList(), this);
+    // Get list of key names, and remove those that already exist.
+    QList<QString> keyNames = quest.mission.getKeyEventNameList();
+    QList<Gate*> gates = quest.mission.getGateList();
+    for(Gate* gate : gates)
+    {
+        QList<Key*> keys = gate->getKeys();
+        for(Key* key : keys)
+        {
+            if(keyNames.contains(key->getName()))
+            {
+                keyNames.removeOne(key->getName());
+            }
+        }
+    }
+
+    EditGateDialog* dialog = new EditGateDialog(keyNames, this);
     if(dialog->exec() == QDialog::Accepted)
     {
         QList<Key*> keys;
@@ -506,7 +529,7 @@ void EditorWindow::initQuestUI()
 {
     // Initialize and clear models
     if(!keyEventModel)
-        keyEventModel = new QStringListModel();
+        keyEventModel = new DragDropListModel();
     else
         keyEventModel->setStringList(QStringList());
 

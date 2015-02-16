@@ -2,22 +2,19 @@
 #define GAMEMANAGERSCRIPT_H
 
 #include "script.h"
+#include "hero.h"
 
 class GameManagerScript : public Script
 {
 public:
     GameManagerScript();
 
-    void setStartingMap(QString mapID) { startingMap = mapID; }
+    void setHero(const Hero& hero) { this->hero = hero; }
 
     virtual void writeToFile(QFile& file) override final;
 
 private:
-    int maxLife;
-    int initialLife;
-    QString startingMap;
-
-    QMap<QString,int> abilities;
+    Hero hero; /*!< Hero data to be used by this script. */
 };
 
 #endif // GAMEMANAGERSCRIPT_H
