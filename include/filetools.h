@@ -67,6 +67,7 @@ const QString OBJ_KEY_EVENT = "key_event";
 const QString ELE_NAME = "name";
 const QString ELE_KEY_TYPE = "key_type";
 const QString ELE_KEY_MESSAGE = "key_message";
+const QString ELE_KEY_LOCKED = "key_locked";
 
 // Gate
 const QString OBJ_GATE = "gate";
@@ -77,9 +78,11 @@ const QString ELE_TRIGGERED = "triggered";
 // Stage
 const QString OBJ_STAGE = "stage";
 const QString ELE_KEYS = "keys";
+const QString ELE_LOCKED_KEYS = "locked_keys";
 const QString ELE_PREVIOUS_STAGE_ID = "previous_stage_id";
 const QString ELE_NEXT_STAGE_ID = "next_stage_id";
 const QString ELE_EXIT_GATE = "exit_gate";
+const QString ELE_GATE_LOCKED = "gate_locked";
 
 // Zone
 const QString OBJ_ZONE = "zone";

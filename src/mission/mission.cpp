@@ -14,9 +14,9 @@ void Mission::generate()
 {
     RandomEngine rand;
 
-    // Clear all stages
+    // Clear all stages of unlocked keys
     for(Stage& stage : stages)
-        stage.clearKeys();
+        stage.clearUnlockedKeys();
 
     // Randomly arrange gates
     QList<Stage*> unassignedStages = getStages(); // Stages that have not been assigned a gate
@@ -28,8 +28,18 @@ void Mission::generate()
         stage->setExitGate(gate);
     }
 
-    // Randomly arrange all key events
+    // Get a list of all unlocked keys
     QList<Key*> keyList = getKeyEventList();
+    for(Stage& stage :stages)
+    {
+        for(Key* lockedKey : stage.getLockedKeys())
+        {
+            if(keyList.contains(lockedKey))
+                keyList.removeOne(lockedKey);
+        }
+    }
+
+    // Randomly arrange all unlocked key events
     QList<Stage*> stageList = getStages();
     QList<Stage*> possibleStages; // The list of stages the key can appear in
     for(Key* key : keyList)
@@ -214,7 +224,7 @@ bool Mission::addGate(QString name, Gate gate)
         gates.insert(name, Gate(gate));
 
         // Add a new stage due to the addition of a new gate
-        Stage newStage = Stage(stages.count()-1, nullptr, nullptr, &gates.last(), QList<Key*>());
+        Stage newStage = Stage(stages.count()-1, nullptr, nullptr, &gates.last(), QList<Key*>(), QList<Key*>(), false);
 
         // Set the new stage's previous stage
         if(stages.count() > 0)

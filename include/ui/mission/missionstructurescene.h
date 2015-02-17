@@ -8,6 +8,7 @@
 #include <QGraphicsSceneDragDropEvent>
 #include <QMimeData>
 #include <QMessageBox>
+#include <QMenu>
 
 #include "mission.h"
 
@@ -99,7 +100,7 @@ private:
 class StageRect : public TextRectItem
 {
 public:
-    StageRect(Stage* stage);
+    StageRect(QString title, Stage* stage);
 
     virtual ~StageRect();
 
@@ -148,13 +149,31 @@ protected:
    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
 
+   void contextMenuEvent(QGraphicsSceneContextMenuEvent* event) override;
+
 public slots:
     void missionUpdated();
+
+    void toggleLockInKey();
+    void removeKey();
+
 private:
+
+    void updateKeyHighlights();
+
+    bool rectContains(TextRectItem item, QPointF mousePos);
+    bool lineRectContains(QPointF parentPosition, QGraphicsSimpleTextItem* line, QPointF mousePos);
+
+    QMenu keyContextMenu;
+
     Mission* mission;
 
+    GateRect* highlightedGate;
+    Key* highlightedKey;
+    StageRect* highlightedStage;
+
     QList<StageRect> stages;
-    QList<TextRectItem> gates;
+    QList<GateRect> gates;
 };
 
 #endif // MISSIONSTRUCTURESCENE_H
