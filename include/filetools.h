@@ -55,6 +55,10 @@ const QString ELE_GROUND = "ground";
 // Mission
 const QString DAT_MISSION = "proc_designer_data" + QString(QDir::separator()) + "mission";
 
+// Mission Options
+const QString OBJ_MISSION_OPTIONS = "mission_options";
+const QString ELE_KEY_MAXIMUM_DIST = "key_maximum_dist";
+
 // Space
 const QString DAT_SPACE = "proc_designer_data" + QString(QDir::separator()) + "space_data" + QString(QDir::separator()) + "space";
 const QString DAT_ZONE_SUFFIX = "_zone";

@@ -83,8 +83,13 @@ void Mission::generate()
             }
         }
 
+        // Determine the minimum value in the list for the key, dependent on maximum key distance
+        int lowerBound = possibleStages.length() - options.getMaximumKeyDist();
+        if(lowerBound < 0)
+            lowerBound = 0;
+
         // Randomly select a stage for the key
-        possibleStages[rand.randomInteger(0, possibleStages.length()-1)]->addKey(key);
+        possibleStages[rand.randomInteger(lowerBound, possibleStages.length()-1)]->addKey(key);
     }
 
     observer->emitUpdate();
@@ -134,6 +139,13 @@ Mission Mission::Parse(Table* data)
         }
     }
 
+    // Parse mission options
+    Object* ops = data->getObject(OBJ_MISSION_OPTIONS);
+    if(ops != nullptr)
+        mission.options = MissionGenerationOptions::Parse(ops);
+    else
+        mission.options = MissionGenerationOptions();
+
     mission.emitUpdate();
 
     return mission;
@@ -159,6 +171,9 @@ void Mission::build(Table* table)
         iter->build(&obj);
         table->addObject(OBJ_STAGE, obj);
     }
+
+    // Build options into the table
+    table->addObject(OBJ_MISSION_OPTIONS, options.build());
 }
 
 Key* Mission::getKeyEvent(QString name)

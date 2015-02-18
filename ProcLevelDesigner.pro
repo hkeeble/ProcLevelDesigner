@@ -54,7 +54,8 @@ SOURCES += \
     src/scripts/gamemanagerscript.cpp \
     src/hero.cpp \
     src/ui/abilitymodel.cpp \
-    src/dragdroplistmodel.cpp
+    src/dragdroplistmodel.cpp \
+    src/mission/missiongenerationoptions.cpp
 
 HEADERS  += \
     include/common.h \
@@ -98,7 +99,8 @@ HEADERS  += \
     include/scripts/gamemanagerscript.h \
     include/hero.h \
     include/ui/abilitymodel.h \
-    include/dragdroplistmodel.h
+    include/dragdroplistmodel.h \
+    include/mission/missiongenerationoptions.h
 
 FORMS    += \
     ui/editorwindow.ui \

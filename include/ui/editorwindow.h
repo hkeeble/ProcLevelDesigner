@@ -77,6 +77,8 @@ private slots:
 
     void on_tabView_currentChanged(int index);
 
+    void on_maxKeyDistSlider_valueChanged(int value);
+
 protected:
     void closeEvent(QCloseEvent *event) override final;
 
@@ -89,9 +91,13 @@ private:
 
     void initQuestUI(); /*!< Initializes the user interface, filling it with all data loaded about the current quest. */
 
+    void initGeneratorOptions(); /*!< Initializes all generation options to the user preferences loaded in. */
+
     void updateKeyList();   /*!< Updates the event list with all data currently in the quest's mission. */
     void updateGateList(); /*!< Updates the gate list with all data currently in the quest's mission. */
     void updateZoneList(); /*!< Updates the zone list with all data currently in the quest's space. */
+
+    void updateMaximumKeyDistanceSlider();
 
     Key* getSelectedKey();
     Gate* getSelectedGate();

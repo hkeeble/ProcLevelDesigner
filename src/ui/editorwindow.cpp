@@ -474,6 +474,9 @@ bool EditorWindow::openQuest(QString path)
         // Initialize the UI with quest data
         initQuestUI();
 
+        // Initialize all generator options loaded from the quest
+        initGeneratorOptions();
+
         // Enable all quest only UI elements
         setQuestOnlyUIEnabled(true);
 
@@ -581,6 +584,11 @@ void EditorWindow::initQuestUI()
     ui->zoneList->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
+void EditorWindow::initGeneratorOptions()
+{
+    ui->maxKeyDistSlider->valueChanged(quest.mission.getOptions().getMaximumKeyDist());
+}
+
 void EditorWindow::updateKeyList()
 {
     keyData.clear();
@@ -597,6 +605,7 @@ void EditorWindow::updateGateList()
     for(Gate* gate : gates)
         gateData.append(gate->getName());
     gateModel->setStringList(gateData);
+    updateMaximumKeyDistanceSlider();
 }
 
 void EditorWindow::updateZoneList()
@@ -606,6 +615,11 @@ void EditorWindow::updateZoneList()
     for(Zone* zone : zones)
         zoneData.append(zone->getName());
     zoneModel->setStringList(zoneData);
+}
+
+void EditorWindow::updateMaximumKeyDistanceSlider()
+{
+    ui->maxKeyDistSlider->setMaximum(quest.mission.getGateList().count());
 }
 
 Key* EditorWindow::getSelectedKey()
@@ -639,4 +653,10 @@ void EditorWindow::on_tabView_currentChanged(int index)
             ui->tabView->setCurrentIndex(0);
         }
     }
+}
+
+void EditorWindow::on_maxKeyDistSlider_valueChanged(int value)
+{
+    ui->maxKeyDistLabel->setText(QString::number(value));
+    quest.mission.getOptions().setMaximumKeyDist(value);
 }

@@ -7,6 +7,7 @@
 
 #include "stage.h"
 #include "randomengine.h"
+#include "missiongenerationoptions.h"
 
 class MissionObserver : public QObject
 {
@@ -165,6 +166,8 @@ public:
      */
     void toggleLockInGate(Gate* gate);
 
+    MissionGenerationOptions& getOptions() { return options; }
+
 private:
     /*!
      * \brief Internal function to call whenever stage links have been updated (updates IDs for parsing/building)
@@ -175,6 +178,8 @@ private:
     QMap<QString,Gate> gates;    /*!< The gates contained in this collection. */
     QMap<QString,Key> keyEvents; /*!< The key events contained in this collection. */
     QList<Stage> stages;
+
+    MissionGenerationOptions options; /*!< Contains user-defined options for generation constraints and preferences. */
 };
 
 #endif // MISSION_H
