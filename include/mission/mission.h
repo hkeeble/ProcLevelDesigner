@@ -140,6 +140,31 @@ public:
      */
     QList<Key*> getUsedKeys();
 
+    /*!
+     * \brief Clear all placed keys.
+     */
+    void clearKeys();
+
+    /*!
+     * \brief Toggle lock in of a key in a stage. If the given stage does not contain the given key, nothing happens.
+     * \param stage The stage containing the key to lock in.
+     * \param key The key to lock in.
+     */
+    void toggleLockInKey(Stage* stage, Key* key);
+
+    /*!
+     * \brief Removes a key from a stage. If the given stage does not contain the given key, nothing happens.
+     * \param stage The stage to remove the key from.
+     * \param key The key to remove.
+     */
+    void removeKey(Stage* stage, Key* key);
+
+    /*!
+     * \brief Toggles lock in state for the given gate.
+     * \param gate The gate to lock in.
+     */
+    void toggleLockInGate(Gate* gate);
+
 private:
     /*!
      * \brief Internal function to call whenever stage links have been updated (updates IDs for parsing/building)

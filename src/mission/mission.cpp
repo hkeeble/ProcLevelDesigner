@@ -282,8 +282,23 @@ bool Mission::removeKeyEvent(QString name)
         // If the key event is being used by a gate, remove it
         for(QMap<QString,Gate>::iterator iter = gates.begin(); iter != gates.end(); iter++)
         {
-            if(iter.value().getKeys().contains(&key))
-                iter.value().removeKey(&key);
+            QList<Key*> keys = iter.value().getKeys();
+            QList<Key*>::iterator i = keys.begin();
+            while(i != keys.end())
+            {
+                if((*i)->getName() == key.getName())
+                    iter.value().removeKey((*i));
+
+                i++;
+            }
+        }
+
+        // Same again for use in a stage
+        for(QList<Stage>::iterator iter = stages.begin(); iter != stages.end(); iter++)
+        {
+            Key* existingKey = (*iter).getKey(key.getName());
+            if(existingKey != nullptr)
+                (*iter).removeKey(existingKey);
         }
 
         observer->emitUpdate();
@@ -356,7 +371,6 @@ bool Mission::validate()
 {
     bool isValid = true;
 
-    QList<Key*> usedKeys = getUsedKeys(); // Retrieve keys present in the mission
     QList<Key*> collectedKeys; // The keys that we have come across so far
 
     const Stage* currentStage = &stages.at(0);
@@ -366,20 +380,16 @@ bool Mission::validate()
         QList<Key*> requiredKeys = currentStage->getExitGate()->getKeys();
         for(Key* reqKey : requiredKeys) // Check if the exit gate keys have all been collected by this point
         {
-            if(usedKeys.contains(reqKey))
+            if(!collectedKeys.contains(reqKey))
             {
-                if(!collectedKeys.contains(reqKey))
-                {
-                    isValid = false;
-                    break;
-                }
+                isValid = false;
+                break;
             }
         }
         if(!isValid) // If mission has become invalid, break loop
             break;
 
         currentStage = currentStage->getNextStage();
-
     }
 
     return isValid;
@@ -453,4 +463,46 @@ QList<Key*> Mission::getUsedKeys()
         currentStage = currentStage->getNextStage();
     }
     return usedKeys;
+}
+
+void Mission::clearKeys()
+{
+    for(Stage& stage : stages)
+        stage.clearKeys();
+
+    emitUpdate();
+}
+
+void Mission::toggleLockInKey(Stage* stage, Key* key)
+{
+    if(stage->isKeyLocked(key))
+        stage->unlockKey(key);
+    else
+        stage->lockKey(key);
+
+    emitUpdate();
+}
+
+void Mission::removeKey(Stage* stage, Key* key)
+{
+    stage->removeKey(key);
+    emitUpdate();
+}
+
+void Mission::toggleLockInGate(Gate* gate)
+{
+    QList<Stage*> missionStages = getStages();
+    for(Stage* stage : missionStages)
+    {
+        if(stage->getExitGate() == gate)
+        {
+            if(stage->isGateLocked())
+                stage->setGateLocked(false);
+            else
+                stage->setGateLocked(true);
+
+            break;
+        }
+    }
+    emitUpdate();
 }

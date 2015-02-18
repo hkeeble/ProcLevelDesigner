@@ -231,45 +231,19 @@ void MissionStructureScene::missionUpdated()
 void MissionStructureScene::toggleLockInKey()
 {
     if(highlightedStage != nullptr && highlightedKey != nullptr)
-    {
-        if(highlightedStage->getStage()->isKeyLocked(highlightedKey))
-            highlightedStage->getStage()->unlockKey(highlightedKey);
-        else
-            highlightedStage->getStage()->lockKey(highlightedKey);
-
-        updateKeyHighlights();
-    }
+        mission->toggleLockInKey(highlightedStage->getStage(), highlightedKey);
 }
 
 void MissionStructureScene::removeKey()
 {
     if(highlightedStage != nullptr && highlightedKey != nullptr)
-    {
-        highlightedStage->getStage()->removeKey(highlightedKey);
-        missionUpdated();
-    }
+        mission->removeKey(highlightedStage->getStage(), highlightedKey);
 }
 
 void MissionStructureScene::toggleLockInGate()
 {
     if(highlightedGate != nullptr)
-    {
-        QList<Stage*> missionStages = mission->getStages();
-        for(Stage* stage : missionStages)
-        {
-            if(stage->getExitGate() == highlightedGate->getGate())
-            {
-                if(stage->isGateLocked())
-                    stage->setGateLocked(false);
-                else
-                    stage->setGateLocked(true);
-
-                break;
-            }
-        }
-    }
-
-    updateGateHighlights();
+        mission->toggleLockInGate(highlightedGate->getGate());
 }
 
 void MissionStructureScene::replaceGate(QAction* action)

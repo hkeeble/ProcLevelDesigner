@@ -73,6 +73,10 @@ private slots:
 
     void on_generateSpaceButton_clicked();
 
+    void on_pushButton_clicked();
+
+    void on_tabView_currentChanged(int index);
+
 protected:
     void closeEvent(QCloseEvent *event) override final;
 

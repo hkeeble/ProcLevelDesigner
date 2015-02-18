@@ -2,9 +2,15 @@
 
 static constexpr int SIDE_MAP_TRANSPORTER_SIZE = 16; /*!< The size that every side map transporter must be. */
 
+void SpaceReceiver::missionUpdated()
+{
+    space->missionUpdated();
+}
+
 Space::Space()
 {
     observer = new SpaceObserver();
+    receiver = nullptr;
 }
 
 Space::~Space()
@@ -542,4 +548,15 @@ QList<Map> Space::buildMaps()
         mapList.append(iter.value());
     }
     return mapList;
+}
+
+void Space::missionUpdated()
+{
+    clear();
+    emitUpdate();
+}
+
+void Space::setMission(Mission* mission)
+{
+    receiver = new SpaceReceiver(mission, this);
 }

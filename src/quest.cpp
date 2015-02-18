@@ -53,6 +53,9 @@ bool Quest::Init()
         Table* spaceData = getData(DAT_SPACE);
         space = Space::Parse(spaceData, mission.getGateList(), mission.getKeyEventList(), getTilesetList());
 
+        // Space should observe mission for changes
+        space.setMission(&mission);
+
         // Parse current hero data
         Table* heroData = getData(DAT_HERO);
         hero = Hero::Parse(heroData);

@@ -15,6 +15,8 @@
 #include "direction.h"
 #include "destination.h"
 
+class Space; // Forward declare space
+
 /*!
  * \brief Observes a space object, and is used to emit a signal when space has changed to inform all slots to update.
  */
@@ -29,6 +31,19 @@ public:
 
 signals:
     void updated();
+};
+
+class SpaceReceiver : public QObject
+{
+    Q_OBJECT
+public:
+    SpaceReceiver(Mission* mission, Space* space) : space(space) { connect(mission->getObserver(), SIGNAL(updated()), this, SLOT(missionUpdated())); }
+
+public slots:
+    void missionUpdated();
+
+private:
+    Space* space;
 };
 
 /*!
@@ -175,10 +190,25 @@ public:
      */
     QPoint getStartingArea() { return startingArea; }
 
+    /*!
+     * \brief Will set the mission for this space to observe for changes. When the mission changes, we want to clear the space.
+     * \param mission
+     */
+    void setMission(Mission* mission);
+
+    /*!
+     * \brief Checks whether or not space is currently clear of any areas.
+     */
+    bool isClear() { return areas.size() == 0; }
+
+    void missionUpdated();
+
 private:
+
     void copy(const Space& param); /*!< Internal deep copy helper function. */
 
     SpaceObserver* observer; /*!< The observer is used to inform the space scene whenever the space changes. */
+    SpaceReceiver* receiver; /*!< The receiver receieves messages from the mission, to inform space when mission has changed. */
 
     QVector<QVector<GridCell>> cells; /*!< The grid of cells representing this area. Each cell contains (or does not contain) a reference to
                                            the area that it holds. */

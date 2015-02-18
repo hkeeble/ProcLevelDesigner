@@ -52,6 +52,8 @@ EditorWindow::EditorWindow(QWidget *parent) :
 
     spaceScene = new SpaceScene();
     ui->spaceView->setScene(spaceScene);
+
+    ui->tabView->setCurrentIndex(0);
 }
 
 EditorWindow::~EditorWindow()
@@ -377,7 +379,23 @@ void EditorWindow::on_removeGateButton_clicked()
 
 void EditorWindow::on_generateMissionButton_clicked()
 {
-    quest.mission.generate(); // Generate the mission here
+    if(quest.space.isClear())
+        quest.mission.generate(); // Generate the mission here
+    else
+    {
+        if(QMessageBox::warning(this, "Warning", "Generating new mission structure will delete any existing space. Are you sure?",
+                                QMessageBox::Yes | QMessageBox::No) == QMessageBox::Button::Yes) {
+            quest.mission.generate();
+        }
+    }
+}
+
+void EditorWindow::on_pushButton_clicked()
+{
+    if(QMessageBox::warning(this, "Warning", "This will clear all keys currently placed in the mission. Are you sure?",
+                            QMessageBox::Yes | QMessageBox::No) == QMessageBox::Button::Yes) {
+        quest.mission.clearKeys();
+    }
 }
 
 void EditorWindow::on_newZoneButton_clicked()
@@ -609,4 +627,16 @@ Zone* EditorWindow::getSelectedZone()
     QVariant selectedZoneID = ui->zoneList->currentIndex().data();
     QString zoneName = selectedZoneID.toString();
     return quest.space.getZone(zoneName);
+}
+
+void EditorWindow::on_tabView_currentChanged(int index)
+{
+    if(index == 1)
+    {
+        if(!quest.mission.validate())
+        {
+            QMessageBox::warning(this, "Error", "Mission structure must use all keys before generating space.", QMessageBox::Button::Ok);
+            ui->tabView->setCurrentIndex(0);
+        }
+    }
 }
