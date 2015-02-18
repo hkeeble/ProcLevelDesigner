@@ -147,7 +147,6 @@ protected:
    void dropEvent (QGraphicsSceneDragDropEvent* event) override;
 
    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
-   void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
 
    void contextMenuEvent(QGraphicsSceneContextMenuEvent* event) override;
 
@@ -157,14 +156,20 @@ public slots:
     void toggleLockInKey();
     void removeKey();
 
+    void toggleLockInGate();
+    void replaceGate(QAction* action);
+
 private:
 
     void updateKeyHighlights();
+    void updateGateHighlights();
 
     bool rectContains(TextRectItem item, QPointF mousePos);
     bool lineRectContains(QPointF parentPosition, QGraphicsSimpleTextItem* line, QPointF mousePos);
 
     QMenu keyContextMenu;
+    QMenu gateContextMenu;
+    QSharedPointer<QMenu> gateReplaceSubMenu;
 
     Mission* mission;
 

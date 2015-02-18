@@ -107,11 +107,16 @@ public:
     void emitUpdate() { observer->emitUpdate(); }
 
     /*!
-     * \brief Validates this mission, checking whether or not the mission is valid. Returns false if the mission has become invalid. This should
-     * only ever be called once ALL keys are present in the mission, otherwise it will not work. Call other validation functions to validate other
-     * additions or changes to the structure.
+     * \brief Validates this mission, checking whether or not the mission is valid. Returns false if the mission has become invalid. The validation
+     * function will only validate the mission for key events that are IN USE in the mission. If a key is not in use, then it is assumed that it's placement
+     * will be validated elsewhere.
      */
     bool validate();
+
+    /*!
+     * \brief Retrieves all keys that are currently in an invalid location. If the list is empty, the mission is valid.
+     */
+    QList<Key*> getInvalidKeys();
 
     /*!
      * \brief Validates the potential addition of the given key to the given stage, and returns whether or not this would invalidate the mission
@@ -129,6 +134,11 @@ public:
     bool doesKeyExist(Key* key);
 
     MissionObserver* getObserver() { return observer; }
+
+    /*!
+     * \brief Returns a list of all the keys that are currently in use, that is they are placed into a stage.
+     */
+    QList<Key*> getUsedKeys();
 
 private:
     /*!

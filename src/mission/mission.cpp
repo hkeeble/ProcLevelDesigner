@@ -18,16 +18,6 @@ void Mission::generate()
     for(Stage& stage : stages)
         stage.clearUnlockedKeys();
 
-    // Randomly arrange gates
-    QList<Stage*> unassignedStages = getStages(); // Stages that have not been assigned a gate
-    QList<Gate*> gateList = getGateList();
-    for(Gate* gate : gateList)
-    {
-        Stage* stage = unassignedStages.at(rand.randomInteger(0, unassignedStages.length()-1));
-        unassignedStages.removeOne(stage);
-        stage->setExitGate(gate);
-    }
-
     // Get a list of all unlocked keys
     QList<Key*> keyList = getKeyEventList();
     for(Stage& stage :stages)
@@ -38,6 +28,31 @@ void Mission::generate()
                 keyList.removeOne(lockedKey);
         }
     }
+
+    // Get a list of all stages with unlocked gates, and gates that are not locked in place
+    QList<Stage*> unassignedStages = getStages(); // Stages that have not been assigned a gate
+    QList<Gate*> gateList = getGateList();
+    QList<Stage*>::iterator iter = unassignedStages.begin();
+    while(iter != unassignedStages.end())
+    {
+        if((*iter)->isGateLocked())
+        {
+            gateList.removeOne((*iter)->getExitGate());
+            iter = unassignedStages.erase(iter);
+        }
+        else
+            iter++;
+    }
+
+    // Randomly arrange gates
+    for(Gate* gate : gateList)
+    {
+        Stage* stage = unassignedStages.at(rand.randomInteger(0, unassignedStages.length()-1));
+        unassignedStages.removeOne(stage);
+        stage->setExitGate(gate);
+    }
+
+
 
     // Randomly arrange all unlocked key events
     QList<Stage*> stageList = getStages();
@@ -341,6 +356,7 @@ bool Mission::validate()
 {
     bool isValid = true;
 
+    QList<Key*> usedKeys = getUsedKeys(); // Retrieve keys present in the mission
     QList<Key*> collectedKeys; // The keys that we have come across so far
 
     const Stage* currentStage = &stages.at(0);
@@ -350,10 +366,13 @@ bool Mission::validate()
         QList<Key*> requiredKeys = currentStage->getExitGate()->getKeys();
         for(Key* reqKey : requiredKeys) // Check if the exit gate keys have all been collected by this point
         {
-            if(!collectedKeys.contains(reqKey))
+            if(usedKeys.contains(reqKey))
             {
-                isValid = false;
-                break;
+                if(!collectedKeys.contains(reqKey))
+                {
+                    isValid = false;
+                    break;
+                }
             }
         }
         if(!isValid) // If mission has become invalid, break loop
@@ -364,6 +383,36 @@ bool Mission::validate()
     }
 
     return isValid;
+}
+
+QList<Key*> Mission::getInvalidKeys()
+{
+    QList<Key*> invalidKeys;
+    QList<Key*> usedKeys = getUsedKeys(); // Retrieve keys present in the mission
+    QList<Key*> collectedKeys; // The keys that we have come across so far
+    const Stage* currentStage = &stages.at(0);
+    while(currentStage != nullptr)
+    {
+        collectedKeys.append(currentStage->getKeys()); // Add the keys for this stage
+        QList<Key*> requiredKeys = currentStage->getExitGate()->getKeys();
+        for(Key* reqKey : requiredKeys) // Check if the exit gate keys have all been collected by this point
+        {
+            if(usedKeys.contains(reqKey))
+            {
+                if(usedKeys.contains(reqKey))
+                {
+                    if(!collectedKeys.contains(reqKey))
+                    {
+                        invalidKeys.append(reqKey);
+                    }
+                }
+            }
+        }
+
+        currentStage = currentStage->getNextStage();
+    }
+
+    return invalidKeys;
 }
 
 bool Mission::validateAddition(Stage* stage, Key* key)
@@ -381,14 +430,27 @@ bool Mission::validateAddition(Stage* stage, Key* key)
     return true;
 }
 
- bool Mission::doesKeyExist(Key* key)
- {
-     const Stage* currentStage = &stages.at(0);
-     while(currentStage != nullptr)
-     {
-         if(currentStage->getKeys().contains(key))
-             return true;
-         currentStage = currentStage->getNextStage();
-     }
-     return false;
- }
+bool Mission::doesKeyExist(Key* key)
+{
+    const Stage* currentStage = &stages.at(0);
+    while(currentStage != nullptr)
+    {
+        if(currentStage->getKeys().contains(key))
+            return true;
+        currentStage = currentStage->getNextStage();
+    }
+    return false;
+}
+
+QList<Key*> Mission::getUsedKeys()
+{
+    QList<Key*> usedKeys;
+
+    const Stage* currentStage = &stages.at(0);
+    while(currentStage != nullptr)
+    {
+        usedKeys.append(currentStage->getKeys());
+        currentStage = currentStage->getNextStage();
+    }
+    return usedKeys;
+}

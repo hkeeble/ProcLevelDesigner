@@ -164,3 +164,11 @@ void Stage::clearUnlockedKeys()
             keys.removeOne(key);
     }
 }
+
+bool Stage::removeKey(Key* key)
+{
+    if(lockedKeys.contains(key))
+        lockedKeys.removeOne(key);
+
+    return keys.removeOne(key);
+}

@@ -153,8 +153,14 @@ MissionStructureScene::MissionStructureScene(QObject *parent) :
     highlightedKey = nullptr;
     highlightedStage = nullptr;
 
-    keyContextMenu.addAction("Lock In", this, SLOT(toggleLockInKey()));
+    keyContextMenu.addAction("Toggle Lock In", this, SLOT(toggleLockInKey()));
     keyContextMenu.addAction("Remove", this, SLOT(removeKey()));
+
+    gateContextMenu.addAction("Toggle Lock In", this, SLOT(toggleLockInGate()));
+
+    gateReplaceSubMenu = QSharedPointer<QMenu>(new QMenu());
+    gateReplaceSubMenu.data()->setTitle("Replace With...");
+    gateContextMenu.addMenu(gateReplaceSubMenu.data());
 }
 
 void MissionStructureScene::setMission(Mission* mission)
@@ -214,10 +220,12 @@ void MissionStructureScene::missionUpdated()
     for(TextRectItem gate : gates)
     {
         gate.setPos(QPointF(gate.getPos().x(), (tallest/2)-(gate.getHeight()/2)));
+        gate.getRect()->setFlag(QGraphicsItem::ItemIsMovable, true);
         addItem(gate.getRect());
     }
 
     updateKeyHighlights();
+    updateGateHighlights();
 }
 
 void MissionStructureScene::toggleLockInKey()
@@ -240,6 +248,95 @@ void MissionStructureScene::removeKey()
         highlightedStage->getStage()->removeKey(highlightedKey);
         missionUpdated();
     }
+}
+
+void MissionStructureScene::toggleLockInGate()
+{
+    if(highlightedGate != nullptr)
+    {
+        QList<Stage*> missionStages = mission->getStages();
+        for(Stage* stage : missionStages)
+        {
+            if(stage->getExitGate() == highlightedGate->getGate())
+            {
+                if(stage->isGateLocked())
+                    stage->setGateLocked(false);
+                else
+                    stage->setGateLocked(true);
+
+                break;
+            }
+        }
+    }
+
+    updateGateHighlights();
+}
+
+void MissionStructureScene::replaceGate(QAction* action)
+{
+    QString name = action->data().toString();
+
+    // Get the stage that CURRENTLY has the selected gate, and the stage we are replacing
+    QList<Stage*> stageList = mission->getStages();
+
+    Stage* currentOwner = nullptr;
+    Stage* beingReplaced = nullptr;
+
+    for(Stage* stage : stageList)
+    {
+        if(stage->getExitGate()->getName() == name)
+            currentOwner = stage;
+        if(stage->getExitGate()->getName() == highlightedGate->getGate()->getName())
+            beingReplaced = stage;
+    }
+
+    // Unlock gates from the stages being swapped
+    currentOwner->setGateLocked(false);
+    beingReplaced->setGateLocked(false);
+
+    // Swap the gates over
+    Gate* moving = currentOwner->getExitGate();
+    Gate* swapping = beingReplaced->getExitGate();
+
+    currentOwner->setExitGate(swapping);
+    beingReplaced->setExitGate(moving);
+
+    QList<Key*> invalidatedKeys = mission->getInvalidKeys(); // Get any keys invalidated by this move
+
+    // Validate the change
+    if(invalidatedKeys.length() > 0)
+    {
+        QString invalidatedKeyNames;
+        for(Key* key : invalidatedKeys)
+            invalidatedKeyNames += key->getName() + ", ";
+        invalidatedKeyNames.remove(invalidatedKeyNames.length()-2, 2);
+
+        if(QMessageBox::warning(static_cast<QWidget*>(parent()), "Error", "This action would invalidate the mission. To make the swap valid, the keys: " +
+                                                                            invalidatedKeyNames + " will need to be removed from the current structure. Do you wish to do this?",
+                                QMessageBox::Button::Yes | QMessageBox::Button::No) == QMessageBox::Button::Yes)
+        {
+            // Find the stages that contain the keys, and then remove them
+            for(Key* key : invalidatedKeys)
+            {
+                for(StageRect& stage : stages)
+                {
+                    if(stage.getStage()->getKeys().contains(key))
+                        stage.getStage()->removeKey(key);
+                }
+            }
+
+            beingReplaced->setGateLocked(true);
+        }
+        else // If the user doesn't wish to remove the keys, swap the gates back to their original positions
+        {
+            currentOwner->setExitGate(moving);
+            beingReplaced->setExitGate(swapping);
+        }
+    }
+    else
+        beingReplaced->setGateLocked(true);
+
+    missionUpdated();
 }
 
 void MissionStructureScene::dragEnterEvent(QGraphicsSceneDragDropEvent* event)
@@ -295,7 +392,10 @@ void MissionStructureScene::dropEvent(QGraphicsSceneDragDropEvent* event)
                 if(mission->validateAddition(stage, key))
                 {
                     if(!mission->doesKeyExist(key)) // Also ignore if the key already exists
+                    {
                         stage->addKey(key);
+                        stage->lockKey(key);
+                    }
                     else
                         QMessageBox::warning(static_cast<QWidget*>(parent()), "Error", "This key already exists in the structure. BrushRemove it before adding it elsewhere.",
                                                      QMessageBox::Ok);
@@ -333,6 +433,33 @@ void MissionStructureScene::updateKeyHighlights()
     }
 }
 
+void MissionStructureScene::updateGateHighlights()
+{
+    for(StageRect& stage : stages)
+    {
+        // Find this stage's gate rect
+        Gate* gatePtr = stage.getStage()->getExitGate();
+
+        GateRect* rect;
+        for(GateRect& gate : gates)
+        {
+            if(gatePtr->getName() == gate.getGate()->getName())
+                rect = &gate;
+        }
+
+        if(stage.getStage()->isGateLocked())
+            rect->setBrush(QBrush(Qt::blue));
+        else
+            rect->setBrush(QBrush(Qt::gray));
+
+        if(highlightedGate != nullptr)
+        {
+            if(gatePtr == highlightedGate->getGate())
+                rect->setBrush(QBrush(Qt::red));
+        }
+    }
+}
+
 void MissionStructureScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
     // Update highlighted stage
@@ -348,7 +475,6 @@ void MissionStructureScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     }
     if(!hitFound)
         highlightedStage = nullptr;
-
 
     hitFound = false;
     if(highlightedStage != nullptr)
@@ -374,32 +500,48 @@ void MissionStructureScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
     // Update highlighted gate
     hitFound = false;
-    for(GateRect gate : gates)
+    for(GateRect& gate : gates)
     {
         if(rectContains(gate, event->scenePos()))
         {
-            gate.setBrush(QBrush(Qt::red));
             highlightedGate = &gate;
             hitFound = true;
+            break;
         }
-        else
-            gate.setBrush(QBrush(Qt::gray));
     }
     if(!hitFound)
         highlightedGate = nullptr;
 
     updateKeyHighlights();
-}
-
-void MissionStructureScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-
+    updateGateHighlights();
 }
 
 void MissionStructureScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
 {
     if(highlightedKey != nullptr)
         keyContextMenu.exec(event->screenPos());
+    if(highlightedGate != nullptr)
+    {
+        gateReplaceSubMenu.data()->clear();
+
+        // Get a list of gates to add to replacement menu
+        QList<QString> list;
+        for(GateRect& gate : gates)
+        {
+            if(gate.getGate() != highlightedGate->getGate())
+                list.append(gate.getGate()->getName());
+        }
+
+        for(QString name : list)
+        {
+            QAction* action = gateReplaceSubMenu.data()->addAction(name);
+            action->setData(name);
+        }
+
+        connect(gateReplaceSubMenu.data(), SIGNAL(triggered(QAction*)), this, SLOT(replaceGate(QAction*)), Qt::UniqueConnection);
+
+        gateContextMenu.exec(event->screenPos());
+    }
 }
 
 bool MissionStructureScene::rectContains(TextRectItem item, QPointF mousePos)
