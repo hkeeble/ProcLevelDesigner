@@ -63,6 +63,15 @@ const QString ELE_KEY_MAXIMUM_DIST = "key_maximum_dist";
 const QString DAT_SPACE = "proc_designer_data" + QString(QDir::separator()) + "space_data" + QString(QDir::separator()) + "space";
 const QString DAT_ZONE_SUFFIX = "_zone";
 
+// Space Options
+const QString OBJ_SPACE_OPTIONS = "space_options";
+const QString ELE_MIN_AREA_WIDTH = "min_area_width";
+const QString ELE_MAX_AREA_WIDTH = "max_area_width";
+const QString ELE_MIN_AREA_HEIGHT = "min_area_height";
+const QString ELE_MAX_AREA_HEIGHT = "max_area_height";
+const QString ELE_MIN_AREAS_PER_STAGE = "min_areas_per_stage";
+const QString ELE_MAX_AREAS_PER_STAGE = "max_areas_per_stage";
+
 // Hero
 const QString DAT_HERO = "proc_designer_data" + QString(QDir::separator()) + "hero";
 

@@ -8,6 +8,8 @@
 #include "key.h"
 #include "zone.h"
 #include "map.h"
+#include "spacegenerationoptions.h"
+#include "randomengine.h"
 
 static const int AREA_TILE_SIZE = 16; /*!< The tile dimensions of a single area (AREA_TILE_SIZE x AREA_TILE_SIZE tiles make up a single area) */
 
@@ -113,6 +115,8 @@ public:
     virtual ~Area();
 
     Area(Zone* zone, QPoint location, int width, int height);
+    Area(Zone* zone, int width, int height);
+    Area(int width, int height);
 
     Area(const Area& param);
     Area& operator=(const Area& param);
@@ -120,7 +124,7 @@ public:
     static Area Parse(Object* obj, QString filePath, QList<Key*> keys, QList<Gate*> gates);
     void build(Object* obj, QString filePath);
 
-    QPoint getLocation() { return location; }
+    QPoint getLocation() const { return location; }
 
     QList<Key*> getKeyEvents() { return keyEvents; }
 
@@ -135,8 +139,8 @@ public:
     Cell getCell(int x, int y) { return grid.getCell(x, y); }
     void setCell(int x, int y, Cell cell) { grid.setCell(cell, x, y); }
 
-    int getWidth() { return width; }
-    int getHeight() { return height; }
+    int getWidth() const { return width; }
+    int getHeight() const { return height; }
 
     int getGridWidth() { return grid.getWidth(); }
     int getGridHeight() { return grid.getHeight(); }
@@ -184,6 +188,12 @@ public:
 
     bool operator==(const Area rhs);
 
+    /*!
+     * \brief Set the location of this area. Do not change area location if it exists in a space already.
+     * \param location The location of the area.
+     */
+    void setLocation(QPoint location) { this->location = location; }
+
 private:
     void cpy(const Area& param);                /*!< Internal copying function. */
 
@@ -199,4 +209,38 @@ private:
     QList<Key*> keyEvents;                      /*!< The key events that take place in this area. */
     Link *up, *left, *right, *down;             /*!< This area's links to other areas. */
 };
+
+/*!
+ * \brief The AreaFactory class contains some helper functions to generate areas.
+ */
+class AreaFactory
+{
+public:
+    virtual ~AreaFactory() { }
+
+    /*!
+     * \brief RandomArea Generate a random area.
+     * \param zone The zone to assign to the area.
+     * \param minX The minimum x location of the area.
+     * \param maxX The maximum x location of the area.
+     * \param minY The minimum y location of the area.
+     * \param maxY The maximum y location of the area.
+     * \param options The space generation options to use.
+     */
+    static Area RandomArea(Zone* zone, int minX, int maxX, int minY, int maxY, const SpaceGenerationOptions& options);
+
+    /*!
+     * \brief RandomArea
+     * \param zone The zone to assign to the area.
+     * \param x The x location of the area.
+     * \param y The y location of the area.
+     * \param options The space generation options to use.
+     * \return
+     */
+    static Area RandomArea(Zone* zone, int x, int y, const SpaceGenerationOptions& options);
+
+private:
+    AreaFactory() { }
+};
+
 #endif // AREA_H

@@ -347,7 +347,7 @@ bool Table::isEmpty() const
 void Table::saveToDisk()
 {
     file.setFileName(filePath);
-    if(file.open(QIODevice::WriteOnly)) // Begin write
+    if(file.open(QIODevice::WriteOnly | QIODevice::Truncate)) // Begin write
     {
         out.setDevice(&file);
 

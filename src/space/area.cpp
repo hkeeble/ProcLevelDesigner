@@ -163,6 +163,18 @@ Area::Area(Zone* zone, QPoint location, int width, int height)
     this->zoneName = zone->getName();
 }
 
+Area::Area(Zone* zone, int width, int height) :
+    Area(zone, QPoint(0,0), width, height)
+{
+
+}
+
+Area::Area(int width, int height) :
+    Area(nullptr, QPoint(0, 0), width, height)
+{
+
+}
+
 Area Area::Parse(Object* obj, QString filePath, QList<Key*> keys, QList<Gate*> gates)
 {
     Area area;
@@ -335,7 +347,6 @@ Map Area::buildMap()
     return map;
 }
 
-
 bool Area::operator==(const Area rhs)
 {
     return (location == rhs.location && zoneName == rhs.zoneName && width == rhs.width && height == rhs.height && grid == rhs.grid &&
@@ -356,4 +367,24 @@ bool Area::addGate(Gate* gate, int x, int y)
         return false;
 
     grid.setCellGate(gate, x, y);
+}
+
+Area AreaFactory::RandomArea(Zone* zone, int minX, int maxX, int minY, int maxY, const SpaceGenerationOptions& options)
+{
+    RandomEngine rand;
+
+    int x = rand.randomInteger(minX, maxX);
+    int y = rand.randomInteger(minY, maxY);
+
+    return AreaFactory::RandomArea(zone, x, y, options);
+}
+
+Area AreaFactory::RandomArea(Zone* zone, int x, int y, const SpaceGenerationOptions& options)
+{
+    RandomEngine rand;
+
+    int width = rand.randomInteger(options.getMinimumAreaWidth(), options.getMaximumAreaWidth());
+    int height = rand.randomInteger(options.getMinimumAreaHeight(), options.getMaximumAreaHeight());
+
+    return Area(zone, QPoint(x, y), width, height);
 }

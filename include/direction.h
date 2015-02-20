@@ -9,7 +9,8 @@ enum Direction
     EAST,
     NORTH,
     WEST,
-    SOUTH
+    SOUTH,
+    COUNT
 };
 
 #endif // DIRECTION_H

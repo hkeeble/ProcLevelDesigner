@@ -14,6 +14,7 @@
 #include "randomengine.h"
 #include "direction.h"
 #include "destination.h"
+#include "spacegenerationoptions.h"
 
 class Space; // Forward declare space
 
@@ -207,17 +208,28 @@ private:
 
     void copy(const Space& param); /*!< Internal deep copy helper function. */
 
-    SpaceObserver* observer; /*!< The observer is used to inform the space scene whenever the space changes. */
-    SpaceReceiver* receiver; /*!< The receiver receieves messages from the mission, to inform space when mission has changed. */
 
     QVector<QVector<GridCell>> cells; /*!< The grid of cells representing this area. Each cell contains (or does not contain) a reference to
                                            the area that it holds. */
 
-    // Starting area and location in that area
+    bool areaFits(Area area); /*!< Checks to see if the given area would fit into the space with it's given location and dimensions. */
+
+    bool areaFits(const QPoint& location, int width, int height);
+
+    bool placeInDirection(const Area& baseArea, Area& newArea, Direction direction); /*!< Returns whether or not there is a valid location
+                                                                                                    in a given direction of an existing area for a
+                                                                                                    new area of the given size. Outputs this location
+                                                                                                    to out. */
+
+    int randomAreaWidth(); /*!< Internal helper function generates random width based on user defined options. */
+    int randomAreaHeight(); /*!< Internal helper function generates random height based on user defined options. */
+
+    RandomEngine rand;
     QPoint startingArea, startingLocation;
-
+    SpaceObserver* observer; /*!< The observer is used to inform the space scene whenever the space changes. */
+    SpaceReceiver* receiver; /*!< The receiver receieves messages from the mission, to inform space when mission has changed. */
+    SpaceGenerationOptions options; /*!< User defined space generation options. */
     QMap<QPoint,Area> areas; /*!< Map containing all areas contained by this space. The location represents the origin of the area. */
-
     QMap<QString,Zone> zones; /*!< Zones contained within this space. */
 };
 

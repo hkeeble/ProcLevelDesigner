@@ -55,7 +55,8 @@ SOURCES += \
     src/hero.cpp \
     src/ui/abilitymodel.cpp \
     src/dragdroplistmodel.cpp \
-    src/mission/missiongenerationoptions.cpp
+    src/mission/missiongenerationoptions.cpp \
+    src/space/spacegenerationoptions.cpp
 
 HEADERS  += \
     include/common.h \
@@ -100,7 +101,8 @@ HEADERS  += \
     include/hero.h \
     include/ui/abilitymodel.h \
     include/dragdroplistmodel.h \
-    include/mission/missiongenerationoptions.h
+    include/mission/missiongenerationoptions.h \
+    include/space/spacegenerationoptions.h
 
 FORMS    += \
     ui/editorwindow.ui \

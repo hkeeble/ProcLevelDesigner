@@ -48,134 +48,64 @@ void Space::generate(Mission& mission)
 {
     clear();
 
-    QList<Stage*> stages = mission.getStages(); // Mission stages
-    QList<Area> newAreas; // Areas to be generated from stages
+    RandomEngine rand = RandomEngine(); // The random engine
 
-    Area* previousArea = nullptr; // Pointer to the previously generated area
-    Stage* previousStage = nullptr;
-
-    RandomEngine rand;
-    Direction previousDirection = static_cast<Direction>(rand.randomInteger(0, 3));
+    QList<Stage*> stages = mission.getStages(); // Stages to generate areas for
+    QMap<Stage*,QList<Area>> generatedAreas = QMap<Stage*,QList<Area>>(); // The areas that are generated here, mapped to the stages they were generated for
 
     for(Stage* stage : stages)
     {
-        Area area;
-        Direction newDirection;
+        QList<Area> stageAreas = QList<Area>(); // Will contain all areas generated for this stage
 
-        // If this is the first stage to be generated
-        if(previousArea == nullptr)
+        // Assign a random zone for this stage
+        auto iter = zones.begin();
+        iter += rand.randomInteger(0, zones.count()-1);
+        Zone* zone = &iter.value();
+
+        // Determine first area location (this is based on a previously generated set of areas, if it exists)
+        Area firstArea;
+        if(generatedAreas.count() > 0)
         {
-            // Choose a random location
-            QPoint point = QPoint(rand.randomInteger(0, 5), rand.randomInteger(0, 5));
+            Area baseArea;
+            Direction dir;
 
-            // Choose a random height and width
-            int height = 1;// rand.randomInteger(1, 3);
-            int width = 1;//rand.randomInteger(1, 3);
-
-            area = Area(&zones.begin().value(), point, width, height);
-
-            newDirection = static_cast<Direction>(rand.randomInteger(0, 3));
-        }
-        else
-        {
-            // Choose a random height and width
-            int height = 1; // rand.randomInteger(1, 3);
-            int width = 1; // rand.randomInteger(1, 3);
-
-            QList<Direction> possibleDirections; // The possible directions the new area can lead into
-            if(previousDirection != Direction::EAST && previousArea->getLocation().x() - width >= 0)
-                possibleDirections.append(Direction::WEST);
-            if(previousDirection != Direction::WEST)
-                possibleDirections.append(Direction::EAST);
-            if(previousDirection != Direction::SOUTH && previousArea->getLocation().y() - height >= 0)
-                possibleDirections.append(Direction::NORTH);
-            if(previousDirection != Direction::NORTH)
-                possibleDirections.append(Direction::SOUTH);
-
-            int x, y;
-
-            // Choose a random new direction
+            // Pick a random stage, area and direction to expand
             do {
-                newDirection = possibleDirections[rand.randomInteger(0, possibleDirections.size()-1)];
+                QMap<Stage*,QList<Area>>::iterator iter = generatedAreas.begin();
+                iter += rand.randomInteger(0, generatedAreas.count()-1);
+                Stage* stage = iter.key();
+                QList<Area> areaSet = generatedAreas.find(stage).value();
 
-                // Choose an appropriate position based on direction
-                if(newDirection == Direction::WEST)
-                {
-                    x = previousArea->getLocation().x()-width;
-                    y = previousArea->getLocation().y();
-                }
-                else if(newDirection == Direction::NORTH)
-                {
-                    x = previousArea->getLocation().x();
-                    y = previousArea->getLocation().y()-height;
-                }
-                else if(newDirection == Direction::EAST)
-                {
-                    x = previousArea->getLocation().x() + previousArea->getWidth();
-                    y = previousArea->getLocation().y();
-                }
-                else if(newDirection == Direction::SOUTH)
-                {
-                    x = previousArea->getLocation().x();
-                    y = previousArea->getLocation().y() + previousArea->getHeight();
-                }
-            } while(areas.contains(QPoint(x, y)));
+                baseArea = areaSet.at(rand.randomInteger(0, areaSet.count()-1));
+                dir = static_cast<Direction>(rand.randomInteger(0, Direction::COUNT));
+                firstArea = Area(zone, randomAreaWidth(), randomAreaHeight());
 
-            area = Area(&zones.begin().value(), QPoint(x, y), width, height);
+            } while(!placeInDirection(baseArea, firstArea, dir));
         }
+        else // If this is the first stage, just pick a random location
+            firstArea = AreaFactory::RandomArea(zone, 0, 10, 0, 10, options);
 
-        // Add keys
-        for(Key* key : stage->getKeys())
-            area.addKeyEvent(key, rand.randomInteger(1, area.getGridWidth()-1), rand.randomInteger(1, area.getGridHeight()-1));
+        stageAreas.append(firstArea);
+        placeArea(firstArea); // We must always place new areas, for space checking to work
 
-        // Generate links and add gates
-        if(previousArea)
+        // Determine number of areas for this stage
+        int areaCount = rand.randomInteger(options.getMinimumAreasPerStage(), options.getMaximumAreasPerStage());
+
+        // Generate some areas of random sizes, ignoring the first as it is already placed
+        for(int i = 1; i < areaCount; i++)
         {
-            if(newDirection == Direction::NORTH)
-            {
-                area.setLinkDown(Link(area.getLocation(), previousArea->getLocation()));
-                previousArea->setLinkUp(Link(previousArea->getLocation(), area.getLocation()));
+            //Area area = Area(Area(rand.randomInteger(options.getMinimumAreaWidth(), options.getMaximumAreaWidth()),
+                            //      rand.randomInteger(options.getMinimumAreaHeight(), options.getMaximumAreaHeight())));
 
-                previousArea->addGate(previousStage->getExitGate(), previousArea->getGridWidth()/2, 0);
-            }
-            else if(newDirection == Direction::SOUTH)
-            {
-                area.setLinkUp(Link(area.getLocation(), previousArea->getLocation()));
-                previousArea->setLinkDown(Link(previousArea->getLocation(), area.getLocation()));
-
-                previousArea->addGate(previousStage->getExitGate(), previousArea->getGridWidth()/2, previousArea->getGridHeight()-1);
-            }
-            else if(newDirection == Direction::WEST)
-            {
-                area.setLinkRight(Link(area.getLocation(), previousArea->getLocation()));
-                previousArea->setLinkLeft(Link(previousArea->getLocation(), area.getLocation()));
-
-                previousArea->addGate(previousStage->getExitGate(), 0, previousArea->getGridHeight()/2);
-            }
-            else if(newDirection == Direction::EAST)
-            {
-                area.setLinkLeft(Link(area.getLocation(), previousArea->getLocation()));
-                previousArea->setLinkRight(Link(previousArea->getLocation(), area.getLocation()));
-
-                previousArea->addGate(previousStage->getExitGate(), previousArea->getGridWidth()-1, previousArea->getGridHeight()/2);
-            }
+            // Generate position of this area
+            // Step 1: Select a direction to go from a random existing area in this stage (if none, choose random location?)
+            // Step 2: Select random position where the two areas link correctly
+            // Step 3: If this area collides with an existing area, attempt to move until we not longer collide with another area
+            // Step 4: If this fails, pick another area to expand from
         }
 
-        newAreas.append(area);
-        previousDirection = newDirection;
-        previousArea = &newAreas.last();
-        previousStage = stage;
+        generatedAreas.insert(stage, stageAreas);
     }
-
-
-
-    for(Area& area : newAreas)
-    {
-        generateWalls(area);
-        placeArea(area);
-    }
-
-    setStartingArea(newAreas[0].getLocation(), QPoint(8, 8));
 
     emitUpdate();
 }
@@ -257,6 +187,10 @@ Space Space::Parse(Table* data, QList<Gate*> gates, QList<Key*> keys, QList<Tile
         }
     }
 
+    // Read in options
+    QScopedPointer<Object> obj(new Object());
+    space.options = SpaceGenerationOptions::Parse(obj.data());
+
     return space;
 }
 
@@ -305,6 +239,11 @@ void Space::build(Table *data)
         link.build(&obj);
         data->addObject(OBJ_LINK, obj);
     }
+
+    // Build options
+    QScopedPointer<Object> obj(new Object());
+    options.build(obj.data());
+    data->addObject(OBJ_SPACE_OPTIONS, *obj.data());
 }
 
 bool Space::addZone(QString name, Zone zone)
@@ -369,21 +308,124 @@ void Space::placeArea(Area area)
         }
     }
 
+    // Assign grid cells new ID
     for(int i = area.getLocation().x(); i < area.getLocation().x() + area.getWidth(); i++)
     {
         for(int j = area.getLocation().y(); j < area.getLocation().y() + area.getHeight(); j++)
-        {
-            // Remove any areas in the way of this one
-            if(cells[i][j].containsArea())
-                removeArea(cells[i][j].getAreaOrigin());
-
-            // Assign the cell to the correct area ID:
             cells[i][j] = GridCell(area.getLocation());
-        }
     }
 
     // Insert area into area map
     areas.insert(area.getLocation(), area);
+}
+
+bool Space::areaFits(Area area)
+{
+    return areaFits(area.getLocation(), area.getWidth(), area.getHeight());
+}
+
+bool Space::areaFits(const QPoint& location, int width, int height)
+{
+    // If area is out of bounds, return false
+    if(location.x() < 0 || location.y() < 0)
+        return false;
+
+    // The location may take the area off-grid (out of bounds), but this does not mean it does not fit, therefore only go as far as we can.
+    int xLimit = location.x() + width;
+    int yLimit = location.y() + height;
+    if(xLimit > cells.count()-1) {
+        xLimit = cells.count()-1;
+    }
+    if(yLimit > cells[0].count()-1) {
+        yLimit = cells[0].count()-1;
+    }
+
+    for(int x = location.x(); x < xLimit; x++)
+    {
+        for(int y = location.y(); y < yLimit; y++)
+        {
+            // If cell contains an area, area will not fit into the map
+            if(cells[x][y].containsArea())
+                return false;
+        }
+    }
+
+    return true;
+}
+
+bool Space::placeInDirection(const Area& baseArea, Area& newArea, Direction direction)
+{
+    QPoint currentLoc;
+
+    int x = 0;
+    int y = 0;
+
+    bool validFound = false;
+    switch(direction)
+    {
+
+    case SOUTH: // Placing SOUTH
+        y = baseArea.getLocation().y() + baseArea.getHeight();
+        for(x = baseArea.getLocation().x(); x < baseArea.getLocation().x() + baseArea.getWidth(); x++)
+        {
+            currentLoc.setX(x);
+            currentLoc.setY(y);
+            if(areaFits(currentLoc, newArea.getWidth(), newArea.getHeight()))
+            {
+                validFound = true;
+                break;
+            }
+        }
+        break;
+
+    case EAST: // Placing EAST
+        x = baseArea.getLocation().x() + baseArea.getWidth();
+        for(y = baseArea.getLocation().y(); y < baseArea.getLocation().y() + baseArea.getHeight(); y++)
+        {
+            currentLoc.setX(x);
+            currentLoc.setY(y);
+            if(areaFits(currentLoc, newArea.getWidth(), newArea.getHeight()))
+            {
+                validFound = true;
+                break;
+            }
+        }
+        break;
+
+    case NORTH: // Placing NORTH
+        y = baseArea.getLocation().y() - newArea.getHeight();
+        for(x = baseArea.getLocation().x(); x < baseArea.getLocation().x() + baseArea.getWidth(); x++)
+        {
+            currentLoc.setX(x);
+            currentLoc.setY(y);
+            if(areaFits(currentLoc, newArea.getWidth(), newArea.getHeight()))
+            {
+                validFound = true;
+                break;
+            }
+        }
+
+        break;
+    case WEST: // Placing WEST
+        x = baseArea.getLocation().x() - newArea.getWidth();
+        for(y = baseArea.getLocation().y(); y < baseArea.getLocation().y() + baseArea.getHeight(); y++)
+        {
+            currentLoc.setX(x);
+            currentLoc.setY(y);
+            if(areaFits(currentLoc, newArea.getWidth(), newArea.getHeight()))
+            {
+                validFound = true;
+                break;
+            }
+        }
+
+        break;
+    }
+
+    if(validFound)
+        newArea.setLocation(currentLoc);
+
+    return validFound;
 }
 
 bool Space::removeArea(int x, int y)
@@ -508,7 +550,7 @@ QList<Map> Space::buildMaps()
                     int yPos = (AREA_TILE_SIZE*map->getTileSize()) * (y - area.getLocation().y());
                     int xPos = -SIDE_MAP_TRANSPORTER_SIZE;
                     transporters.append(new Teletransporter(xPos, yPos, SIDE_MAP_TRANSPORTER_SIZE, (AREA_TILE_SIZE*SIDE_MAP_TRANSPORTER_SIZE)*map->getTileSize(), destination->getName(), "_side",
-                                                                  Teletransporter::Transition::Scroll));
+                                                            Teletransporter::Transition::Scroll));
                 }
                 if(right && right->containsArea() && area.getLinkRight() != nullptr  && right->getAreaOrigin() != area.getLocation())
                 {
@@ -516,7 +558,7 @@ QList<Map> Space::buildMaps()
                     int yPos = (AREA_TILE_SIZE*map->getTileSize()) * (y - area.getLocation().y());
                     int xPos = (map->getWidth()*map->getTileSize());
                     transporters.append(new Teletransporter(xPos, yPos, SIDE_MAP_TRANSPORTER_SIZE, (AREA_TILE_SIZE*SIDE_MAP_TRANSPORTER_SIZE)*map->getTileSize(), destination->getName(), "_side",
-                                                                  Teletransporter::Transition::Scroll, "entities/teletransporter"));
+                                                            Teletransporter::Transition::Scroll, "entities/teletransporter"));
                 }
                 if(down && down->containsArea() && area.getLinkDown() != nullptr  && down->getAreaOrigin() != area.getLocation())
                 {
@@ -524,7 +566,7 @@ QList<Map> Space::buildMaps()
                     int yPos = (map->getHeight()*map->getTileSize());
                     int xPos = (AREA_TILE_SIZE*map->getTileSize()) * (x - area.getLocation().x());
                     transporters.append(new Teletransporter(xPos, yPos, (AREA_TILE_SIZE*SIDE_MAP_TRANSPORTER_SIZE)*map->getTileSize(), SIDE_MAP_TRANSPORTER_SIZE, destination->getName(), "_side",
-                                                                  Teletransporter::Transition::Scroll));
+                                                            Teletransporter::Transition::Scroll));
                 }
                 if(up && up->containsArea() && area.getLinkUp() != nullptr && up->getAreaOrigin() != area.getLocation())
                 {
@@ -532,7 +574,7 @@ QList<Map> Space::buildMaps()
                     int yPos = -SIDE_MAP_TRANSPORTER_SIZE;
                     int xPos = (AREA_TILE_SIZE*map->getTileSize()) * (x - area.getLocation().x());
                     transporters.append(new Teletransporter(xPos, yPos, (AREA_TILE_SIZE*SIDE_MAP_TRANSPORTER_SIZE)*map->getTileSize(), SIDE_MAP_TRANSPORTER_SIZE, destination->getName(), "_side",
-                                                                  Teletransporter::Transition::Scroll));
+                                                            Teletransporter::Transition::Scroll));
                 }
 
                 // Add all transporters to the map.
@@ -559,4 +601,14 @@ void Space::missionUpdated()
 void Space::setMission(Mission* mission)
 {
     receiver = new SpaceReceiver(mission, this);
+}
+
+int Space::randomAreaWidth()
+{
+    return rand.randomInteger(options.getMinimumAreaWidth(), options.getMaximumAreaWidth());
+}
+
+int Space::randomAreaHeight()
+{
+    return rand.randomInteger(options.getMinimumAreaHeight(), options.getMaximumAreaHeight());
 }
