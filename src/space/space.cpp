@@ -24,31 +24,31 @@ void generateWalls(Area& area)
     Grid* grid = area.getGrid();
 
     // Set values (wall off the area)
-    for(int y = 0; y < grid->getHeight(); y++)
-        grid->setCellTraversable(false, 0, y);
-    for(int y = 0; y < grid->getHeight(); y++)
-        grid->setCellTraversable(false, grid->getWidth()-1, y);
-    for(int x = 0; x < grid->getWidth(); x++)
-        grid->setCellTraversable(false, x, 0);
-    for(int x = 0; x < grid->getWidth(); x++)
-        grid->setCellTraversable(false, x, grid->getHeight()-1);
-
-    // break walls where there are links
-    if(area.getLinkRight())
-        grid->setCellTraversable(true, grid->getWidth()-1, grid->getHeight()/2);
-    if(area.getLinkLeft())
-        grid->setCellTraversable(true, 0, grid->getHeight()/2);
-    if(area.getLinkUp())
-        grid->setCellTraversable(true, grid->getWidth()/2, 0);
-    if(area.getLinkDown())
-        grid->setCellTraversable(true, grid->getWidth()/2, grid->getHeight()-1);
+    if(!area.getLinkLeft())
+    {
+        for(int y = 0; y < grid->getHeight(); y++)
+            grid->setCellTraversable(false, 0, y);
+    }
+    if(!area.getLinkRight())
+    {
+        for(int y = 0; y < grid->getHeight(); y++)
+            grid->setCellTraversable(false, grid->getWidth()-1, y);
+    }
+    if(!area.getLinkUp())
+    {
+        for(int x = 0; x < grid->getWidth(); x++)
+            grid->setCellTraversable(false, x, 0);
+    }
+    if(!area.getLinkDown())
+    {
+        for(int x = 0; x < grid->getWidth(); x++)
+            grid->setCellTraversable(false, x, grid->getHeight()-1);
+    }
 }
 
 void Space::generate(Mission& mission)
 {
     clear();
-
-    RandomEngine rand = RandomEngine(); // The random engine
 
     QList<Stage*> stages = mission.getStages(); // Stages to generate areas for
     QMap<Stage*,QList<Area>> generatedAreas = QMap<Stage*,QList<Area>>(); // The areas that are generated here, mapped to the stages they were generated for
@@ -78,12 +78,12 @@ void Space::generate(Mission& mission)
 
                 baseArea = areaSet.at(rand.randomInteger(0, areaSet.count()-1));
                 dir = static_cast<Direction>(rand.randomInteger(0, Direction::COUNT));
-                firstArea = Area(zone, randomAreaWidth(), randomAreaHeight());
+                firstArea = Area(stage->getID(), zone, randomAreaWidth(), randomAreaHeight());
 
             } while(!placeInDirection(baseArea, firstArea, dir));
         }
         else // If this is the first stage, just pick a random location
-            firstArea = AreaFactory::RandomArea(zone, 0, 10, 0, 10, options);
+            firstArea = AreaFactory::RandomArea(stage->getID(), zone, 0, 10, 0, 10, options);
 
         stageAreas.append(firstArea);
         placeArea(firstArea); // We must always place new areas, for space checking to work
@@ -91,21 +91,83 @@ void Space::generate(Mission& mission)
         // Determine number of areas for this stage
         int areaCount = rand.randomInteger(options.getMinimumAreasPerStage(), options.getMaximumAreasPerStage());
 
-        // Generate some areas of random sizes, ignoring the first as it is already placed
+        // Generate the remaining areas
         for(int i = 1; i < areaCount; i++)
         {
-            //Area area = Area(Area(rand.randomInteger(options.getMinimumAreaWidth(), options.getMaximumAreaWidth()),
-                            //      rand.randomInteger(options.getMinimumAreaHeight(), options.getMaximumAreaHeight())));
+            Area newArea;
+            Area baseArea;
+            Direction dir;
 
-            // Generate position of this area
-            // Step 1: Select a direction to go from a random existing area in this stage (if none, choose random location?)
-            // Step 2: Select random position where the two areas link correctly
-            // Step 3: If this area collides with an existing area, attempt to move until we not longer collide with another area
-            // Step 4: If this fails, pick another area to expand from
+            // Check that there is at least room for a 1x1 area in each direction, if no direction has room, break the loop
+            bool canFit = false;
+            newArea = Area(stage->getID(), zone, 1, 1);
+            canFit = placeInDirection(baseArea, newArea, Direction::NORTH) || placeInDirection(baseArea, newArea, Direction::SOUTH) ||
+                     placeInDirection(baseArea, newArea, Direction::EAST) || placeInDirection(baseArea, newArea, Direction::WEST);
+
+            int loopLimit = 100;
+            int loopCount = 0;
+
+            if(canFit)
+            {
+                do {
+                    loopCount++;
+                    if(loopCount > loopLimit)
+                    {
+                        canFit = false;
+                        break;
+                    }
+
+                    baseArea = stageAreas[rand.randomInteger(0, stageAreas.count()-1)];
+                    dir = static_cast<Direction>(rand.randomInteger(0, Direction::COUNT));
+                    newArea = Area(stage->getID(), zone, randomAreaWidth(), randomAreaHeight());
+                } while(!placeInDirection(baseArea, newArea, dir));
+
+                if(canFit)
+                {
+                    stageAreas.append(newArea);
+                    placeArea(newArea); // We must always place new areas, for space checking to work
+                }
+            }
+            else
+                break;
         }
 
         generatedAreas.insert(stage, stageAreas);
     }
+
+    // Generate walls and connect all areas
+    for(auto iter = areas.begin(); iter != areas.end(); iter++)
+    {
+        Area& area = iter.value();
+
+        QList<QPoint> neighbours = getNeighbours(area);
+        for(QPoint point : neighbours)
+        {
+            Area& neighbour = areas.find(point).value();
+            if(area.getStageID() == neighbour.getStageID())
+            {
+                Direction dir = getDirection(area, neighbour);
+                switch(dir)
+                {
+                case NORTH:
+                    area.setLinkUp(Link(area.getLocation(), neighbour.getLocation()));
+                    break;
+                case SOUTH:
+                    area.setLinkDown(Link(area.getLocation(), neighbour.getLocation()));
+                    break;
+                case EAST:
+                    area.setLinkRight(Link(area.getLocation(), neighbour.getLocation()));
+                    break;
+                case WEST:
+                    area.setLinkLeft(Link(area.getLocation(), neighbour.getLocation()));
+                    break;
+                }
+            }
+        }
+
+        generateWalls(area);
+    }
+
 
     emitUpdate();
 }
@@ -426,6 +488,145 @@ bool Space::placeInDirection(const Area& baseArea, Area& newArea, Direction dire
         newArea.setLocation(currentLoc);
 
     return validFound;
+}
+
+bool Space::areNeighbours(const Area& baseArea, const Area& area, Direction& out)
+{
+    int yTop = baseArea.getLocation().y() - 1;
+    int yBottom = baseArea.getLocation().y() + baseArea.getHeight() + 1;
+    int xLeft = baseArea.getLocation().x() - 1;
+    int xRight = baseArea.getLocation().x() + baseArea.getWidth() + 1;
+
+    // Check possibilities
+    bool northPossible = true, southPossible = true, eastPossible = true, westPossible = true;
+    if(yTop < 0)
+        northPossible = false;
+    if(yBottom > cells[0].count()-1)
+        southPossible = false;
+    if(xLeft < 0)
+        westPossible = false;
+    if(xRight > cells.count()-1)
+        eastPossible = false;
+
+    // Check north and south
+    if(northPossible || southPossible)
+    {
+        for(int x = baseArea.getLocation().x(); x < baseArea.getLocation().x() + baseArea.getWidth(); x++)
+        {
+            if(northPossible && cells[x][yTop].getAreaOrigin() == area.getLocation())
+            {
+                out = Direction::NORTH;
+                return true;
+            }
+            else if(southPossible && cells[x][yBottom].getAreaOrigin() == area.getLocation())
+            {
+                out = Direction::SOUTH;
+                return true;
+            }
+        }
+    }
+
+    // Check east and west
+    if(westPossible || eastPossible)
+    {
+        for(int y = baseArea.getLocation().y(); y < baseArea.getLocation().y() + baseArea.getHeight(); y++)
+        {
+            if(eastPossible && cells[xRight][y].getAreaOrigin() == area.getLocation())
+            {
+                out = Direction::EAST;
+                return true;
+            }
+            else if(westPossible && cells[xLeft][y].getAreaOrigin() == area.getLocation())
+            {
+                out = Direction::WEST;
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+QList<QPoint> Space::getNeighbours(const Area& area)
+{
+    QList<QPoint> neighbourLocations = QList<QPoint>();
+
+    int yTop = area.getLocation().y() - 1;
+    int yBottom = area.getLocation().y() + area.getHeight() + 1;
+    int xLeft = area.getLocation().x() - 1;
+    int xRight = area.getLocation().x() + area.getWidth() + 1;
+
+    // Check possibilities
+    bool northPossible = true, southPossible = true, eastPossible = true, westPossible = true;
+    if(yTop < 0)
+        northPossible = false;
+    if(yBottom > cells[0].count()-1)
+        southPossible = false;
+    if(xLeft < 0)
+        westPossible = false;
+    if(xRight > cells.count()-1)
+        eastPossible = false;
+
+    // Check north and south
+    if(northPossible || southPossible)
+    {
+        for(int x = area.getLocation().x(); x < area.getLocation().x() + area.getWidth(); x++)
+        {
+            if(northPossible && cells[x][yTop].containsArea())
+            {
+                if(!neighbourLocations.contains(cells[x][yTop].getAreaOrigin()))
+                    neighbourLocations.append(cells[x][yTop].getAreaOrigin());
+            }
+            else if(southPossible && cells[x][yBottom].containsArea())
+            {
+                if(!neighbourLocations.contains(cells[x][yBottom].getAreaOrigin()))
+                    neighbourLocations.append(cells[x][yBottom].getAreaOrigin());
+            }
+        }
+    }
+
+    // Check east and west
+    if(westPossible || eastPossible)
+    {
+        for(int y = area.getLocation().y(); y < area.getLocation().y() + area.getHeight(); y++)
+        {
+            if(eastPossible && cells[xRight][y].containsArea())
+            {
+                if(!neighbourLocations.contains(cells[xRight][y].getAreaOrigin()))
+                    neighbourLocations.append(cells[xRight][y].getAreaOrigin());
+            }
+            else if(westPossible && cells[xLeft][y].containsArea())
+            {
+                if(!neighbourLocations.contains(cells[xLeft][y].getAreaOrigin()))
+                    neighbourLocations.append(cells[xLeft][y].getAreaOrigin());
+            }
+        }
+    }
+
+    return neighbourLocations;
+}
+
+Direction Space::getDirection(const Area& baseArea, const Area& otherArea)
+{
+    QPoint base = baseArea.getLocation();
+    QPoint other = otherArea.getLocation();
+
+    QPoint dir = other - base;
+
+    if(dir.x() != 0)
+    {
+        if(dir.x() < 0)
+            return Direction::WEST;
+        else
+            return Direction::EAST;
+    }
+    else
+    {
+        if(dir.y() < 0)
+            return Direction::NORTH;
+        else
+            return Direction::SOUTH;
+    }
 }
 
 bool Space::removeArea(int x, int y)

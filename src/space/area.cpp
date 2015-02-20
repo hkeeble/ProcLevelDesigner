@@ -149,7 +149,7 @@ Area& Area::operator=(const Area& param)
     }
 }
 
-Area::Area(Zone* zone, QPoint location, int width, int height)
+Area::Area(int stageID, Zone* zone, QPoint location, int width, int height)
     : Area()
 {
     this->zone = zone;
@@ -161,16 +161,12 @@ Area::Area(Zone* zone, QPoint location, int width, int height)
     this->grid = Grid(width*AREA_TILE_SIZE, height*AREA_TILE_SIZE);
 
     this->zoneName = zone->getName();
+
+    this->stageID = stageID;
 }
 
-Area::Area(Zone* zone, int width, int height) :
-    Area(zone, QPoint(0,0), width, height)
-{
-
-}
-
-Area::Area(int width, int height) :
-    Area(nullptr, QPoint(0, 0), width, height)
+Area::Area(int stageID, Zone* zone, int width, int height) :
+    Area(stageID, zone, QPoint(0,0), width, height)
 {
 
 }
@@ -194,6 +190,7 @@ Area Area::Parse(Object* obj, QString filePath, QList<Key*> keys, QList<Gate*> g
     area.zoneName = obj->find(ELE_ZONE, NULL_ELEMENT);
     area.width = obj->find(ELE_WIDTH, "1").toInt();
     area.height = obj->find(ELE_HEIGHT, "1").toInt();
+    area.stageID = obj->find(ELE_ID, "0").toInt();
 
     // Initialize and parse grid data
     QScopedPointer<Table> gridTable(new Table(filePath + QDir::separator() + QString::number(x) + QString::number(y) + DAT_EXT));
@@ -211,6 +208,8 @@ void Area::build(Object* obj, QString filePath)
 
     obj->insert(ELE_WIDTH, QString::number(width));
     obj->insert(ELE_HEIGHT, QString::number(height));
+
+    obj->insert(ELE_ID, QString::number(stageID));
 
     QString keyList = "";
     for(Key* key : keyEvents)
@@ -369,22 +368,22 @@ bool Area::addGate(Gate* gate, int x, int y)
     grid.setCellGate(gate, x, y);
 }
 
-Area AreaFactory::RandomArea(Zone* zone, int minX, int maxX, int minY, int maxY, const SpaceGenerationOptions& options)
+Area AreaFactory::RandomArea(int stageID, Zone* zone, int minX, int maxX, int minY, int maxY, const SpaceGenerationOptions& options)
 {
     RandomEngine rand;
 
     int x = rand.randomInteger(minX, maxX);
     int y = rand.randomInteger(minY, maxY);
 
-    return AreaFactory::RandomArea(zone, x, y, options);
+    return AreaFactory::RandomArea(stageID, zone, x, y, options);
 }
 
-Area AreaFactory::RandomArea(Zone* zone, int x, int y, const SpaceGenerationOptions& options)
+Area AreaFactory::RandomArea(int stageID, Zone* zone, int x, int y, const SpaceGenerationOptions& options)
 {
     RandomEngine rand;
 
     int width = rand.randomInteger(options.getMinimumAreaWidth(), options.getMaximumAreaWidth());
     int height = rand.randomInteger(options.getMinimumAreaHeight(), options.getMaximumAreaHeight());
 
-    return Area(zone, QPoint(x, y), width, height);
+    return Area(stageID, zone, QPoint(x, y), width, height);
 }

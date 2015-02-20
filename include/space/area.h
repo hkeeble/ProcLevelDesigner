@@ -114,9 +114,8 @@ public:
     Area();
     virtual ~Area();
 
-    Area(Zone* zone, QPoint location, int width, int height);
-    Area(Zone* zone, int width, int height);
-    Area(int width, int height);
+    Area(int stageID, Zone* zone, QPoint location, int width, int height);
+    Area(int stageID, Zone* zone, int width, int height);
 
     Area(const Area& param);
     Area& operator=(const Area& param);
@@ -144,6 +143,8 @@ public:
 
     int getGridWidth() { return grid.getWidth(); }
     int getGridHeight() { return grid.getHeight(); }
+
+    int getStageID() { return stageID; }
 
     Link* getLinkUp() { return up; }
     Link* getLinkLeft() { return left; }
@@ -187,6 +188,7 @@ public:
     Map buildMap();
 
     bool operator==(const Area rhs);
+    bool operator!=(const Area rhs) { !(*this == rhs); }
 
     /*!
      * \brief Set the location of this area. Do not change area location if it exists in a space already.
@@ -206,6 +208,7 @@ private:
     Grid grid;                                  /*!< The grid of cells in this area. */
 
     int height, width;                          /*!< The height and width of this area. */
+    int stageID;                                /*!< The mission stage that this area belongs to. */
     QList<Key*> keyEvents;                      /*!< The key events that take place in this area. */
     Link *up, *left, *right, *down;             /*!< This area's links to other areas. */
 };
@@ -227,7 +230,7 @@ public:
      * \param maxY The maximum y location of the area.
      * \param options The space generation options to use.
      */
-    static Area RandomArea(Zone* zone, int minX, int maxX, int minY, int maxY, const SpaceGenerationOptions& options);
+    static Area RandomArea(int stageID, Zone* zone, int minX, int maxX, int minY, int maxY, const SpaceGenerationOptions& options);
 
     /*!
      * \brief RandomArea
@@ -237,7 +240,7 @@ public:
      * \param options The space generation options to use.
      * \return
      */
-    static Area RandomArea(Zone* zone, int x, int y, const SpaceGenerationOptions& options);
+    static Area RandomArea(int stageID, Zone* zone, int x, int y, const SpaceGenerationOptions& options);
 
 private:
     AreaFactory() { }

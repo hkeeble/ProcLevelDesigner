@@ -221,6 +221,12 @@ private:
                                                                                                     new area of the given size. Outputs this location
                                                                                                     to out. */
 
+    bool areNeighbours(const Area& baseArea, const Area& area, Direction& out); /*!< Checks if two given areas are neighbours and returns the direction. */
+
+    QList<QPoint> getNeighbours(const Area& area); /*< Get the neighbour's origins of the given area. */
+
+    Direction getDirection(const Area& baseArea, const Area& otherArea);
+
     int randomAreaWidth(); /*!< Internal helper function generates random width based on user defined options. */
     int randomAreaHeight(); /*!< Internal helper function generates random height based on user defined options. */
 
