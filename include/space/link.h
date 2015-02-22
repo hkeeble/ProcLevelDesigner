@@ -3,19 +3,11 @@
 
 #include <QPoint>
 
+#include "direction.h"
 #include "filetools.h"
 
-/*!< Used to represent the direction of a link. */
-enum class LinkDirection
-{
-    Up,
-    Down,
-    Left,
-    Right
-};
-
 /*!
- * \brief Represents a link between two areas. The first and second QPoint show the location of the two points that are linked.
+ * \brief Represents a link between two areas. The origin and target QPoint show the location of the two points that are linked.
  *        Also holds a gate, if the gate is null there is not gate attached to this link.
  */
 class Link
@@ -25,10 +17,12 @@ public:
 
     /*!
      * \brief Create a new link, given a destination.
-     * \param origin      The origin of the area this link is leading from.
-     * \param destination The origin of the area that this link leads to.
+     * \param origin          The origin of the area origin area of this link.
+     * \param originRelative  The relative cell location in the given origin area that this link is in.
+     * \param target         The origin of the area target area of this link.
+     * \param direction     The direction of the link.
      */
-    Link(QPoint origin, QPoint target);
+    Link(const QPoint& origin, const QPoint& originRelative, const QPoint& target, const Direction& direction);
 
     virtual ~Link();
 
@@ -37,14 +31,15 @@ public:
     static Link Parse(Object* obj);
     void build(Object* obj);
 
-    QPoint getOrigin() { return first; }
-    QPoint getTarget() { return second; }
-
-    void setOrigin(QPoint origin) { this->first = origin; }
-    void setTarget(QPoint target) { this->second = target; }
+    QPoint getOrigin() const { return origin; }
+    QPoint getTarget() const { return target; }
+    QPoint getOriginRelative() const { return originRelative; }
+    Direction getDirection() const { return direction; }
 
 private:
-    QPoint first, second;
+    Direction direction;
+    QPoint originRelative;
+    QPoint origin, target;
 };
 
 #endif // LINK_H

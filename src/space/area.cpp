@@ -124,7 +124,6 @@ Grid Grid::Parse(Table* table, int width, int height, QList<Key*> keys, QList<Ga
 
 Area::Area()
 {
-    up = left = right = down = nullptr;
     zone = nullptr;
 }
 
@@ -237,57 +236,39 @@ void Area::cpy(const Area& param)
     this->width = param.width;
     this->height = param.height;
     this->grid = param.grid;
+    this->stageID = param.stageID;
 
-    this->right = this->left = this->down = this->up = nullptr;
+    QList<Link*>::const_iterator iter = param.links.begin();
+    while(iter != param.links.end())
+    {
+        Link* l = new Link((*iter)->getOrigin(), (*iter)->getOriginRelative(),
+                           (*iter)->getTarget(), (*iter)->getDirection());
+        this->links.append(l);
+        iter++;
+    }
+}
 
-    if(param.right)
-        this->right = new Link(*param.right);
-    if(param.left)
-        this->left = new Link(*param.left);
-    if(param.down)
-        this->down = new Link(*param.down);
-    if(param.up)
-        this->up = new Link(*param.up);
+void Area::addLink(const QPoint& location, const QPoint& targetOrigin, const Direction& direction)
+{
+    links.append(new Link(this->location, location, targetOrigin, direction));
+}
+
+
+void Area::addLink(const Link& link)
+{
+    links.append(new Link(link));
 }
 
 void Area::clearAllLinks()
 {
-    removeRightLink();
-    removeLeftLink();
-    removeDownLink();
-    removeUpLink();
-}
+    auto iter = links.begin();
+    while(iter != links.end())
+    {
+        delete (*iter);
+        iter++;
+    }
 
-void Area::removeRightLink()
-{
-    if(right)
-        delete right;
-
-    right = nullptr;
-}
-
-void Area::removeLeftLink()
-{
-    if(left)
-        delete left;
-
-    left = nullptr;
-}
-
-void Area::removeDownLink()
-{
-    if(down)
-        delete down;
-
-    down = nullptr;
-}
-
-void Area::removeUpLink()
-{
-    if(up)
-        delete up;
-
-    up = nullptr;
+    links.clear();
 }
 
 Map Area::buildMap()
@@ -349,7 +330,7 @@ Map Area::buildMap()
 bool Area::operator==(const Area rhs)
 {
     return (location == rhs.location && zoneName == rhs.zoneName && width == rhs.width && height == rhs.height && grid == rhs.grid &&
-            keyEvents == rhs.keyEvents && up == rhs.up && down == rhs.down && left == rhs.left && right == rhs.right && zone == rhs.zone);
+            keyEvents == rhs.keyEvents);
 }
 
 bool Area::addKeyEvent(Key* key, int x, int y)
@@ -358,6 +339,8 @@ bool Area::addKeyEvent(Key* key, int x, int y)
         return false;
 
    grid.setCellKey(key, x, y);
+
+   return true;
 }
 
 bool Area::addGate(Gate* gate, int x, int y)
@@ -366,6 +349,43 @@ bool Area::addGate(Gate* gate, int x, int y)
         return false;
 
     grid.setCellGate(gate, x, y);
+
+    return true;
+}
+
+void Area::addWall(int x, int y, Direction direction)
+{
+    if(x > grid.getWidth()/AREA_TILE_SIZE || y > grid.getHeight()/AREA_TILE_SIZE || x < 0 || y < 0)
+        return;
+
+    int xPos, yPos;
+
+    switch(direction)
+    {
+    case NORTH:
+        yPos = y*AREA_TILE_SIZE;
+        for(xPos = x*AREA_TILE_SIZE; xPos < (x*AREA_TILE_SIZE) + AREA_TILE_SIZE; xPos++)
+            grid.getCell(xPos, yPos).setTraversable(false);
+        break;
+
+    case SOUTH:
+        yPos = (y*AREA_TILE_SIZE) + (AREA_TILE_SIZE-1);
+        for(xPos = x*AREA_TILE_SIZE; xPos < (x*AREA_TILE_SIZE) + AREA_TILE_SIZE; xPos++)
+            grid.getCell(xPos, yPos).setTraversable(false);
+        break;
+
+    case EAST:
+        xPos = (x*AREA_TILE_SIZE) + (AREA_TILE_SIZE-1);
+        for(yPos = y*AREA_TILE_SIZE; yPos < (y*AREA_TILE_SIZE) + AREA_TILE_SIZE; yPos++)
+            grid.getCell(xPos, yPos).setTraversable(false);
+        break;
+
+    case WEST:
+        xPos = x*AREA_TILE_SIZE;
+        for(yPos = y*AREA_TILE_SIZE; yPos < (y*AREA_TILE_SIZE) + AREA_TILE_SIZE; yPos++)
+            grid.getCell(xPos, yPos).setTraversable(false);
+        break;
+    }
 }
 
 Area AreaFactory::RandomArea(int stageID, Zone* zone, int minX, int maxX, int minY, int maxY, const SpaceGenerationOptions& options)

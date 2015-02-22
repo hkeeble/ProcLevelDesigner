@@ -76,6 +76,8 @@ void Quest::saveMaps()
 
     for(Map& map : maps)
     {
+        deleteFolderContents(rootDir.absolutePath() + QDir::separator() + QString("maps") + QDir::separator());
+
         Table* data = getData(QString("maps") + QDir::separator() + map.getName());
         map.build(data);
 
@@ -138,15 +140,23 @@ QString Quest::getName()
         Object* obj = quest->getObject(OBJ_QUEST);
         return obj->find(ELE_TITLE_BAR, "NULL_NAME");
     }
+
+    return NULL_ELEMENT;
 }
 
 void Quest::saveData()
 {
+    // Do some clean-up on the space data files before saving
+    deleteFolderContents(rootDir.absolutePath() + QDir::separator() + QString("proc_designer_data") +
+                         QDir::separator() + QString("space_data") + QDir::separator());
+
     build(); // Build mission and space structures
 
     // Loop through all loaded data tables
     for(auto iter : data.toStdMap())
         iter.second.data()->saveToDisk();
+
+    data.clear(); // clear data in memory
 }
 
 Quest& Quest::operator=(const Quest& param)

@@ -22,8 +22,10 @@ Gate Gate::Parse(Object* object, QMap<QString,Key>* keys)
 
     QStringList keyNames = object->find(ELE_KEY_LINKS, "").split(LIST_DELIM);
     for(QString keyName : keyNames)
-        gate.keys.append(&keys->find(keyName).value());
-
+    {
+        if(keyName != "")
+            gate.keys.append(&keys->find(keyName).value());
+    }
     gate.triggered = (object->find(ELE_TRIGGERED, "false") == "false" ? false : true);
 
     return gate;

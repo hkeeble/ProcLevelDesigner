@@ -159,6 +159,15 @@ public:
     bool removeArea(Area area);
 
     /*!
+     * \brief addLink
+     * \param first
+     * \param second
+     * \param firstLocation
+     * \param secondLocation
+     */
+    void addLink(const Area& first, const Area& second, QPoint firstLocation, QPoint secondLocation);
+
+    /*!
      * \brief Retrieves the cell at the given location.
      */
     GridCell* getCell(int x, int y);
@@ -227,16 +236,20 @@ private:
 
     Direction getDirection(const Area& baseArea, const Area& otherArea);
 
+    void generateLinks(Area& area); /*!< Generates links & walls for the given area. */
+
     int randomAreaWidth(); /*!< Internal helper function generates random width based on user defined options. */
     int randomAreaHeight(); /*!< Internal helper function generates random height based on user defined options. */
+
+    QList<Link> links; /*!< Links contained in this space. */
+    QMap<QPoint,Area> areas; /*!< Map containing all areas contained by this space. The location represents the origin of the area. */
+    QMap<QString,Zone> zones; /*!< Zones contained within this space. */
 
     RandomEngine rand;
     QPoint startingArea, startingLocation;
     SpaceObserver* observer; /*!< The observer is used to inform the space scene whenever the space changes. */
     SpaceReceiver* receiver; /*!< The receiver receieves messages from the mission, to inform space when mission has changed. */
     SpaceGenerationOptions options; /*!< User defined space generation options. */
-    QMap<QPoint,Area> areas; /*!< Map containing all areas contained by this space. The location represents the origin of the area. */
-    QMap<QString,Zone> zones; /*!< Zones contained within this space. */
 };
 
 #endif // SPACE_H

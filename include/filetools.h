@@ -117,10 +117,12 @@ const QString ELE_KEY_NAME = "key_name";
 
 // Link
 const QString OBJ_LINK = "link";
-const QString ELE_FIRST_X = "first_x";
-const QString ELE_FIRST_Y = "first_y";
-const QString ELE_SECOND_X = "second_x";
-const QString ELE_SECOND_Y = "second_y";
+const QString ELE_ORIGIN_X = "origin_x";
+const QString ELE_ORIGIN_Y = "origin_y";
+const QString ELE_TARGET_X = "target_x";
+const QString ELE_TARGET_Y = "target_y";
+const QString ELE_ORIGIN_REL_X = "origin_rel_x";
+const QString ELE_ORIGIN_REL_Y = "origin_rel_y";
 const QString ELE_GATE_NAME = "gate_name";
 
 // Door

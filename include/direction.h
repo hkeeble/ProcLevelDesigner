@@ -1,6 +1,8 @@
 #ifndef DIRECTION_H
 #define DIRECTION_H
 
+#include <QString>
+
 /*!
  * \brief A direction.
  */

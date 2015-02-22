@@ -146,22 +146,19 @@ public:
 
     int getStageID() { return stageID; }
 
-    Link* getLinkUp() { return up; }
-    Link* getLinkLeft() { return left; }
-    Link* getLinkRight() { return right; }
-    Link* getLinkDown() { return down; }
+    /*!
+     * \brief addLink Add a new link to this area.
+     * \param location The location relative to this area (the cell coordinate) where this link is.
+     * \param targetOrigin The origin of the target area of this link.
+     * \param direction The direction of the link.
+     */
+    void addLink(const QPoint& location, const QPoint& targetOrigin, const Direction& direction);
 
-    void setLinkUp(Link link) { up = new Link(link); }
-    void setLinkLeft(Link link) { left = new Link(link); }
-    void setLinkRight(Link link) { right = new Link(link); }
-    void setLinkDown(Link link) { down = new Link(link); }
+    void addLink(const Link& link);
+
+    QList<Link*>& getLinks() { return links; }
 
     void clearAllLinks();
-
-    void removeRightLink();
-    void removeLeftLink();
-    void removeDownLink();
-    void removeUpLink();
 
     /*!
      * \brief Add a key event to this area. Returns false if the location given was invalid, and the key is not added to the area.
@@ -188,13 +185,21 @@ public:
     Map buildMap();
 
     bool operator==(const Area rhs);
-    bool operator!=(const Area rhs) { !(*this == rhs); }
+    bool operator!=(const Area rhs) { return !(*this == rhs); }
 
     /*!
      * \brief Set the location of this area. Do not change area location if it exists in a space already.
      * \param location The location of the area.
      */
     void setLocation(QPoint location) { this->location = location; }
+
+    /*!
+     * \brief addWall Add a wall along the given side of this area, at the given x,y relative location.
+     * \param x The X location, relative to this area's origin.
+     * \param y The Y location, relative to this area's origin.
+     * \param direction Direction representing the side of the tile to add the wall.
+     */
+    void addWall(int x, int y, Direction direction);
 
 private:
     void cpy(const Area& param);                /*!< Internal copying function. */
@@ -210,7 +215,7 @@ private:
     int height, width;                          /*!< The height and width of this area. */
     int stageID;                                /*!< The mission stage that this area belongs to. */
     QList<Key*> keyEvents;                      /*!< The key events that take place in this area. */
-    Link *up, *left, *right, *down;             /*!< This area's links to other areas. */
+    QList<Link*> links;                         /*!< This area's links to other areas. */
 };
 
 /*!

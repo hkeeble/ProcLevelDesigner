@@ -5,10 +5,12 @@ Link::Link()
 
 }
 
-Link::Link(QPoint origin, QPoint target)
+Link::Link(const QPoint& origin, const QPoint& originRelative, const QPoint& target, const Direction& direction)
 {
-    this->first = origin;
-    this->second = target;
+    this->origin = origin;
+    this->target = target;
+    this->originRelative = originRelative;
+    this->direction = direction;
 }
 
 Link::~Link()
@@ -18,20 +20,27 @@ Link::~Link()
 
 bool Link::operator==(const Link& link)
 {
-    return this->first == link.first && this->second == link.second;
+    return this->origin == link.origin && this->target == link.target && this->originRelative == link.originRelative;
 }
 
 Link Link::Parse(Object* obj)
 {
     Link link;
 
-    int firstX = obj->find(ELE_FIRST_X, "0").toInt();
-    int firstY = obj->find(ELE_FIRST_Y, "0").toInt();
-    int secondX = obj->find(ELE_SECOND_X, "0").toInt();
-    int secondY = obj->find(ELE_SECOND_Y, "0").toInt();
+    int originX = obj->find(ELE_ORIGIN_X, "0").toInt();
+    int originY = obj->find(ELE_ORIGIN_Y, "0").toInt();
 
-    link.first = QPoint(firstX, firstY);
-    link.second = QPoint(secondX, secondY);
+    int targetX = obj->find(ELE_TARGET_X, "0").toInt();
+    int targetY = obj->find(ELE_TARGET_Y, "0").toInt();
+
+    int originRelX = obj->find(ELE_ORIGIN_REL_X, "0").toInt();
+    int originRelY = obj->find(ELE_ORIGIN_REL_Y, "0").toInt();
+
+    link.origin = QPoint(originX, originY);
+    link.target = QPoint(targetX, targetY);
+    link.originRelative = QPoint(originRelX, originRelY);
+
+    link.direction = static_cast<Direction>(obj->find(ELE_DIRECTION, "0").toInt());
 
     return link;
 }
@@ -40,8 +49,14 @@ void Link::build(Object* obj)
 {
     obj->data.clear();
 
-    obj->insert(ELE_FIRST_X, QString::number(first.x()));
-    obj->insert(ELE_FIRST_Y, QString::number(first.y()));
-    obj->insert(ELE_SECOND_X, QString::number(second.x()));
-    obj->insert(ELE_SECOND_Y, QString::number(second.y()));
+    obj->insert(ELE_ORIGIN_X, QString::number(origin.x()));
+    obj->insert(ELE_ORIGIN_Y, QString::number(origin.y()));
+
+    obj->insert(ELE_TARGET_X, QString::number(target.x()));
+    obj->insert(ELE_TARGET_Y, QString::number(target.y()));
+
+    obj->insert(ELE_ORIGIN_REL_X, QString::number(originRelative.x()));
+    obj->insert(ELE_ORIGIN_REL_Y, QString::number(originRelative.y()));
+
+    obj->insert(ELE_DIRECTION, QString::number(static_cast<int>(direction)));
 }
