@@ -1,13 +1,17 @@
 #include "spacescene.h"
 
-SpaceScene::SpaceScene(QObject *parent) :
+SpaceScene::SpaceScene(QStatusBar* statusBar, QObject *parent) :
     QGraphicsScene(parent), wallColor(Qt::gray), gateColor(Qt::yellow), keyColor(Qt::red)
 {
+    this->statusBar = statusBar;
+
     areaCellWidth = 64.0f;
     areaCellHeight = 64.0f;
     gridCellWidth = areaCellWidth/AREA_TILE_SIZE;
     gridCellHeight = areaCellHeight/AREA_TILE_SIZE;
     gridParent = nullptr;
+
+    highlightedArea = nullptr;
 }
 
 
@@ -25,23 +29,7 @@ SpaceScene::~SpaceScene()
 
 void SpaceScene::clear()
 {
-    for(QGraphicsRectItem* tile : blockedTiles)
-        delete tile;
-
-    for(QGraphicsRectItem* gate : gates)
-        delete gate;
-
-    for(QGraphicsRectItem* key : keys)
-        delete key;
-
-    for(QGraphicsRectItem* tile : areaTiles)
-        delete tile;
-
-    for(QVector<QGraphicsRectItem*> vector : gridTiles)
-    {
-        for(QGraphicsRectItem* tile : vector)
-            delete tile;
-    }
+    QGraphicsScene::clear();
 
     for(QVector<QGraphicsRectItem*> vector : gridTiles)
         vector.clear();
@@ -51,9 +39,6 @@ void SpaceScene::clear()
     blockedTiles.clear();
     keys.clear();
     gates.clear();
-
-    if(gridParent)
-        delete gridParent;
 }
 
 void SpaceScene::spaceUpdated()
@@ -90,9 +75,10 @@ void SpaceScene::spaceUpdated()
         Grid* grid = area->getGrid();
 
         // Create area tile
-        QGraphicsRectItem* tile = new QGraphicsRectItem(location.x()*areaCellWidth, location.y()*areaCellHeight, areaCellWidth*width, areaCellHeight*height);
-        tile->setBrush(area->getZone()->getColor());
-        areaTiles.append(tile);
+        QGraphicsRectItem* rect = new QGraphicsRectItem(location.x()*areaCellWidth, location.y()*areaCellHeight, areaCellWidth*width, areaCellHeight*height);
+        rect->setBrush(area->getZone()->getColor());
+        areaTiles.append(AreaTile(area, rect));
+        AreaTile* tile = &areaTiles[areaTiles.count()-1];
 
         // Create blocked tiles
         for(int x = 0; x < grid->getWidth(); x++)
@@ -103,7 +89,7 @@ void SpaceScene::spaceUpdated()
                 {
                     int xr = location.x()*areaCellWidth;
                     int yr = location.y()*areaCellHeight;
-                    QGraphicsRectItem* gridTile = new QGraphicsRectItem((x*gridCellWidth) + xr, (y*gridCellHeight) + yr, gridCellWidth, gridCellHeight, tile);
+                    QGraphicsRectItem* gridTile = new QGraphicsRectItem((x*gridCellWidth) + xr, (y*gridCellHeight) + yr, gridCellWidth, gridCellHeight, tile->getRect());
 
                     if(grid->getCell(x,y).isTraversable() == false)
                     {
@@ -113,17 +99,52 @@ void SpaceScene::spaceUpdated()
                     else if (grid->getCell(x,y).hasGate())
                     {
                         gridTile->setBrush(QBrush(gateColor));
-                        gates.append(gridTile);
+                        gates.append(GateTile(grid->getCell(x,y).getGate(), gridTile));
                     }
                     else if (grid->getCell(x,y).hasKey())
                     {
                         gridTile->setBrush(QBrush(keyColor));
-                        keys.append(gridTile);
+                        keys.append(KeyTile(grid->getCell(x,y).getKey(), gridTile));
                     }
                 }
             }
         }
 
-        addItem(tile);
+        addItem(tile->getRect());
     }
+}
+
+void SpaceScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
+{
+    bool areaFound = false;
+    for(AreaTile& area : areaTiles)
+    {
+        if(area.getRect()->contains(event->scenePos()))
+        {
+            highlightedArea = &area;
+            area.getRect()->setBrush(QBrush(Qt::red));
+            areaFound = true;
+
+            statusBar->clearMessage();
+            QString msg;
+            msg += "Area:" + QString::number(area.getArea()->getLocation().x()) + ", " + QString::number(area.getArea()->getLocation().y());
+            msg += " - Belongs to Stage: " + QString::number(area.getArea()->getStageID());
+            msg += " - W: " + QString::number(area.getArea()->getWidth()) + " H: " + QString::number(area.getArea()->getHeight());
+
+            statusBar->showMessage(msg);
+        }
+        else
+            area.resetColor();
+    }
+
+    if(areaFound == false)
+    {
+        highlightedArea = nullptr;
+        statusBar->clearMessage();
+    }
+}
+
+void SpaceScene::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
+{
+
 }

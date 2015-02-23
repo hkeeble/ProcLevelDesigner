@@ -84,6 +84,7 @@ void Preferences::addRecentQuestPath(QString path)
 
 bool Preferences::removeRecentQuestPath(QString path)
 {
+    // Remove the action from the menu
     if(recentQuestMenu != nullptr)
     {
         QAction* rmAction = nullptr;
@@ -95,7 +96,8 @@ bool Preferences::removeRecentQuestPath(QString path)
         if(rmAction != nullptr)
             recentQuestMenu->removeAction(rmAction);
     }
-    recentQuestPaths.removeOne(path);
+
+    return recentQuestPaths.removeOne(path);
 }
 
 Preferences::~Preferences()

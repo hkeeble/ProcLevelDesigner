@@ -8,6 +8,8 @@ EditorWindow::EditorWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    _statusBar = statusBar();
+
     // Compile list of actions only available when a quest is loaded
     questOnlyActions = QList<QAction*>();
     questOnlyActions.append(ui->actionClose);
@@ -50,7 +52,7 @@ EditorWindow::EditorWindow(QWidget *parent) :
     ui->structureView->setScene(missionStructureScene);
     ui->structureView->setMouseTracking(true);
 
-    spaceScene = new SpaceScene();
+    spaceScene = new SpaceScene(_statusBar);
     ui->spaceView->setScene(spaceScene);
 
     ui->tabView->setCurrentIndex(0);

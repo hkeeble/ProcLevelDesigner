@@ -33,6 +33,8 @@ SwitchEntity SwitchEntity::Parse(Object* object)
         entity.inactiveWhenLeaving = false;
     else
         entity.inactiveWhenLeaving = true;
+
+    return entity;
 }
 
 void SwitchEntity::build(Object* object)

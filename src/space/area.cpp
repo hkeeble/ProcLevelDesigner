@@ -339,6 +339,7 @@ bool Area::addKeyEvent(Key* key, int x, int y)
         return false;
 
    grid.setCellKey(key, x, y);
+   keyEvents.append(key);
 
    return true;
 }

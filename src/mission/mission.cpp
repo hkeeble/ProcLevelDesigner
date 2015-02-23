@@ -330,12 +330,10 @@ bool Mission::removeGate(QString name)
         Gate gate = gates.take(name);
 
         // Find the stage ending with this gate and remove it, relink other stages
-        bool found = false;
         for(int i = 0; i < stages.length(); i++)
         {
             if(stages[i].getExitGate()->getName() == gate.getName())
             {
-                found = true;
                 Stage stage = stages.takeAt(i);
 
                 if(stage.getPreviousStage())

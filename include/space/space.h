@@ -136,8 +136,9 @@ public:
      * \brief Places a new area at the given location in the grid.
      * \param x The X location of the top-left corner of the area.
      * \param y The Y location of the top-left corner of the area.
+     * \return Returns reference to the area that was placed.
      */
-    void placeArea(Area area);
+    Area& placeArea(Area area);
 
     /*!
      * \brief Removes an area from the location given. If no area is found, returns false.

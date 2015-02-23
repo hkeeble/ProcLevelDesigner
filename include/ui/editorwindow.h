@@ -7,6 +7,7 @@
 #include <QFileSystemModel>
 #include <QList>
 #include <QStringListModel>
+#include <QStatusBar>
 
 #include "common.h"
 #include "preferences.h"
@@ -135,6 +136,9 @@ private:
 
     // Recent quest array
     QStringList recentQuests;
+
+    // The status bar
+    QStatusBar* _statusBar;
 };
 
 #endif // EDITORWINDOW_H

@@ -72,7 +72,7 @@ public:
     Grid(int width, int height);
     Grid(QVector<QVector<Cell>> cells);
 
-    ~Grid() { };
+    ~Grid() { }
 
     bool operator==(const Grid& rhs);
 
