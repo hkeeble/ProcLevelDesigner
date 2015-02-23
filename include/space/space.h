@@ -19,6 +19,14 @@
 class Space; // Forward declare space
 
 /*!
+ * \brief worldToArea Converts a given world coordinate to a relative position in an area.
+ * \param area The area to get relative position to.
+ * \param coord The cell coordinate in the grid.
+ * \return
+ */
+static QPoint worldToArea(Area* area, const QPoint& coord);
+
+/*!
  * \brief Observes a space object, and is used to emit a signal when space has changed to inform all slots to update.
  */
 class SpaceObserver : public QObject
@@ -237,7 +245,15 @@ private:
 
     Direction getDirection(const Area& baseArea, const Area& otherArea);
 
+    Zone* randomZone();
+
     void generateLinks(Area& area); /*!< Generates links & walls for the given area. */
+
+    /*!
+     * \brief Generates gates for this space. Takes a map of areas, where the key is the area that requires and gate, and the value the gate is leading
+     *        to.
+     */
+    void generateGates(Mission& mission, QMap<Area*,Area*> stageLinks);
 
     int randomAreaWidth(); /*!< Internal helper function generates random width based on user defined options. */
     int randomAreaHeight(); /*!< Internal helper function generates random height based on user defined options. */

@@ -76,8 +76,6 @@ void Quest::saveMaps()
 
     for(Map& map : maps)
     {
-        deleteFolderContents(rootDir.absolutePath() + QDir::separator() + QString("maps") + QDir::separator());
-
         Table* data = getData(QString("maps") + QDir::separator() + map.getName());
         map.build(data);
 
