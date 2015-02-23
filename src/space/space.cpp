@@ -121,6 +121,8 @@ void Space::generate(Mission& mission)
                 dir = static_cast<Direction>(rand.randomInteger(0, Direction::COUNT));
                 firstArea = Area(stage->getID(), zone, randomAreaWidth(), randomAreaHeight());
 
+
+
             } while(!placeInDirection(*baseArea, firstArea, dir));
         }
         else // If this is the first stage, just pick a random location
