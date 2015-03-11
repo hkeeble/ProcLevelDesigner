@@ -11,7 +11,7 @@ enum class OS {
 };
 
 #ifdef Q_OS_WIN32
-    const OS CURRENT_OS = OS::Win32
+    const OS CURRENT_OS = OS::Win32;
 #endif // Q_OS_WIN32
 #ifdef Q_OS_LINUX
     const OS CURRENT_OS = OS::Linux;

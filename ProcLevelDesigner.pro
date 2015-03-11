@@ -11,7 +11,10 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = ProcLevelDesigner
 TEMPLATE = app
 
-QMAKE_CXXFLAGS += -std=c++11
+unix:!windows {
+    QMAKE_CXXFLAGS += -std=c++11
+    QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder
+}
 
 SOURCES += \
     src/main.cpp \
@@ -123,9 +126,6 @@ INCLUDEPATH += include \
                include/space \
                include/entities \
                include/scripts \
-
-# Used to surpress initializer list assignment order
-QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder
 
 # Copy Data & Script Files to build
 data.path = $${OUT_PWD}/game_data

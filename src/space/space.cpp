@@ -1,14 +1,6 @@
 #include "space.h"
 
-static constexpr int SIDE_MAP_TRANSPORTER_SIZE = 16; /*!< The size that every side map transporter must be. */
-
-static QPoint worldToArea(Area* area, const QPoint& coord)
-{
-    int relativeX = coord.x() - area->getLocation().x();
-    int relativeY = coord.y() - area->getLocation().y();
-
-    return QPoint(relativeX, relativeY);
-}
+static const int SIDE_MAP_TRANSPORTER_SIZE = 16; /*!< The size that every side map transporter must be. */
 
 void SpaceReceiver::missionUpdated()
 {
@@ -95,158 +87,27 @@ void Space::generateLinks(Area& area)
     }
 }
 
-Zone* Space::randomZone()
-{
-    auto iter = zones.begin();
-    iter += rand.randomInteger(0, zones.count()-1);
-    return &iter.value();
-}
-
-void Space::generateGates(Mission& mission, QMap<Area*,Area*> stageLinks)
-{
-    for(QMap<Area*,Area*>::iterator iter = stageLinks.begin(); iter != stageLinks.end(); iter++)
-    {
-        Area* gateArea = iter.key();
-        Area* targetArea = iter.value();
-
-        // Find the gate
-        Gate* gate;
-        QList<Stage*> stages = mission.getStages();
-        for(Stage* stage : stages)
-        {
-            if(stage->getID() == gateArea->getStageID())
-                gate = stage->getExitGate();
-        }
-
-        bool linkFound = false; // If a link is found, this is used to break the loops
-
-        for(int x = gateArea->getLocation().x(); x < gateArea->getLocation().x() + gateArea->getWidth() && !linkFound; x++)
-        {
-            for(int y = gateArea->getLocation().y(); y < gateArea->getLocation().y() + gateArea->getHeight() && !linkFound; y++)
-            {
-                // Get X and Y relative location inside the current gate area
-                QPoint areaRelative = worldToArea(gateArea, QPoint(x,y));
-
-                // CHECK WEST
-                if(x != 0)
-                {
-                    int targetRelativeX = (x-1) - targetArea->getLocation().x();
-                    int targetRelativeY = y - targetArea->getLocation().y();
-
-                    GridCell& cell = cells[x-1][y];
-                    if(cell.containsArea() && cell.getAreaOrigin() == targetArea->getLocation())
-                    {
-                        linkFound = true;
-
-                        QPoint cellPos = QPoint(AREA_TILE_SIZE*areaRelative.x(),
-                                ((AREA_TILE_SIZE*areaRelative.y())+AREA_TILE_SIZE) - (AREA_TILE_SIZE/2));
-
-                        gateArea->getGrid()->setCellTraversable(true, cellPos.x(), cellPos.y());
-                        gateArea->addGate(gate, cellPos.x(), cellPos.y());
-
-                        targetArea->getGrid()->setCellTraversable(true, (AREA_TILE_SIZE*targetRelativeX) + (AREA_TILE_SIZE-1),
-                                                                  ((AREA_TILE_SIZE*targetRelativeY)+AREA_TILE_SIZE) - (AREA_TILE_SIZE/2));
-
-                        break;
-                    }
-                }
-
-                // CHECK NORTH
-                if(y != 0)
-                {
-                    int targetRelativeX = x - targetArea->getLocation().x();
-                    int targetRelativeY = (y-1) - targetArea->getLocation().y();
-
-                    GridCell& cell = cells[x][y-1];
-                    if(cell.containsArea() && cell.getAreaOrigin() == targetArea->getLocation())
-                    {
-                        linkFound = true;
-
-                        QPoint cellPos = QPoint(((AREA_TILE_SIZE*areaRelative.x())+AREA_TILE_SIZE) - (AREA_TILE_SIZE/2),
-                                                AREA_TILE_SIZE*areaRelative.y());
-
-                        gateArea->getGrid()->setCellTraversable(true, cellPos.x(), cellPos.y());
-                        gateArea->addGate(gate, cellPos.x(), cellPos.y());
-
-                        targetArea->getGrid()->setCellTraversable(true, ((AREA_TILE_SIZE*targetRelativeX)+AREA_TILE_SIZE) - (AREA_TILE_SIZE/2),
-                                                                  (AREA_TILE_SIZE*targetRelativeY) + (AREA_TILE_SIZE-1));
-
-                        break;
-                    }
-                }
-
-                // CHECK EAST
-                if(x < cells.count()-1)
-                {
-                    int targetRelativeX = (x+1) - targetArea->getLocation().x();
-                    int targetRelativeY = y - targetArea->getLocation().y();
-
-                    GridCell& cell = cells[x+1][y];
-                    if(cell.containsArea() && cell.getAreaOrigin() == targetArea->getLocation())
-                    {
-                        linkFound = true;
-
-                        QPoint cellPos = QPoint((AREA_TILE_SIZE*areaRelative.x()) + (AREA_TILE_SIZE-1),
-                                ((AREA_TILE_SIZE*areaRelative.y())+AREA_TILE_SIZE) - (AREA_TILE_SIZE/2));
-
-                        gateArea->getGrid()->setCellTraversable(true, cellPos.x(), cellPos.y());
-                        gateArea->addGate(gate, cellPos.x(), cellPos.y());
-
-                        targetArea->getGrid()->setCellTraversable(true, (AREA_TILE_SIZE*targetRelativeX),
-                                                                  ((AREA_TILE_SIZE*targetRelativeY)+AREA_TILE_SIZE) - (AREA_TILE_SIZE/2));
-
-                        break;
-                    }
-                }
-
-                // CHECK SOUTH
-                if(y < cells[x].count()-1)
-                {
-                    int targetRelativeX = x - targetArea->getLocation().x();
-                    int targetRelativeY = (y+1) - targetArea->getLocation().y();
-
-                    GridCell& cell = cells[x][y+1];
-                    if(cell.containsArea() && cell.getAreaOrigin() == targetArea->getLocation())
-                    {
-                        linkFound = true;
-
-                        QPoint cellPos = QPoint(((AREA_TILE_SIZE*areaRelative.x())+AREA_TILE_SIZE) - (AREA_TILE_SIZE/2),
-                                                (AREA_TILE_SIZE*areaRelative.y() + (AREA_TILE_SIZE-1)));
-
-                        gateArea->getGrid()->setCellTraversable(true, cellPos.x(), cellPos.y());
-                        gateArea->addGate(gate, cellPos.x(), cellPos.y());
-
-                        targetArea->getGrid()->setCellTraversable(true, ((AREA_TILE_SIZE*targetRelativeX)+AREA_TILE_SIZE) - (AREA_TILE_SIZE/2),
-                                                                  (AREA_TILE_SIZE*targetRelativeY));
-
-                        break;
-                    }
-                }
-            }
-        }
-    }
-}
-
 void Space::generate(Mission& mission)
 {
     clear();
 
     QList<Stage*> stages = mission.getStages(); // Stages to generate areas for
     QMap<Stage*,QList<Area*>> generatedAreas = QMap<Stage*,QList<Area*>>(); // The areas that are generated here, mapped to the stages they were generated for
-    QMap<Area*,Area*> stageLinks = QMap<Area*,Area*>(); // Maps areas that need to contain gates together
 
     for(Stage* stage : stages)
     {
         QList<Area*> stageAreas = QList<Area*>(); // Will contain all areas generated for this stage
 
         // Assign a random zone for this stage
-        Zone* zone = randomZone();
+        auto iter = zones.begin();
+        iter += rand.randomInteger(0, zones.count()-1);
+        Zone* zone = &iter.value();
 
         // Determine first area location (this is based on a previously generated set of areas, if it exists)
         Area firstArea;
-        Area* baseArea;
         if(generatedAreas.count() > 0)
         {
+            Area* baseArea;
             Direction dir;
 
             // Pick a random stage, area and direction to expand
@@ -260,16 +121,14 @@ void Space::generate(Mission& mission)
                 dir = static_cast<Direction>(rand.randomInteger(0, Direction::COUNT));
                 firstArea = Area(stage->getID(), zone, randomAreaWidth(), randomAreaHeight());
 
+                
+                
             } while(!placeInDirection(*baseArea, firstArea, dir));
         }
         else // If this is the first stage, just pick a random location
             firstArea = AreaFactory::RandomArea(stage->getID(), zone, 0, 10, 0, 10, options);
 
         stageAreas.append(&placeArea(firstArea)); // We must always place new areas, for space checking to work
-
-        // If this is not the first stage, record the areas where the gate needs to be placed
-        if(generatedAreas.count() > 0)
-            stageLinks.insert(baseArea, stageAreas.last());
 
         // Determine number of areas for this stage
         int areaCount = rand.randomInteger(options.getMinimumAreasPerStage(), options.getMaximumAreasPerStage());
@@ -322,26 +181,12 @@ void Space::generate(Mission& mission)
         generatedAreas.insert(stage, stageAreas);
     }
 
-    // Generate walls, gates and then connect all areas
+    // Generate walls and connect all areas
     for(auto iter = areas.begin(); iter != areas.end(); iter++)
     {
         Area& area = iter.value();
         generateLinks(area);
-        generateGates(mission, stageLinks);
     }
-
-    // Select a starting area in stage 1
-    QList<Area*> firstStageAreas = generatedAreas.find(stages.first()).value();
-    Area* firstArea = firstStageAreas[rand.randomInteger(0, firstStageAreas.length()-1)];
-    QPoint position;
-    do {
-        position = QPoint(rand.randomInteger(0, (firstArea->getWidth()*AREA_TILE_SIZE)),
-                          rand.randomInteger(0, (firstArea->getHeight())*AREA_TILE_SIZE));
-    } while(firstArea->getCell(position.x(), position.y()).hasGate() &&
-            firstArea->getCell(position.x(), position.y()).hasKey() &&
-            !firstArea->getCell(position.x(), position.y()).isTraversable());
-
-    setStartingArea(firstArea->getLocation(), position);
 
     emitUpdate();
 }
