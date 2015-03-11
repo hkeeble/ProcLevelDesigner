@@ -59,9 +59,9 @@ class Map
 {
 public:
     Map();
-    Map(int tileSize, int width, int height);
-    Map(QString name, int width, int height, int tileSize, QString music, QString world);
-    Map(QString name, int width, int height, int tileSize, QString music, QString world, Tileset* tileset);
+    Map(int x, int y, int tileSize, int width, int height);
+    Map(int x, int y, QString name, int width, int height, int tileSize, QString music, QString world);
+    Map(int x, int y, QString name, int width, int height, int tileSize, QString music, QString world, Tileset* tileset);
 
     virtual ~Map();
 
@@ -136,6 +136,7 @@ public:
 private:
     void copy(const Map& param); /*!< Internal deep copy function. */
 
+    int x, y;
     int width, height, tileSize;
     QString name, world, music;
     MapScript script;                /*!< The script for this map. */

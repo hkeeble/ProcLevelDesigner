@@ -128,7 +128,7 @@ void EditorWindow::on_actionClose_triggered()
 
 void EditorWindow::on_actionNew_Map_triggered()
 {
-    Map map = Map(32, 40, 40);
+    Map map = Map(0, 0, 32, 40, 40);
     map.setMusic(DEFAULT_MAP_MUSIC);
     map.setName("second_map");
     map.setTileSet(quest.getTileset("field"));

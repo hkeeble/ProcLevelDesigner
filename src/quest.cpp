@@ -302,7 +302,7 @@ bool Quest::checkForChanges()
 
 void Quest::buildManagerScript()
 {
-    hero.setStartingMap(QString::number(space.getStartingArea().x()) + QString::number(space.getStartingArea().y()));
+    hero.setStartingMap("\"x" + QString::number(space.getStartingArea().x()) + "y" + QString::number(space.getStartingArea().y()) + "\"");
 
     managerScript.setHero(this->hero);
 

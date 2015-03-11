@@ -9,22 +9,24 @@ Map::Map()
     music = DEFAULT_MAP_MUSIC;
 }
 
-Map::Map(int tileSize, int width, int height) : Map()
+Map::Map(int x, int y, int tileSize, int width, int height) : Map()
 {
     this->width = width;
     this->height = height;
     this->tileSize = tileSize;
+    this->x = x;
+    this->y = y;
     initTiles();
 }
 
-Map::Map(QString name, int width, int height, int tileSize, QString music, QString world) :
-    name(name), width(width), height(height), music(music), world(world), tileSize(tileSize)
+Map::Map(int x, int y, QString name, int width, int height, int tileSize, QString music, QString world) :
+    x(x), y(y), name(name), width(width), height(height), music(music), world(world), tileSize(tileSize)
 {
     initTiles();
 }
 
-Map::Map(QString name, int width, int height, int tileSize, QString music, QString world, Tileset* tileset) :
-    Map(name, width, height, tileSize, music, world)
+Map::Map(int x, int y, QString name, int width, int height, int tileSize, QString music, QString world, Tileset* tileset) :
+    Map(x, y, name, width, height, tileSize, music, world)
 {
     this->tileSet = tileset;
 }
@@ -112,12 +114,12 @@ Map Map::parse(QString name, Table* data)
     else
     {
         // Read in map properties (sets defaults if not found)
-        map = Map(properties->find(ELE_TILE_SIZE, QString::number(DEFAULT_TILE_SIZE)).toInt(),
+        map = Map(properties->find(ELE_X, "0").toInt(), properties->find(ELE_Y, "0").toInt(),
+                  properties->find(ELE_TILE_SIZE, QString::number(DEFAULT_TILE_SIZE)).toInt(),
                   properties->find(ELE_WIDTH, QString::number(DEFAULT_MAP_SIZE)).toInt(),
                   properties->find(ELE_HEIGHT, QString::number(DEFAULT_MAP_SIZE)).toInt());
         map.setName(name);
         map.setMusic(properties->find(ELE_MUSIC, DEFAULT_MAP_MUSIC));
-
 
         // Read in the tile grid, and put into the internal collection of tiles
         QList<Object*> mapTiles = data->getObjectsOfName(OBJ_TILE);
@@ -166,8 +168,8 @@ void Map::build(Table* table)
 
     // Construct the properties object
     Object properties = Object();
-    properties.insert(ELE_X, QString::number(0));
-    properties.insert(ELE_Y, QString::number(0));
+    properties.insert(ELE_X, QString::number(x));
+    properties.insert(ELE_Y, QString::number(y));
     properties.insert(ELE_WIDTH, QString::number(width * tileSize));
     properties.insert(ELE_HEIGHT, QString::number(height * tileSize));
     properties.insert(ELE_WORLD, world);

@@ -11,7 +11,7 @@
 #include "spacegenerationoptions.h"
 #include "randomengine.h"
 
-static const int AREA_TILE_SIZE = 16; /*!< The tile dimensions of a single area (AREA_TILE_SIZE x AREA_TILE_SIZE tiles make up a single area) */
+static const int AREA_TILE_SIZE = 8; /*!< The tile dimensions of a single area (AREA_TILE_SIZE x AREA_TILE_SIZE tiles make up a single area) */
 
 /*!
  * \brief Represents an individual cell within an area. Translates into a single in game tile when built.

@@ -330,6 +330,19 @@ void Space::generate(Mission& mission)
         generateGates(mission, stageLinks);
     }
 
+    // Select a starting area in stage 1
+    QList<Area*> firstStageAreas = generatedAreas.find(stages.first()).value();
+    Area* firstArea = firstStageAreas[rand.randomInteger(0, firstStageAreas.length()-1)];
+    QPoint position;
+    do {
+        position = QPoint(rand.randomInteger(0, (firstArea->getWidth()*AREA_TILE_SIZE)),
+                          rand.randomInteger(0, (firstArea->getHeight())*AREA_TILE_SIZE));
+    } while(firstArea->getCell(position.x(), position.y()).hasGate() &&
+            firstArea->getCell(position.x(), position.y()).hasKey() &&
+            !firstArea->getCell(position.x(), position.y()).isTraversable());
+
+    setStartingArea(firstArea->getLocation(), position);
+
     emitUpdate();
 }
 

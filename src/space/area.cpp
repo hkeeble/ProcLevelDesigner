@@ -273,8 +273,9 @@ void Area::clearAllLinks()
 
 Map Area::buildMap()
 {
-    Map map("x" + QString::number(location.x()) + "y" + QString::number(location.y()),
-            width*AREA_TILE_SIZE, height*AREA_TILE_SIZE, zone->getTileset()->getTileSize(), "village", "", zone->getTileset());
+    Map map((location.x()*AREA_TILE_SIZE)*zone->getTileset()->getTileSize(), (location.y()*AREA_TILE_SIZE)*zone->getTileset()->getTileSize(),
+            "x" + QString::number(location.x()) + "y" + QString::number(location.y()), width*AREA_TILE_SIZE, height*AREA_TILE_SIZE,
+            zone->getTileset()->getTileSize(), "village", "", zone->getTileset());
 
     // For now, the blocked tiles are the first impassable pattern found -- TESTING ONLY CODE
     QList<TilePattern*> patterns = map.getTileSet()->getPatternList();
