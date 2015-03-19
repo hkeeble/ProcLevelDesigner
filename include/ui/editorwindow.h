@@ -41,7 +41,8 @@ public:
     explicit EditorWindow(QWidget *parent = 0);
     ~EditorWindow();
 
-private slots:
+private slots: // Action slots
+
     // Menu Actions
     void on_actionOpen_Quest_triggered();
     void on_actionExit_triggered();
@@ -72,19 +73,20 @@ private slots:
     void on_editZoneButton_clicked();
     void on_removeZoneButton_clicked();
 
+     // Generate space button
     void on_generateSpaceButton_clicked();
 
-    void on_pushButton_clicked();
-
+    // Tab view change
     void on_tabView_currentChanged(int index);
 
+    // Slider option changes
     void on_maxKeyDistSlider_valueChanged(int value);
-
     void on_maxAreaWidthSlider_valueChanged(int value);
-
     void on_maxAreaHeightSlider_valueChanged(int value);
-
     void on_maxAreasSlider_valueChanged(int value);
+
+    // Clear key
+    void on_clearKeyButton_pressed();
 
 protected:
     void closeEvent(QCloseEvent *event) override final;
@@ -106,12 +108,13 @@ private:
 
     void updateMaximumKeyDistanceSlider();
 
-
     Key* getSelectedKey();
     Gate* getSelectedGate();
     Zone* getSelectedZone();
 
     void setQuestOnlyUIEnabled(bool enabled);
+
+    void setSolarusEnvVariable(QString path);
 
     void clearRunningGame(); /*!< Clears the running game process if neccesary. */
 

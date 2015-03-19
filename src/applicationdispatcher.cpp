@@ -2,24 +2,48 @@
 
 QProcess* ApplicationDispatcher::Run(QString executablePath)
 {
-    QProcess* proc = new QProcess();
+    QProcess* process = new QProcess();
 
-    proc->start(executablePath);
+    process->start(executablePath);
 
-    return proc;
+    return process;
 }
 
 QProcess* ApplicationDispatcher::RunThroughTerminal(QObject* parent, QString executable, QStringList args, bool hold)
 {
-    QProcess* proc = new QProcess(parent);
+    QProcess* process = new QProcess(parent);
 
-    args.insert(args.begin(), executable);
-    args.insert(args.begin(), "-e");
-    if(hold)
-        args.insert(args.begin(), "-hold");
+    switch(CURRENT_OS)
+    {
+    case OS::Linux:
+        args.insert(args.begin(), executable);
+        args.insert(args.begin(), "-e");
+        if(hold)
+            args.insert(args.begin(), "-hold");
+        process->start("xterm", args);
 
-    if(CURRENT_OS == OS::Linux)
-        proc->start("xterm", args);
+        if(!process->waitForStarted(20000))
+        {
+            delete process;
+            process = nullptr;
+        }
+        break;
 
-    return proc;
+    case OS::Win32:
+        process->start("cmd");
+
+        // Once started,
+        if(process->waitForStarted(20000))
+        {
+            process->write(QString(executable + " " + args.join(" ") + "\r\n").toUtf8());
+        }
+        else
+        {
+            delete process;
+            process = nullptr;
+        }
+        break;
+    }
+
+    return process;
 }

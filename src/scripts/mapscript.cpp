@@ -37,13 +37,18 @@ void MapScript::addDoor(Door door, QList<Key*> keys)
 {
     // Construct the neccesary script
     QString ifStatement;
-    for(int i = 0; i < keys.size(); i++)
+
+    if(keys.size() > 0)
     {
-        ifStatement += "if(game:get_value(\"" + keys[i]->getName() + "Active\") == true";
-        if(i != keys.size()-1)
-            ifStatement += "and";
-        else
-            ifStatement += ") then";
+        ifStatement += "if(";
+        for(int i = 0; i < keys.size(); i++)
+        {
+            ifStatement += "game:get_value(\"" + keys[i]->getName() + "Active\") == true";
+            if(i != keys.size()-1)
+                ifStatement += " and ";
+            else
+                ifStatement += ") then";
+        }
     }
 
     QString result = "map:open_doors(\"" + door.getName() + "\")";

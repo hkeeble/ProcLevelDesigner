@@ -218,8 +218,7 @@ void EditorWindow::on_actionRun_triggered()
     quest.saveMaps();
 
     // Run the game
-    runningGame = ApplicationDispatcher::RunThroughTerminal(this, "solarus",
-                                                            QStringList() << quest.getExecutableDir().absolutePath(), true);
+    runningGame = ApplicationDispatcher::RunThroughTerminal(this, preferences.getSolarusPath(), QStringList() << quest.getExecutableDir().absolutePath(), true);
 }
 
 void EditorWindow::on_actionSet_Solarus_Directory_triggered()
@@ -228,9 +227,11 @@ void EditorWindow::on_actionSet_Solarus_Directory_triggered()
     if(dialog->exec() == QDialog::Accepted)
     {
         if(dialog->isDefault())
-            preferences.setSolarusPath("DEFAULT");
+            preferences.setSolarusPath("solarus");
         else
+        {
             preferences.setSolarusPath(dialog->getPath());
+        }
     }
 
     delete dialog;
@@ -302,21 +303,7 @@ void EditorWindow::on_removeKeyEventButton_clicked()
 
 void EditorWindow::on_newGateButton_clicked()
 {
-    // Get list of key names, and remove those that already exist.
     QList<QString> keyNames = quest.mission.getKeyEventNameList();
-    QList<Gate*> gates = quest.mission.getGateList();
-    for(Gate* gate : gates)
-    {
-        QList<Key*> keys = gate->getKeys();
-        for(Key* key : keys)
-        {
-            if(keyNames.contains(key->getName()))
-            {
-                keyNames.removeOne(key->getName());
-            }
-        }
-    }
-
     EditGateDialog* dialog = new EditGateDialog(keyNames, this);
     if(dialog->exec() == QDialog::Accepted)
     {
@@ -397,14 +384,6 @@ void EditorWindow::on_generateMissionButton_clicked()
     }
 }
 
-void EditorWindow::on_pushButton_clicked()
-{
-    if(QMessageBox::warning(this, "Warning", "This will clear all keys currently placed in the mission. Are you sure?",
-                            QMessageBox::Yes | QMessageBox::No) == QMessageBox::Button::Yes) {
-        quest.mission.clearKeys();
-    }
-}
-
 void EditorWindow::on_newZoneButton_clicked()
 {
     QList<Tileset*> tilesets = quest.getTilesetList();
@@ -461,6 +440,12 @@ void EditorWindow::on_removeZoneButton_clicked()
 
 void EditorWindow::on_generateSpaceButton_clicked()
 {
+    if(quest.space.getZoneList().size() == 0)
+    {
+        QMessageBox::warning(this, "Error", "Quest must have at least one zone type before generating space.");
+        return;
+    }
+
     quest.space.generate(quest.mission);
 }
 
@@ -659,7 +644,12 @@ void EditorWindow::on_tabView_currentChanged(int index)
 {
     if(index == 1)
     {
-        if(!quest.mission.validate())
+        if(quest.mission.getGateList().length() == 0)
+        {
+            QMessageBox::warning(this, "Error", "Mission structure must contain at least one gate for space to be generated.");
+            ui->tabView->setCurrentIndex(0);
+        }
+        else if(!quest.mission.validate())
         {
             QMessageBox::warning(this, "Error", "Mission structure must use all keys before generating space.", QMessageBox::Button::Ok);
             ui->tabView->setCurrentIndex(0);
@@ -689,4 +679,12 @@ void EditorWindow::on_maxAreasSlider_valueChanged(int value)
 {
     ui->maxAreasLabel->setText(QString::number(value));
     quest.space.getOptions().setMaximumAreasPerStage(value);
+}
+
+void EditorWindow::on_clearKeyButton_pressed()
+{
+    if(QMessageBox::warning(this, "Warning", "This will clear all keys currently placed in the mission. Are you sure?",
+                            QMessageBox::Yes | QMessageBox::No) == QMessageBox::Button::Yes) {
+        quest.mission.clearKeys();
+    }
 }

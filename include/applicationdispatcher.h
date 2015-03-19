@@ -23,8 +23,25 @@ enum class OS {
 class ApplicationDispatcher
 {
 public:
+
+    /**
+     * @brief Run Runs the given executable.
+     * @param executablePath Path of the executable.
+     * @return Returns the running QProcess, calling code takes ownership of the resource.
+     */
     static QProcess* Run(QString executablePath);
-    static QProcess* RunThroughTerminal(QObject* parent, QString executable, QStringList args = QStringList(), bool hold = false);
+
+    /**
+     * @brief RunThroughTerminal Runs the given executable path through a terminal or console. Calling code takes
+     *                           ownership of the returned process
+     * @param parent             The parent window.
+     * @param executable         The executable path.
+     * @param args               The arguments to pass to the program.
+     * @param hold               Whether or not to 'hold' the terminal (does not function in Windows).
+     * @return                   Returns the running process, if the process fails to start returns a null pointer.
+     */
+    static QProcess* RunThroughTerminal(QObject* parent, QString executable, QStringList args, bool hold = false);
+
 private:
     ApplicationDispatcher() { };
 };

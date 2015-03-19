@@ -210,6 +210,12 @@ public:
     QPoint getStartingArea() { return startingArea; }
 
     /*!
+     * \brief Retrieve the starting location.
+     * \return
+     */
+    QPoint getStartingLocation() { return startingLocation; }
+
+    /*!
      * \brief Will set the mission for this space to observe for changes. When the mission changes, we want to clear the space.
      * \param mission
      */

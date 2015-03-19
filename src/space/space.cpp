@@ -211,7 +211,7 @@ void Space::generateGates(Mission& mission, QMultiMap<Area*,Area*> stageLinks)
 }
 
 void Space::generate(Mission& mission)
-{
+{    
     clear();
 
     QList<Stage*> stages = mission.getStages(); // Stages to generate areas for
@@ -308,12 +308,6 @@ void Space::generate(Mission& mission)
     {
         Area& area = iter.value();
         generateLinks(area);
-
-        if(stageLinks.size() < 3)
-        {
-            qDebug() << "err";
-        }
-
         generateGates(mission, stageLinks);
     }
 
@@ -538,6 +532,7 @@ bool Space::placeInDirection(const Area& baseArea, Area& newArea, Direction dire
     int y = 0;
 
     bool validFound = false;
+
     switch(direction)
     {
 
