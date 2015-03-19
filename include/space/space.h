@@ -222,6 +222,8 @@ public:
 
     void missionUpdated();
 
+    SpaceGenerationOptions& getOptions() { return options; }
+
 private:
 
     void copy(const Space& param); /*!< Internal deep copy helper function. */
@@ -253,7 +255,7 @@ private:
      * \brief Generates gates for this space. Takes a map of areas, where the key is the area that requires and gate, and the value the gate is leading
      *        to.
      */
-    void generateGates(Mission& mission, QMap<Area*,Area*> stageLinks);
+    void generateGates(Mission& mission, QMultiMap<Area*,Area*> stageLinks);
 
     int randomAreaWidth(); /*!< Internal helper function generates random width based on user defined options. */
     int randomAreaHeight(); /*!< Internal helper function generates random height based on user defined options. */

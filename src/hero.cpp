@@ -9,7 +9,7 @@ Hero::Hero()
     setAbility(Lift, 2);
     setAbility(Sword, 1);
     setAbility(SwordKnowledge, 0);
-    setAbility(Tunic, 0);
+    setAbility(Tunic, 1);
     setAbility(Shield, 0);
     setAbility(Swim, 0);
     setAbility(Run, 0);

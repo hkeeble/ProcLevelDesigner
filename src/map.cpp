@@ -70,6 +70,8 @@ void Map::copy(const Map& param)
     this->tiles = param.tiles;
     this->tileSize = param.tileSize;
     this->script = param.script;
+    this->x = param.x;
+    this->y = param.y;
 
     // Deep copy entities
     entities.clear(); // Clear existing entities

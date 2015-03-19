@@ -413,8 +413,8 @@ void EditorWindow::on_newZoneButton_clicked()
         EditZoneDialog* dialog = new EditZoneDialog(quest.getTilesetList());
         if(dialog->exec() == QDialog::Accepted)
         {
-            quest.space.addZone(dialog->getName(), Zone(dialog->getName(), dialog->getAreaCount(),
-                                                        quest.getTileset(dialog->getTileset()), dialog->getColor()));
+            quest.space.addZone(dialog->getName(), Zone(dialog->getName(), quest.getTileset(dialog->getTileset()),
+                                                        dialog->getColor()));
             updateZoneList();
         }
         delete dialog;
@@ -435,7 +435,6 @@ void EditorWindow::on_editZoneButton_clicked()
         {
             zone->setTileset(quest.getTileset(dialog->getTileset()));
             zone->setName(dialog->getName());
-            zone->setAreaCount(dialog->getAreaCount());
             zone->setColor(dialog->getColor());
             updateZoneList();
         }
@@ -589,6 +588,12 @@ void EditorWindow::initQuestUI()
     ui->keyEventList->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->gateList->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->zoneList->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    // Initialize quest options
+    ui->maxKeyDistSlider->setValue(quest.mission.getOptions().getMaximumKeyDist());
+    ui->maxAreaHeightSlider->setValue(quest.space.getOptions().getMaximumAreaHeight());
+    ui->maxAreaWidthSlider->setValue(quest.space.getOptions().getMaximumAreaWidth());
+    ui->maxAreasSlider->setValue(quest.space.getOptions().getMaximumAreasPerStage());
 }
 
 void EditorWindow::initGeneratorOptions()
@@ -666,4 +671,22 @@ void EditorWindow::on_maxKeyDistSlider_valueChanged(int value)
 {
     ui->maxKeyDistLabel->setText(QString::number(value));
     quest.mission.getOptions().setMaximumKeyDist(value);
+}
+
+void EditorWindow::on_maxAreaWidthSlider_valueChanged(int value)
+{
+    ui->maxAreaWidthLabel->setText(QString::number(value));
+    quest.space.getOptions().setMaximumAreaWidth(value);
+}
+
+void EditorWindow::on_maxAreaHeightSlider_valueChanged(int value)
+{
+    ui->maxAreaHeightLabel->setText(QString::number(value));
+    quest.space.getOptions().setMaximumAreaHeight(value);
+}
+
+void EditorWindow::on_maxAreasSlider_valueChanged(int value)
+{
+    ui->maxAreasLabel->setText(QString::number(value));
+    quest.space.getOptions().setMaximumAreasPerStage(value);
 }

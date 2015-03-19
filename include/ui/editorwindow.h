@@ -80,6 +80,12 @@ private slots:
 
     void on_maxKeyDistSlider_valueChanged(int value);
 
+    void on_maxAreaWidthSlider_valueChanged(int value);
+
+    void on_maxAreaHeightSlider_valueChanged(int value);
+
+    void on_maxAreasSlider_valueChanged(int value);
+
 protected:
     void closeEvent(QCloseEvent *event) override final;
 
@@ -99,6 +105,7 @@ private:
     void updateZoneList(); /*!< Updates the zone list with all data currently in the quest's space. */
 
     void updateMaximumKeyDistanceSlider();
+
 
     Key* getSelectedKey();
     Gate* getSelectedGate();

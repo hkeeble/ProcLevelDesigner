@@ -23,7 +23,6 @@ public:
 
     inline QString getTileset() { return tileset; }
     inline QString getName() { return name; }
-    inline int getAreaCount() { return areaCount; }
     inline QColor getColor() { return color; }
 
 private slots:
@@ -39,7 +38,6 @@ private:
     QColor color;
     QString tileset;
     QString name;
-    int areaCount;
 };
 
 #endif // EDITZONEDIALOG_H

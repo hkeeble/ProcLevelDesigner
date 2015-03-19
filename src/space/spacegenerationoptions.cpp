@@ -3,7 +3,7 @@
 SpaceGenerationOptions::SpaceGenerationOptions()
 {
     // Set some default values here
-    minAreasPerStage = 3;
+    minAreasPerStage = 1;
     maxAreasPerStage = 6;
 
     minAreaWidth = 1;
@@ -26,7 +26,7 @@ SpaceGenerationOptions SpaceGenerationOptions::Parse(Object* object)
     options.minAreaWidth = object->find(ELE_MIN_AREA_WIDTH, "1").toInt();
     options.maxAreaWidth = object->find(ELE_MAX_AREA_WIDTH, "4").toInt();
 
-    options.minAreasPerStage = object->find(ELE_MIN_AREAS_PER_STAGE, "3").toInt();
+    options.minAreasPerStage = object->find(ELE_MIN_AREAS_PER_STAGE, "1").toInt();
     options.maxAreasPerStage = object->find(ELE_MAX_AREAS_PER_STAGE, "6").toInt();
 
     return options;

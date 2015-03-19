@@ -16,7 +16,6 @@ EditZoneDialog::EditZoneDialog(QList<Tileset*> tilesets, Zone* zone, QWidget *pa
     : EditZoneDialog(tilesets, parent)
 {
     ui->nameEdit->setText(zone->getName());
-    ui->areaCountSpinBox->setValue(zone->getAreaCount());
 
     for(int i = 0; i < ui->tilesetComboBox->count(); i++)
     {
@@ -42,7 +41,6 @@ void EditZoneDialog::on_OKButton_clicked()
     {
         name = ui->nameEdit->text();
         tileset = ui->tilesetComboBox->currentText();
-        areaCount = ui->areaCountSpinBox->value();
         accept();
     }
 }

@@ -47,13 +47,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="areaCountLabel">
-           <property name="text">
-            <string>Area Count:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QLabel" name="tilesetLabel">
            <property name="text">
             <string>Tileset:</string>
@@ -133,22 +126,6 @@
             </spacer>
            </item>
           </layout>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="areaCountSpinBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>10</number>
-           </property>
-          </widget>
          </item>
          <item>
           <widget class="QComboBox" name="tilesetComboBox">

@@ -54,15 +54,15 @@ void Mission::generate()
         QList<Key*> lockedKeys; // List of locked keys contained by this gate
         int lastLockedKeyIndex = 0;
 
-        for(int i = 0; i < unassignedStages.length(); i++)
+        for(int y = 0; y < unassignedStages.length(); y++)
         {
-            QList<Key*> stageLockedKeys = unassignedStages.at(i)->getLockedKeys();
-            for(int i = 0; i < stageLockedKeys.length(); i++)
+            QList<Key*> stageLockedKeys = unassignedStages.at(y)->getLockedKeys();
+            for(int j = 0; j < stageLockedKeys.length(); j++)
             {
-                if(keys.contains(stageLockedKeys.at(i)))
+                if(keys.contains(stageLockedKeys.at(j)))
                 {
-                    lockedKeys.append(stageLockedKeys.at(i));
-                    lastLockedKeyIndex = i;
+                    lockedKeys.append(stageLockedKeys.at(j));
+                    lastLockedKeyIndex = y;
                 }
             }
         }

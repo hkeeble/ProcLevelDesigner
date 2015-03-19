@@ -495,8 +495,17 @@
                     </item>
                     <item>
                      <widget class="QSlider" name="maxAreaWidthSlider">
+                      <property name="minimum">
+                       <number>1</number>
+                      </property>
+                      <property name="maximum">
+                       <number>6</number>
+                      </property>
                       <property name="orientation">
                        <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="tickInterval">
+                       <number>1</number>
                       </property>
                      </widget>
                     </item>
@@ -520,8 +529,17 @@
                     </item>
                     <item>
                      <widget class="QSlider" name="maxAreaHeightSlider">
+                      <property name="minimum">
+                       <number>1</number>
+                      </property>
+                      <property name="maximum">
+                       <number>6</number>
+                      </property>
                       <property name="orientation">
                        <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="tickInterval">
+                       <number>1</number>
                       </property>
                      </widget>
                     </item>
@@ -545,8 +563,17 @@
                     </item>
                     <item>
                      <widget class="QSlider" name="maxAreasSlider">
+                      <property name="minimum">
+                       <number>1</number>
+                      </property>
+                      <property name="maximum">
+                       <number>10</number>
+                      </property>
                       <property name="orientation">
                        <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="tickInterval">
+                       <number>1</number>
                       </property>
                      </widget>
                     </item>
