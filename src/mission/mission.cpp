@@ -18,18 +18,20 @@ void Mission::generate()
     for(Stage& stage : stages)
         stage.clearUnlockedKeys();
 
-    // Get a list of all unlocked keys
+    // Get a list of all locked key events, and unlocked key events
     QList<Key*> keyList = getKeyEventList();
+    QList<Key*> lockedKeys;
     for(Stage& stage :stages)
     {
         for(Key* lockedKey : stage.getLockedKeys())
         {
             if(keyList.contains(lockedKey))
                 keyList.removeOne(lockedKey);
+            lockedKeys.append(lockedKey);
         }
     }
 
-    // Get a list of all stages with unlocked gates, and gates that are not locked in place
+    // Get a list of all stages with unlocked gates
     QList<Stage*> unassignedStages = getStages(); // Stages that have not been assigned a gate
     QList<Gate*> gateList = getGateList();
     QList<Stage*>::iterator iter = unassignedStages.begin();
@@ -44,15 +46,43 @@ void Mission::generate()
             iter++;
     }
 
-    // Randomly arrange gates
+    // Prioritize gates with key events that are locked in, as these have a limited range of placement
+    for(int i = 0; i < gateList.length(); i++)
+    {
+        Gate* gate = gateList.at(i);
+        QList<Key*> keys = gate->getKeys();
+        QList<Key*> lockedKeys; // List of locked keys contained by this gate
+        int lastLockedKeyIndex = 0;
+
+        for(int i = 0; i < unassignedStages.length(); i++)
+        {
+            QList<Key*> stageLockedKeys = unassignedStages.at(i)->getLockedKeys();
+            for(int i = 0; i < stageLockedKeys.length(); i++)
+            {
+                if(keys.contains(stageLockedKeys.at(i)))
+                {
+                    lockedKeys.append(stageLockedKeys.at(i));
+                    lastLockedKeyIndex = i;
+                }
+            }
+        }
+
+        if(lockedKeys.length() > 0)
+        {
+            Stage* stage = unassignedStages.at(rand.randomInteger(lastLockedKeyIndex, unassignedStages.length()-1));
+            unassignedStages.removeOne(stage);
+            stage->setExitGate(gate);
+            gateList.removeOne(gate);
+        }
+    }
+
+    // Randomly arrange the remaining gates
     for(Gate* gate : gateList)
     {
         Stage* stage = unassignedStages.at(rand.randomInteger(0, unassignedStages.length()-1));
         unassignedStages.removeOne(stage);
         stage->setExitGate(gate);
     }
-
-
 
     // Randomly arrange all unlocked key events
     QList<Stage*> stageList = getStages();

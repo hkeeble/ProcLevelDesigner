@@ -84,21 +84,26 @@ void EditorWindow::closeEvent(QCloseEvent *event)
     preferences.build(prefTable);
     prefTable->saveToDisk();
 
-    // Build quest
-    quest.build();
-
-    // Check to see if built changes need to be saved to disk
-    if(quest.checkForChanges())
+    if(quest.isInitialized())
     {
-        int result = QMessageBox::warning(this, "Unsaved Changes", "There are unsaved changes in this quest. Do you wish to save before closing?",
-                             QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+        // Build quest
+        quest.build();
 
-        if(result == QMessageBox::Yes)
-            quest.saveData();
-        if(result != QMessageBox::Cancel)
-            event->accept();
+        // Check to see if built changes need to be saved to disk
+        if(quest.checkForChanges())
+        {
+            int result = QMessageBox::warning(this, "Unsaved Changes", "There are unsaved changes in this quest. Do you wish to save before closing?",
+                                 QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+
+            if(result == QMessageBox::Yes)
+                quest.saveData();
+            if(result != QMessageBox::Cancel)
+                event->accept();
+            else
+                event->ignore();
+        }
         else
-            event->ignore();
+            event->accept();
     }
     else
         event->accept();

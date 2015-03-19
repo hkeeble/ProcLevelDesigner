@@ -35,10 +35,6 @@ public:
     Quest& operator=(const Quest& param);
     Quest(const Quest& param);
 
-    QFileSystemModel* getFSModel();     /*!< Retrieves the main file system model representing this quest. */
-    QFileSystemModel* getScriptModel(); /*!< Retrieves the file system model for scripts. */
-    QFileSystemModel* getMapModel();    /*!< Retrieves the file system model for maps. */
-
     QDir getRootDir() const; /*!< Retrieves the root directory for this quest. */
 
     QDir getExecutableDir() const; /*!< Retrieves the directory from which this quest is executable through Solarus. */
@@ -128,13 +124,12 @@ public:
 
     Hero* getHero() { return &hero; }
 
-private:
-    QDir rootDir;
-    QFileSystemModel* fsModel;     /*!< The main file system model representing this quest. */
-    QFileSystemModel* scriptModel; /*!< The file system model representing scripts. */
-    QFileSystemModel* mapModel;    /*!< The file system model representing maps. */
+    bool isInitialized() { return initialized; }
 
-    void initFilters();
+private:
+    bool initialized;
+
+    QDir rootDir;
 
     GameManagerScript managerScript;
 

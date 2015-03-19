@@ -2,26 +2,13 @@
 
 Quest::Quest()
 {
-    fsModel = nullptr;
-    scriptModel = nullptr;
-    mapModel = nullptr;
+    initialized = false;
 }
 
 Quest::Quest(QString dirPath)
 {
-    // Set up file system models
     rootDir = QDir(dirPath);
-    fsModel = new QFileSystemModel();
-    scriptModel = new QFileSystemModel();
-    mapModel = new QFileSystemModel();
-
     tileSets = QMap<QString,Tileset>();
-
-    fsModel->setRootPath(rootDir.absolutePath());
-    scriptModel->setRootPath(rootDir.absolutePath());
-    mapModel->setRootPath(rootDir.absolutePath() + QDir::separator() + "maps" + QDir::separator());
-
-    initFilters();
 }
 
 bool Quest::Init()
@@ -61,6 +48,7 @@ bool Quest::Init()
         hero = Hero::Parse(heroData);
         hero.build(heroData); // Build the hero data (in case it has just been created)
 
+        initialized = true;
         return true;
     }
 }
@@ -101,21 +89,6 @@ void Quest::build()
 Quest::~Quest()
 {
     clear();
-}
-
-QFileSystemModel* Quest::getFSModel()
-{
-    return fsModel;
-}
-
-QFileSystemModel* Quest::getScriptModel()
-{
-    return scriptModel;
-}
-
-QFileSystemModel* Quest::getMapModel()
-{
-    return mapModel;
 }
 
 QDir Quest::getRootDir() const
@@ -175,32 +148,7 @@ Quest::Quest(const Quest& param)
 
 void Quest::cpy(const Quest& param)
 {
-    if(param.fsModel)
-    {
-        rootDir = param.rootDir;
-
-        fsModel = new QFileSystemModel();
-        fsModel->setRootPath(rootDir.absolutePath());
-
-        scriptModel = new QFileSystemModel();
-        scriptModel->setRootPath(rootDir.absolutePath());
-
-        mapModel = new QFileSystemModel();
-        mapModel->setRootPath(rootDir.absolutePath() + QDir::separator() + "maps" + QDir::separator());
-
-        initFilters();
-    }
-    else
-        fsModel = nullptr;
-}
-
-void Quest::initFilters()
-{
-    scriptModel->setNameFilters(QStringList()<<"*.lua");
-    mapModel->setNameFilters(QStringList()<<"*.dat");
-
-    scriptModel->setNameFilterDisables(false);
-    mapModel->setNameFilterDisables(false);
+    rootDir = param.rootDir;
 }
 
 Table* Quest::getData(QString filePath)
@@ -224,18 +172,8 @@ void Quest::clear()
     data.clear();
     rootDir = "";
 
-    if(fsModel)
-        delete fsModel;
-    if(scriptModel)
-        delete scriptModel;
-    if(mapModel)
-        delete mapModel;
-
     tileSets.clear();
     maps.clear();
-
-    fsModel = scriptModel = mapModel = nullptr;
-
 }
 
 Tileset* Quest::getTileset(QString name)
