@@ -56,12 +56,10 @@ private slots:
 
     // Key Event Buttons
     void on_newKeyEventButton_clicked();
-    void on_editKeyEventButton_clicked();
     void on_removeKeyEventButton_clicked();
 
     // Gate Buttons
     void on_newGateButton_clicked();
-    void on_editGateButton_clicked();
     void on_removeGateButton_clicked();
 
     // Generate mission button

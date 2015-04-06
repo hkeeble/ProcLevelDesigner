@@ -19,8 +19,8 @@ class EditGateDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit EditGateDialog(QStringList keys, QWidget *parent = 0);
-    explicit EditGateDialog(Gate* gate, QStringList keys, QWidget* parent = 0);
+    explicit EditGateDialog(QList<Gate*> existingGates, QStringList keys, QWidget *parent = 0);
+    explicit EditGateDialog(Gate* gate, QList<Gate*> existingGates, QStringList keys, QWidget* parent = 0);
     ~EditGateDialog();
 
     QString getName()     { return name; }
@@ -39,6 +39,9 @@ private slots:
 private:
     QList<QListWidgetItem*> getAllItems(QListWidget* widget);
     void removeKeyFromList(QString key, QListWidget* widget);
+
+    Gate* givenGate;
+    QList<Gate*> existingGates;
 
     QString name;
     Gate::Type type;

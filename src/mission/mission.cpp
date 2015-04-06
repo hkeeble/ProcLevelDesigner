@@ -211,7 +211,7 @@ Key* Mission::getKeyEvent(QString name)
     QMap<QString,Key>::iterator iter = keyEvents.find(name);
 
     if(iter != keyEvents.end())
-        return &iter.value();
+        return &(iter.value());
     else
         return nullptr;
 }

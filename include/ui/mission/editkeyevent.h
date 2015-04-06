@@ -15,8 +15,8 @@ class EditKeyEvent : public QDialog
     Q_OBJECT
 
 public:
-    explicit EditKeyEvent(QWidget *parent = 0);
-    explicit EditKeyEvent(Key* key, QWidget *parent = 0);
+    explicit EditKeyEvent(QList<Key*> existingKeys, QWidget *parent = 0);
+    explicit EditKeyEvent(Key* key, QList<Key*> existingKeys, QWidget *parent = 0);
     ~EditKeyEvent();
 
     inline Key::Type getType()  { return type; }
@@ -28,6 +28,9 @@ private slots:
     void on_cancelButton_clicked();
 
 private:
+    Key* givenKey; /* The key the window was given if applicable. */
+    QList<Key*> existingKeys; /* The existing keys. */
+
     Ui::EditKeyEvent *ui;
 
     Key::Type type;

@@ -250,35 +250,13 @@ void EditorWindow::on_actionOpen_Recent_Quest_triggered(QAction* action)
  * ------------------------------------------------------------------*/
 void EditorWindow::on_newKeyEventButton_clicked()
 {
-    EditKeyEvent* dialog = new EditKeyEvent(this);
+    EditKeyEvent* dialog = new EditKeyEvent(quest.mission.getKeyEventList(), this);
     if(dialog->exec() == QDialog::Accepted)
     {
         quest.mission.addKeyEvent(dialog->getName(), Key(dialog->getName(), dialog->getType(), dialog->getMessage()));
         updateKeyList();
     }
     delete dialog;
-}
-
-
-void EditorWindow::on_editKeyEventButton_clicked()
-{
-    Key* editKey = getSelectedKey();
-
-    if(editKey != nullptr)
-    {
-        EditKeyEvent* dialog = new EditKeyEvent(editKey, this);
-        if(dialog->exec() == QDialog::Accepted)
-        {
-            editKey->setName(dialog->getName());
-            editKey->setType(dialog->getType());
-            editKey->setMessage(dialog->getMessage());
-            updateKeyList();
-        }
-
-        delete dialog;
-    }
-    else
-        QMessageBox::warning(this, "Error", "Cannot edit key, no key selected.", QMessageBox::Ok);
 }
 
 void EditorWindow::on_removeKeyEventButton_clicked()
@@ -317,7 +295,7 @@ void EditorWindow::on_newGateButton_clicked()
         }
     }
 
-    EditGateDialog* dialog = new EditGateDialog(keyNames, this);
+    EditGateDialog* dialog = new EditGateDialog(quest.mission.getGateList(), keyNames, this);
     if(dialog->exec() == QDialog::Accepted)
     {
         QList<Key*> keys;
@@ -331,53 +309,23 @@ void EditorWindow::on_newGateButton_clicked()
     delete dialog;
 }
 
-void EditorWindow::on_editGateButton_clicked()
-{
-    QVariant selected = ui->gateList->currentIndex().data();
-    if(!selected.isNull())
-    {
-        Gate* selectedGate = quest.mission.getGate(selected.toString());
-        if(selectedGate != nullptr)
-        {
-            EditGateDialog* dialog = new EditGateDialog(selectedGate, quest.mission.getKeyEventNameList(), this);
-            if(dialog->exec() == QDialog::Accepted)
-            {
-                QList<Key*> keys;
-                for(QString keyName : dialog->getKeys())
-                    keys.append(quest.mission.getKeyEvent(keyName));
-
-                selectedGate->setKeys(keys);
-
-                selectedGate->setName(dialog->getName());
-                selectedGate->setTriggered(dialog->isTriggered());
-                selectedGate->setType(dialog->getType());
-
-                updateGateList();
-            }
-            delete dialog;
-        }
-        else
-            QMessageBox::warning(this, "Error", "Cannot edit gate, not found in list.", QMessageBox::Ok);
-    }
-    else
-        QMessageBox::warning(this, "Error", "Cannot edit gate, no gate selected.", QMessageBox::Ok);
-
-
-}
-
 void EditorWindow::on_removeGateButton_clicked()
 {
     Gate* removeGate = getSelectedGate();
 
     if(removeGate != nullptr)
     {
-        if(QMessageBox::question(this, "Removing Gate", "Are you sure you wish to remove this gate from the mission?",
+        if(QMessageBox::question(this, "Removing Gate", "Are you sure you wish to remove this gate from the mission? This will clear any existing \
+                                        space generation.",
                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
         {
             if(!quest.mission.removeGate(removeGate->getName()))
                 QMessageBox::warning(this, "Error", "Could not remove gate, not found in item collection!", QMessageBox::Ok);
             else
+            {
                 updateGateList();
+                quest.space.clear();
+            }
         }
     }
     else
@@ -461,7 +409,10 @@ void EditorWindow::on_removeZoneButton_clicked()
 
 void EditorWindow::on_generateSpaceButton_clicked()
 {
-    quest.space.generate(quest.mission);
+    if(quest.space.getZoneList().size() > 0)
+        quest.space.generate(quest.mission);
+    else
+        QMessageBox::warning(this, "Error", "Please ensure at least one zone exists before generating space.", QMessageBox::Ok);
 }
 
 /* ------------------------------------------------------------------

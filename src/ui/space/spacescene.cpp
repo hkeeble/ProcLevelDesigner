@@ -125,11 +125,30 @@ void SpaceScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
             area.getRect()->setBrush(QBrush(Qt::red));
             areaFound = true;
 
+            QList<Key*> keys = area.getArea()->getKeyEvents();
+            QList<Gate*> gates = area.getArea()->getGates();
+
+            QString keysConcat = "";
+            QString gatesConcat = "";
+
+            for(Key* key : keys)
+            {
+                keysConcat += key->getName() + ", ";
+            }
+            keysConcat.remove(keysConcat.length()-2, 2);
+
+            for(Gate* gate : gates)
+            {
+                gatesConcat += gate->getName() + ", ";
+            }
+            gatesConcat.remove(gatesConcat.length()-2, 2);
+
+
             statusBar->clearMessage();
             QString msg;
-            msg += "Area:" + QString::number(area.getArea()->getLocation().x()) + ", " + QString::number(area.getArea()->getLocation().y());
-            msg += " - Belongs to Stage: " + QString::number(area.getArea()->getStageID());
-            msg += " - W: " + QString::number(area.getArea()->getWidth()) + " H: " + QString::number(area.getArea()->getHeight());
+            msg += "Belongs to Stage: " + QString::number(area.getArea()->getStageID());
+            msg += " - Contains Key Events: " + keysConcat;
+            msg += " - Contains Gates: " + gatesConcat;
 
             statusBar->showMessage(msg);
         }

@@ -145,7 +145,7 @@ void Space::generateGates(Mission& mission, QMultiMap<Area*,Area*> stageLinks)
                         gateArea->addGate(gate, cellPos.x(), cellPos.y());
                         targetArea->getGrid()->setCellTraversable(true, (AREA_TILE_SIZE*targetRelativeX) + (AREA_TILE_SIZE-1),
                                                                   ((AREA_TILE_SIZE*targetRelativeY)+AREA_TILE_SIZE) - (AREA_TILE_SIZE/2));
-                        break;
+                        return;
                     }
                 }
 
@@ -164,7 +164,7 @@ void Space::generateGates(Mission& mission, QMultiMap<Area*,Area*> stageLinks)
                         gateArea->addGate(gate, cellPos.x(), cellPos.y());
                         targetArea->getGrid()->setCellTraversable(true, ((AREA_TILE_SIZE*targetRelativeX)+AREA_TILE_SIZE) - (AREA_TILE_SIZE/2),
                                                                   (AREA_TILE_SIZE*targetRelativeY) + (AREA_TILE_SIZE-1));
-                        break;
+                        return;
                     }
                 }
 
@@ -183,7 +183,7 @@ void Space::generateGates(Mission& mission, QMultiMap<Area*,Area*> stageLinks)
                         gateArea->addGate(gate, cellPos.x(), cellPos.y());
                         targetArea->getGrid()->setCellTraversable(true, (AREA_TILE_SIZE*targetRelativeX),
                                                                   ((AREA_TILE_SIZE*targetRelativeY)+AREA_TILE_SIZE) - (AREA_TILE_SIZE/2));
-                        break;
+                        return;
                     }
                 }
 
@@ -202,7 +202,7 @@ void Space::generateGates(Mission& mission, QMultiMap<Area*,Area*> stageLinks)
                         gateArea->addGate(gate, cellPos.x(), cellPos.y());
                         targetArea->getGrid()->setCellTraversable(true, ((AREA_TILE_SIZE*targetRelativeX)+AREA_TILE_SIZE) - (AREA_TILE_SIZE/2),
                                                                   (AREA_TILE_SIZE*targetRelativeY));
-                        break;
+                        return;
                     }
                 }
             }
@@ -308,14 +308,9 @@ void Space::generate(Mission& mission)
     {
         Area& area = iter.value();
         generateLinks(area);
-
-        if(stageLinks.size() < 3)
-        {
-            qDebug() << "err";
-        }
-
-        generateGates(mission, stageLinks);
     }
+
+    generateGates(mission, stageLinks);
 
     // Select a starting area in stage 1
     QList<Area*> firstStageAreas = generatedAreas.find(stages.first()).value();
@@ -331,7 +326,6 @@ void Space::generate(Mission& mission)
 
     emitUpdate();
 }
-
 
 Space Space::Parse(Table* data, QList<Gate*> gates, QList<Key*> keys, QList<Tileset*> tilesets)
 {

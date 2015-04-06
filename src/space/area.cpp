@@ -232,6 +232,7 @@ void Area::cpy(const Area& param)
     this->zoneName = param.zoneName;
     this->location = param.location;
     this->keyEvents = param.keyEvents;
+    this->gates = param.gates;
     this->zone = param.zone;
     this->width = param.width;
     this->height = param.height;
@@ -351,6 +352,7 @@ bool Area::addGate(Gate* gate, int x, int y)
         return false;
 
     grid.setCellGate(gate, x, y);
+    gates.append(gate);
 
     return true;
 }

@@ -127,6 +127,8 @@ public:
 
     QList<Key*> getKeyEvents() { return keyEvents; }
 
+    QList<Gate*> getGates() { return gates; }
+
     QString getZoneName() { return zoneName; }
 
     Zone* getZone() { return zone; }
@@ -215,6 +217,7 @@ private:
     int height, width;                          /*!< The height and width of this area. */
     int stageID;                                /*!< The mission stage that this area belongs to. */
     QList<Key*> keyEvents;                      /*!< The key events that take place in this area. */
+    QList<Gate*> gates;                         /*!< The gates contained in this area. */
     QList<Link*> links;                         /*!< This area's links to other areas. */
 };
 
