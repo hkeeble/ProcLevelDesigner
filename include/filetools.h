@@ -158,6 +158,13 @@ const QString ELE_STARTING_MAP = "starting_map";
 const QString OBJ_ABILITY = "ability";
 const QString ELE_VALUE = "value";
 
+// Testing data
+const QString OBJ_SPACE_DATA = "space_data";
+const QString OBJ_MISSION_DATA = "mission_data";
+const QString ELE_KEY_LOCK_COUNT = "key_lock_count";
+const QString ELE_GATE_LOCK_COUNT = "gate_lock_count";
+const QString ELE_MAX_KEY_DIST = "max_key_dist";
+
 // Program Preferences
 const QString DAT_PREFERENCES = QDir::currentPath() + QDir::separator() + "preferences.dat";
 const QString OBJ_PREFERENCES = "preferences";

@@ -24,6 +24,7 @@
 #include "missionstructurescene.h"
 #include "spacescene.h"
 #include "dragdroplistmodel.h"
+#include "sessionmonitor.h"
 
 namespace Ui {
 class EditorWindow;
@@ -116,6 +117,8 @@ private:
 
     void clearRunningGame(); /*!< Clears the running game process if neccesary. */
 
+    void saveSessionMonitorData();
+
     QProcess* runningGame; /*!< The currently running game process. */
 
     Ui::EditorWindow *ui;   /*!< Pointer to the window UI elements. */
@@ -147,6 +150,9 @@ private:
 
     // The status bar
     QStatusBar* _statusBar;
+
+    // The current session monitor used for testing
+    SessionMonitor currentSessionMonitor;
 };
 
 #endif // EDITORWINDOW_H

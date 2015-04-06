@@ -59,7 +59,10 @@ SOURCES += \
     src/ui/abilitymodel.cpp \
     src/dragdroplistmodel.cpp \
     src/mission/missiongenerationoptions.cpp \
-    src/space/spacegenerationoptions.cpp
+    src/space/spacegenerationoptions.cpp \
+    src/testing/sessionmonitor.cpp \
+    src/testing/missiongenerationdata.cpp \
+    src/testing/spacegenerationdata.cpp
 
 HEADERS  += \
     include/common.h \
@@ -105,7 +108,10 @@ HEADERS  += \
     include/ui/abilitymodel.h \
     include/dragdroplistmodel.h \
     include/mission/missiongenerationoptions.h \
-    include/space/spacegenerationoptions.h
+    include/space/spacegenerationoptions.h \
+    include/testing/sessionmonitor.h \
+    include/testing/spacegenerationdata.h \
+    include/testing/missiongenerationdata.h
 
 FORMS    += \
     ui/editorwindow.ui \
@@ -126,6 +132,7 @@ INCLUDEPATH += include \
                include/space \
                include/entities \
                include/scripts \
+               include/testing \
 
 # Copy Data & Script Files to build
 data.path = $${OUT_PWD}/game_data

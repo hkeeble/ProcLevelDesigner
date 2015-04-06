@@ -120,6 +120,9 @@ void EditorWindow::on_actionExit_triggered()
 void EditorWindow::on_actionSave_Quest_triggered()
 {
     quest.saveData();
+
+    // Save out session monitor data
+    saveSessionMonitorData();
 }
 
 void EditorWindow::on_actionClose_triggered()
@@ -318,12 +321,17 @@ void EditorWindow::on_removeGateButton_clicked()
 void EditorWindow::on_generateMissionButton_clicked()
 {
     if(quest.space.isClear())
+    {
         quest.mission.generate(); // Generate the mission here
+        currentSessionMonitor.addMissionGenerationData(quest.mission);
+    }
     else
     {
         if(QMessageBox::warning(this, "Warning", "Generating new mission structure will delete any existing space. Are you sure?",
                                 QMessageBox::Yes | QMessageBox::No) == QMessageBox::Button::Yes) {
             quest.mission.generate();
+
+            currentSessionMonitor.addMissionGenerationData(quest.mission);
         }
     }
 }
@@ -391,6 +399,8 @@ void EditorWindow::on_generateSpaceButton_clicked()
     }
 
     quest.space.generate(quest.mission);
+
+    currentSessionMonitor.addSpaceGenerationData(quest.space);
 }
 
 /* ------------------------------------------------------------------
@@ -423,6 +433,9 @@ bool EditorWindow::openQuest(QString path)
 
         // Set the space for the space scene to monitor for updates
         spaceScene->setSpace(&quest.space);
+
+        // Initialize the session monitor
+        currentSessionMonitor.clear();
 
         return true;
     }
@@ -631,4 +644,12 @@ void EditorWindow::on_clearKeyButton_pressed()
                             QMessageBox::Yes | QMessageBox::No) == QMessageBox::Button::Yes) {
         quest.mission.clearKeys();
     }
+}
+
+void EditorWindow::saveSessionMonitorData()
+{
+    Table* table = new Table(quest.getRootDir().absolutePath() + QDir::separator() + "session_data.dat");
+    currentSessionMonitor.build(table);
+    table->saveToDisk();
+    delete table;
 }
