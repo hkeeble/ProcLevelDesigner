@@ -218,8 +218,7 @@ void EditorWindow::on_actionRun_triggered()
     quest.saveMaps();
 
     // Run the game
-    runningGame = ApplicationDispatcher::RunThroughTerminal(this, "solarus",
-                                                            QStringList() << quest.getExecutableDir().absolutePath(), true);
+    runningGame = ApplicationDispatcher::RunThroughTerminal(this, preferences.getSolarusPath(), QStringList() << quest.getExecutableDir().absolutePath(), true);
 }
 
 void EditorWindow::on_actionSet_Solarus_Directory_triggered()
@@ -228,9 +227,11 @@ void EditorWindow::on_actionSet_Solarus_Directory_triggered()
     if(dialog->exec() == QDialog::Accepted)
     {
         if(dialog->isDefault())
-            preferences.setSolarusPath("DEFAULT");
+            preferences.setSolarusPath("solarus");
         else
+        {
             preferences.setSolarusPath(dialog->getPath());
+        }
     }
 
     delete dialog;
@@ -250,13 +251,35 @@ void EditorWindow::on_actionOpen_Recent_Quest_triggered(QAction* action)
  * ------------------------------------------------------------------*/
 void EditorWindow::on_newKeyEventButton_clicked()
 {
-    EditKeyEvent* dialog = new EditKeyEvent(quest.mission.getKeyEventList(), this);
+    EditKeyEvent* dialog = new EditKeyEvent(this);
     if(dialog->exec() == QDialog::Accepted)
     {
         quest.mission.addKeyEvent(dialog->getName(), Key(dialog->getName(), dialog->getType(), dialog->getMessage()));
         updateKeyList();
     }
     delete dialog;
+}
+
+
+void EditorWindow::on_editKeyEventButton_clicked()
+{
+    Key* editKey = getSelectedKey();
+
+    if(editKey != nullptr)
+    {
+        EditKeyEvent* dialog = new EditKeyEvent(editKey, this);
+        if(dialog->exec() == QDialog::Accepted)
+        {
+            editKey->setName(dialog->getName());
+            editKey->setType(dialog->getType());
+            editKey->setMessage(dialog->getMessage());
+            updateKeyList();
+        }
+
+        delete dialog;
+    }
+    else
+        QMessageBox::warning(this, "Error", "Cannot edit key, no key selected.", QMessageBox::Ok);
 }
 
 void EditorWindow::on_removeKeyEventButton_clicked()
@@ -280,22 +303,8 @@ void EditorWindow::on_removeKeyEventButton_clicked()
 
 void EditorWindow::on_newGateButton_clicked()
 {
-    // Get list of key names, and remove those that already exist.
     QList<QString> keyNames = quest.mission.getKeyEventNameList();
-    QList<Gate*> gates = quest.mission.getGateList();
-    for(Gate* gate : gates)
-    {
-        QList<Key*> keys = gate->getKeys();
-        for(Key* key : keys)
-        {
-            if(keyNames.contains(key->getName()))
-            {
-                keyNames.removeOne(key->getName());
-            }
-        }
-    }
-
-    EditGateDialog* dialog = new EditGateDialog(quest.mission.getGateList(), keyNames, this);
+    EditGateDialog* dialog = new EditGateDialog(keyNames, this);
     if(dialog->exec() == QDialog::Accepted)
     {
         QList<Key*> keys;
@@ -309,23 +318,53 @@ void EditorWindow::on_newGateButton_clicked()
     delete dialog;
 }
 
+void EditorWindow::on_editGateButton_clicked()
+{
+    QVariant selected = ui->gateList->currentIndex().data();
+    if(!selected.isNull())
+    {
+        Gate* selectedGate = quest.mission.getGate(selected.toString());
+        if(selectedGate != nullptr)
+        {
+            EditGateDialog* dialog = new EditGateDialog(selectedGate, quest.mission.getKeyEventNameList(), this);
+            if(dialog->exec() == QDialog::Accepted)
+            {
+                QList<Key*> keys;
+                for(QString keyName : dialog->getKeys())
+                    keys.append(quest.mission.getKeyEvent(keyName));
+
+                selectedGate->setKeys(keys);
+
+                selectedGate->setName(dialog->getName());
+                selectedGate->setTriggered(dialog->isTriggered());
+                selectedGate->setType(dialog->getType());
+
+                updateGateList();
+            }
+            delete dialog;
+        }
+        else
+            QMessageBox::warning(this, "Error", "Cannot edit gate, not found in list.", QMessageBox::Ok);
+    }
+    else
+        QMessageBox::warning(this, "Error", "Cannot edit gate, no gate selected.", QMessageBox::Ok);
+
+
+}
+
 void EditorWindow::on_removeGateButton_clicked()
 {
     Gate* removeGate = getSelectedGate();
 
     if(removeGate != nullptr)
     {
-        if(QMessageBox::question(this, "Removing Gate", "Are you sure you wish to remove this gate from the mission? This will clear any existing \
-                                        space generation.",
+        if(QMessageBox::question(this, "Removing Gate", "Are you sure you wish to remove this gate from the mission?",
                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
         {
             if(!quest.mission.removeGate(removeGate->getName()))
                 QMessageBox::warning(this, "Error", "Could not remove gate, not found in item collection!", QMessageBox::Ok);
             else
-            {
                 updateGateList();
-                quest.space.clear();
-            }
         }
     }
     else
@@ -342,14 +381,6 @@ void EditorWindow::on_generateMissionButton_clicked()
                                 QMessageBox::Yes | QMessageBox::No) == QMessageBox::Button::Yes) {
             quest.mission.generate();
         }
-    }
-}
-
-void EditorWindow::on_pushButton_clicked()
-{
-    if(QMessageBox::warning(this, "Warning", "This will clear all keys currently placed in the mission. Are you sure?",
-                            QMessageBox::Yes | QMessageBox::No) == QMessageBox::Button::Yes) {
-        quest.mission.clearKeys();
     }
 }
 
@@ -409,10 +440,13 @@ void EditorWindow::on_removeZoneButton_clicked()
 
 void EditorWindow::on_generateSpaceButton_clicked()
 {
-    if(quest.space.getZoneList().size() > 0)
-        quest.space.generate(quest.mission);
-    else
-        QMessageBox::warning(this, "Error", "Please ensure at least one zone exists before generating space.", QMessageBox::Ok);
+    if(quest.space.getZoneList().size() == 0)
+    {
+        QMessageBox::warning(this, "Error", "Quest must have at least one zone type before generating space.");
+        return;
+    }
+
+    quest.space.generate(quest.mission);
 }
 
 /* ------------------------------------------------------------------
@@ -610,7 +644,12 @@ void EditorWindow::on_tabView_currentChanged(int index)
 {
     if(index == 1)
     {
-        if(!quest.mission.validate())
+        if(quest.mission.getGateList().length() == 0)
+        {
+            QMessageBox::warning(this, "Error", "Mission structure must contain at least one gate for space to be generated.");
+            ui->tabView->setCurrentIndex(0);
+        }
+        else if(!quest.mission.validate())
         {
             QMessageBox::warning(this, "Error", "Mission structure must use all keys before generating space.", QMessageBox::Button::Ok);
             ui->tabView->setCurrentIndex(0);
@@ -640,4 +679,12 @@ void EditorWindow::on_maxAreasSlider_valueChanged(int value)
 {
     ui->maxAreasLabel->setText(QString::number(value));
     quest.space.getOptions().setMaximumAreasPerStage(value);
+}
+
+void EditorWindow::on_clearKeyButton_pressed()
+{
+    if(QMessageBox::warning(this, "Warning", "This will clear all keys currently placed in the mission. Are you sure?",
+                            QMessageBox::Yes | QMessageBox::No) == QMessageBox::Button::Yes) {
+        quest.mission.clearKeys();
+    }
 }

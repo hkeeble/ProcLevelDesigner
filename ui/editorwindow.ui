@@ -308,6 +308,12 @@
               <widget class="QGraphicsView" name="structureView"/>
              </item>
              <item>
+              <widget class="QStackedWidget" name="stackedWidget">
+               <widget class="QWidget" name="page"/>
+               <widget class="QWidget" name="page_2"/>
+              </widget>
+             </item>
+             <item>
               <widget class="QPushButton" name="generateMissionButton">
                <property name="text">
                 <string>Generate</string>
@@ -315,7 +321,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="pushButton">
+              <widget class="QPushButton" name="clearKeyButton">
                <property name="text">
                 <string>Clear Keys</string>
                </property>
@@ -616,7 +622,7 @@
      <x>0</x>
      <y>0</y>
      <width>921</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuProcedural_Level_Designer">

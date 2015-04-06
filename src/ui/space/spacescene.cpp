@@ -85,7 +85,8 @@ void SpaceScene::spaceUpdated()
         {
             for(int y = 0; y < grid->getHeight(); y++)
             {
-                if(grid->getCell(x,y).isTraversable() == false || grid->getCell(x,y).hasGate() || grid->getCell(x,y).hasKey())
+                if(grid->getCell(x,y).isTraversable() == false || grid->getCell(x,y).hasGate() || grid->getCell(x,y).hasKey() ||
+                        (area->getLocation() == space->getStartingArea() && QPoint(x,y) == space->getStartingLocation()))
                 {
                     int xr = location.x()*areaCellWidth;
                     int yr = location.y()*areaCellHeight;
@@ -105,6 +106,10 @@ void SpaceScene::spaceUpdated()
                     {
                         gridTile->setBrush(QBrush(keyColor));
                         keys.append(KeyTile(grid->getCell(x,y).getKey(), gridTile));
+                    }
+                    else if(area->getLocation() == space->getStartingArea() && QPoint(x,y) == space->getStartingLocation())
+                    {
+                        gridTile->setBrush(QBrush(Qt::blue));
                     }
                 }
             }
@@ -149,6 +154,16 @@ void SpaceScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
             msg += "Belongs to Stage: " + QString::number(area.getArea()->getStageID());
             msg += " - Contains Key Events: " + keysConcat;
             msg += " - Contains Gates: " + gatesConcat;
+
+            if(area.getArea()->getKeyEvents().length() > 0)
+            {
+                msg += " Keys: ";
+                for(Key* key : area.getArea()->getKeyEvents())
+                {
+                    msg += key->getName() + ", ";
+                }
+                msg.remove(msg.length()-2, 2);
+            }
 
             statusBar->showMessage(msg);
         }

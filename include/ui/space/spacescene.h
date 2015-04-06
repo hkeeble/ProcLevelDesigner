@@ -97,6 +97,9 @@ private:
 
     Space* space;
     QGraphicsRectItem* gridParent;
+
+    QGraphicsRectItem* playerStart;
+
     QVector<QVector<QGraphicsRectItem*>> gridTiles;
     QVector<QGraphicsRectItem*> blockedTiles;
 

@@ -36,14 +36,19 @@ void MapScript::addSwitch(SwitchEntity switchEntity)
 void MapScript::addDoor(Door door, QList<Key*> keys)
 {
     // Construct the neccesary script
-    QString ifStatement = "if(";
-    for(int i = 0; i < keys.size(); i++)
+    QString ifStatement;
+
+    if(keys.size() > 0)
     {
-        ifStatement += "game:get_value(\"" + keys[i]->getName() + "Active\") == true";
-        if(i != keys.size()-1)
-            ifStatement += " and ";
-        else
-            ifStatement += ") then";
+        ifStatement += "if(";
+        for(int i = 0; i < keys.size(); i++)
+        {
+            ifStatement += "game:get_value(\"" + keys[i]->getName() + "Active\") == true";
+            if(i != keys.size()-1)
+                ifStatement += " and ";
+            else
+                ifStatement += ") then";
+        }
     }
 
     QString result = "map:open_doors(\"" + door.getName() + "\")";
