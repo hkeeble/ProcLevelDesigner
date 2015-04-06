@@ -251,35 +251,13 @@ void EditorWindow::on_actionOpen_Recent_Quest_triggered(QAction* action)
  * ------------------------------------------------------------------*/
 void EditorWindow::on_newKeyEventButton_clicked()
 {
-    EditKeyEvent* dialog = new EditKeyEvent(this);
+    EditKeyEvent* dialog = new EditKeyEvent(quest.mission.getKeyEventList(), this);
     if(dialog->exec() == QDialog::Accepted)
     {
         quest.mission.addKeyEvent(dialog->getName(), Key(dialog->getName(), dialog->getType(), dialog->getMessage()));
         updateKeyList();
     }
     delete dialog;
-}
-
-
-void EditorWindow::on_editKeyEventButton_clicked()
-{
-    Key* editKey = getSelectedKey();
-
-    if(editKey != nullptr)
-    {
-        EditKeyEvent* dialog = new EditKeyEvent(editKey, this);
-        if(dialog->exec() == QDialog::Accepted)
-        {
-            editKey->setName(dialog->getName());
-            editKey->setType(dialog->getType());
-            editKey->setMessage(dialog->getMessage());
-            updateKeyList();
-        }
-
-        delete dialog;
-    }
-    else
-        QMessageBox::warning(this, "Error", "Cannot edit key, no key selected.", QMessageBox::Ok);
 }
 
 void EditorWindow::on_removeKeyEventButton_clicked()
@@ -304,7 +282,7 @@ void EditorWindow::on_removeKeyEventButton_clicked()
 void EditorWindow::on_newGateButton_clicked()
 {
     QList<QString> keyNames = quest.mission.getKeyEventNameList();
-    EditGateDialog* dialog = new EditGateDialog(keyNames, this);
+    EditGateDialog* dialog = new EditGateDialog(quest.mission.getGateList(), keyNames, this);
     if(dialog->exec() == QDialog::Accepted)
     {
         QList<Key*> keys;
@@ -316,40 +294,6 @@ void EditorWindow::on_newGateButton_clicked()
         updateGateList();
     }
     delete dialog;
-}
-
-void EditorWindow::on_editGateButton_clicked()
-{
-    QVariant selected = ui->gateList->currentIndex().data();
-    if(!selected.isNull())
-    {
-        Gate* selectedGate = quest.mission.getGate(selected.toString());
-        if(selectedGate != nullptr)
-        {
-            EditGateDialog* dialog = new EditGateDialog(selectedGate, quest.mission.getKeyEventNameList(), this);
-            if(dialog->exec() == QDialog::Accepted)
-            {
-                QList<Key*> keys;
-                for(QString keyName : dialog->getKeys())
-                    keys.append(quest.mission.getKeyEvent(keyName));
-
-                selectedGate->setKeys(keys);
-
-                selectedGate->setName(dialog->getName());
-                selectedGate->setTriggered(dialog->isTriggered());
-                selectedGate->setType(dialog->getType());
-
-                updateGateList();
-            }
-            delete dialog;
-        }
-        else
-            QMessageBox::warning(this, "Error", "Cannot edit gate, not found in list.", QMessageBox::Ok);
-    }
-    else
-        QMessageBox::warning(this, "Error", "Cannot edit gate, no gate selected.", QMessageBox::Ok);
-
-
 }
 
 void EditorWindow::on_removeGateButton_clicked()
