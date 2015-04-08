@@ -308,8 +308,9 @@ void Space::generate(Mission& mission)
     {
         Area& area = iter.value();
         generateLinks(area);
-        generateGates(mission, stageLinks);
     }
+
+    generateGates(mission, stageLinks);
 
     // Select a starting area in stage 1
     QList<Area*> firstStageAreas = generatedAreas.find(stages.first()).value();

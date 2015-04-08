@@ -411,6 +411,9 @@ bool EditorWindow::openQuest(QString path)
     quest.clear();
     quest = Quest(path);
 
+    _statusBar->clearMessage();
+    _statusBar->showMessage("Loading quest...");
+
     if(quest.Init()) // Attempt to initialize quest from the given path
     {
         // Populate the trees and set window title
@@ -437,13 +440,17 @@ bool EditorWindow::openQuest(QString path)
         // Initialize the session monitor
         currentSessionMonitor.clear();
 
+        _statusBar->clearMessage();
+
         return true;
     }
     else
     {
         QMessageBox::warning(this, "Error", "No valid quest was found in this folder.", QMessageBox::Ok);
+        _statusBar->clearMessage();
         return false;
     }
+
 }
 
 void EditorWindow::createNewQuest(QString name, QString folderPath)

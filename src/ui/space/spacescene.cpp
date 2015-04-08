@@ -154,17 +154,6 @@ void SpaceScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
             msg += "Belongs to Stage: " + QString::number(area.getArea()->getStageID());
             msg += " - Contains Key Events: " + keysConcat;
             msg += " - Contains Gates: " + gatesConcat;
-
-            if(area.getArea()->getKeyEvents().length() > 0)
-            {
-                msg += " Keys: ";
-                for(Key* key : area.getArea()->getKeyEvents())
-                {
-                    msg += key->getName() + ", ";
-                }
-                msg.remove(msg.length()-2, 2);
-            }
-
             statusBar->showMessage(msg);
         }
         else

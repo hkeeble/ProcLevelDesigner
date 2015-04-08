@@ -192,8 +192,20 @@ Area Area::Parse(Object* obj, QString filePath, QList<Key*> keys, QList<Gate*> g
     area.stageID = obj->find(ELE_ID, "0").toInt();
 
     // Initialize and parse grid data
-    QScopedPointer<Table> gridTable(new Table(filePath + QDir::separator() + QString::number(x) + QString::number(y) + DAT_EXT));
+    QScopedPointer<Table> gridTable(new Table(filePath + QDir::separator() + "x" + QString::number(x) + "y" + QString::number(y) + DAT_EXT));
     area.grid = Grid::Parse(gridTable.data(), area.getWidth() * AREA_TILE_SIZE, area.getHeight() * AREA_TILE_SIZE, keys, gates);
+
+    // Should be replaced such that these work the same as keys...
+    for(int x = 0; x < area.getGrid()->getWidth(); x++)
+    {
+        for(int y = 0; y < area.getGrid()->getHeight(); y++)
+        {
+            if(area.getCell(x, y).hasGate())
+            {
+                gates.append(area.getCell(x, y).getGate());
+            }
+        }
+    }
 
     return area;
 }
@@ -222,7 +234,7 @@ void Area::build(Object* obj, QString filePath)
         obj->insert(ELE_ZONE, zone->getName());
 
     // Build the grid (and save it to disk, as it is not managed by the quest data management system as of yet)
-    QScopedPointer<Table> cellTable(new Table(filePath + QDir::separator() + QString::number(location.x()) + QString::number(location.y()) + ".dat"));
+    QScopedPointer<Table> cellTable(new Table(filePath + QDir::separator() + "x" + QString::number(location.x()) + "y" + QString::number(location.y()) + ".dat"));
     grid.build(cellTable.data());
     cellTable.data()->saveToDisk();
 }

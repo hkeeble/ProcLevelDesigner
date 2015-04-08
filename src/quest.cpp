@@ -49,6 +49,7 @@ bool Quest::Init()
         hero.build(heroData); // Build the hero data (in case it has just been created)
 
         initialized = true;
+
         return true;
     }
 }
