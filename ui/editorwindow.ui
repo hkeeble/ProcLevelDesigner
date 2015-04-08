@@ -308,12 +308,6 @@
               <widget class="QGraphicsView" name="structureView"/>
              </item>
              <item>
-              <widget class="QStackedWidget" name="stackedWidget">
-               <widget class="QWidget" name="page"/>
-               <widget class="QWidget" name="page_2"/>
-              </widget>
-             </item>
-             <item>
               <widget class="QPushButton" name="generateMissionButton">
                <property name="text">
                 <string>Generate</string>
